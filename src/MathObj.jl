@@ -1,9 +1,11 @@
-export σx, σz, σy, σi, ⊗, plus, minus, comm, comm!, Hamiltonian
+export σx, σz, σy, σi, σ, ⊗, plus, minus, comm, comm!, Hamiltonian
+export @comm
 
 const σx = [0.0+0.0im 1; 1 0]
 const σy = [0.0+0.0im -1.0im; 1.0im 0]
 const σz = [1.0+0.0im 0; 0 -1]
 const σi = [1.0+0.0im 0; 0 1]
+const σ = [σx, σy, σz, σi]
 const plus = [1.0+0.0im, 1.0] / sqrt(2)
 const minus = [1.0+0.0im, -1.0] / sqrt(2)
 
@@ -16,6 +18,14 @@ Calculate the commutator of matrices 'A' and 'B'
 """
 function comm(A, B)
     A*B - B*A
+end
+
+macro comm(A, B)
+    return :($(esc(A))*$(esc(B))-$(esc(B))*$(esc(A)))
+end
+
+macro acomm(A, B)
+    return :($(esc(A))*$(esc(B))+$(esc(B))*$(esc(A)))
 end
 
 """
