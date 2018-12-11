@@ -5,6 +5,12 @@ using Test
     @test σx⊗σz == kron(σx,σz)
 end
 
+@testset "PauliDecomp" begin
+    v = 1.0*σx + 2.0*σy + 3.0*σz
+    res = matrix_decompose(v, [σx,σy,σz])
+    @test isapprox(res, [1.0,2.0,3.0])
+end
+
 @testset "Unitary" begin
     hfun(t) = 5*σx
     sol = calculate_unitary(hfun)

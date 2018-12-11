@@ -11,7 +11,7 @@ export q_translate, construct_hamming_weight_op
 """
     q_translate(h::String)
 
-Convert a string 'h' representing multi-qubits Pauli matrices summation into its numerical form.
+Convert a string `h` representing multi-qubits Pauli matrices summation into its numerical form.
 
 # Examples
 ```julia-repl
