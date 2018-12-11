@@ -4,6 +4,7 @@ using LinearAlgebra
 include("MathObj.jl")
 include("HAnalysis.jl")
 include("PauliDecomp.jl")
+include("Unitary.jl")
 export q_translate, construct_hamming_weight_op
 
 # == translate string to hamiltonian matrices ==
