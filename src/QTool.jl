@@ -41,7 +41,7 @@ Construct the Hamming weight operator for system of size 'num_qubit'. The type o
 
 # Examples
 ```julia-repl
-construct_hamming_weight_op(2,"z")
+julia> construct_hamming_weight_op(2,"z")
 4×4 Array{Complex{Float64},2}:
  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im
  0.0+0.0im  1.0+0.0im  0.0+0.0im  0.0+0.0im
