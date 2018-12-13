@@ -17,7 +17,7 @@ const PauliVec = [xvec, yvec, zvec]
 """
     comm(A, B)
 
-Calculate the commutator of matrices 'A' and 'B'
+Calculate the commutator of matrices `A` and `B`
 """
 function comm(A, B)
     A*B - B*A
@@ -26,7 +26,7 @@ end
 """
     comm!(Y, A, B)
 
-Calculate the commutator of matrices 'A' and 'B'. Write the result in 'Y'
+Calculate the commutator of matrices `A` and `B`. Write the result in `Y`
 """
 function comm!(Y, A, B)
     mul!(Y,A,B)
@@ -43,7 +43,7 @@ struct Hamiltonian
     n_qubit::Int64
 end
 
-" Evaluate the Hamiltonian at time 't' "
+" Evaluate the Hamiltonian at time `t` "
 function (h::Hamiltonian)(t::Real)
     res = zeros(h.m[1])
     for (f,m) in zip(h.f,h.m)
@@ -94,32 +94,32 @@ function eigen_value_eval(hfun, t::AbstractArray{Float64,1}; levels::Array{Int64
 end
 
 """
-    function inst_population(ode_sol, hamiltonian; level::Int64=1)
+    function inst_population(t, states, hamiltonian; level=1)
 
-Calculate the population of instantaneous eigen states specified by `level`, given array of quantum states `ode_sol`. `ode_sol` should have fields: `t` and `u`.
+For a time series quantum states given by `states`, whose time points are given by `t`, calculate the population of instantaneous eigenstates of `hamiltonian`. The levels of the instantaneous eigenstates are specified by `level`, which can be any slice index.
 """
-function inst_population(ode_sol, hamiltonian; level::Int64=1)
-    pop = Array{Array{Float64, 1}, 1}(undef, length(ode_sol.t))
-    for i in eachindex(ode_sol.t)
-        hmat = hamiltonian(ode_sol.t[i])
+function inst_population(t, states, hamiltonian; level=1:1)
+    if typeof(level)<:Int
+        level = level:level
+    end
+    pop = Array{Array{Float64, 1}, 1}(undef, length(t))
+    for (i, v) in enumerate(t)
+        hmat = hamiltonian(v)
         eig_sys = eigen(Hermitian(hmat))
-        if ndims(ode_sol.u[i]) == 1
-            inst_state = view(eig_sys.vectors,:,1:level)'
-            pop[i] = abs2.(inst_state * ode_sol.u[i])
-        elseif ndims(ode_sol.u[i]) == 2
-            temp = Array{Float64, 1}(undef, level)
-            for j in range(1, length=level)
+        if ndims(states[i]) == 1
+            inst_state = view(eig_sys.vectors,:,level)'
+            pop[i] = abs2.(inst_state * states[i])
+        elseif ndims(states[i]) == 2
+            l = length(level)
+            temp = Array{Float64, 1}(undef, l)
+            for j in range(1, length=l)
                 inst_state = view(eig_sys.vectors,:,j)
-                temp[j] = real(inst_state'*ode_sol.u[i]*inst_state)
+                temp[j] = real(inst_state'*states[i]*inst_state)
             end
             pop[i] = temp
         end
     end
-    if level==1
-        return [x[1] for x in pop]
-    else
-        return pop
-    end
+    pop
 end
 
 """

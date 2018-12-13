@@ -37,7 +37,7 @@ end
 """
     construct_hamming_weight_op(num_qubit::Int64, op::String)
 
-Construct the Hamming weight operator for system of size 'num_qubit'. The type of the Hamming weight operator is specified by op: "x", "y" or "z".
+Construct the Hamming weight operator for system of size `num_qubit`. The type of the Hamming weight operator is specified by op: "x", "y" or "z".
 
 # Examples
 ```julia-repl

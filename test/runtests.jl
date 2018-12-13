@@ -11,6 +11,14 @@ end
     @test isapprox(res, [1.0,2.0,3.0])
 end
 
+@testset "MathObj" begin
+    hfun(s) = (1-s)*σx + s*σz
+    t = [0.0, 1.0]
+    states = [PauliVec[1][2], PauliVec[1][1]]
+    res = inst_population(t, states, hfun, level=1:2)
+    @test isapprox(res, [[1.0,0],[0.5,0.5]])
+end
+
 @testset "Unitary" begin
     hfun(t) = 5*σx
     sol = calculate_unitary(hfun)
