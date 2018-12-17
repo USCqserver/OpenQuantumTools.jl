@@ -1,5 +1,5 @@
 export σx, σz, σy, σi, σ, ⊗, PauliVec, comm, comm!, Hamiltonian
-export matrix_decompose
+export matrix_decompose, check_positivity
 export eigen_value_eval, eigen_state_eval, inst_population
 
 const σx = [0.0+0.0im 1; 1 0]
@@ -139,4 +139,19 @@ julia> matrix_decompose(1.0*σx+2.0*σy+3.0*σz, [σx,σy,σz])
 function matrix_decompose(mat::Array{T,2}, basis::Array{Array{T,2},1}) where T<:Number
     dim = size(basis[1])[1]
     [tr(mat*b)/dim for b in basis]
+end
+
+"""
+    check_positivity(m)
+
+Check if matrix `m` is positive. Internally it compares the minimum eigen value of `m` to 0.
+"""
+function check_positivity(m::Array{T,2}) where T<:Number
+    if !ishermitian(m)
+        @warn "Input fails the numerical test for Hermitian matrix. Use the upper triangle to construct a new Hermitian matrix."
+        d = Hermitian(m)
+    else
+        d = m
+    end
+    eigmin(d) > 0
 end
