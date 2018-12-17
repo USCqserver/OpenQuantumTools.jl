@@ -10,18 +10,23 @@ _k = 1.38064852
 
 """
     temperature_2_beta(T; unit=:h)
+
 Convert temperature from mK to unit*β
 """
 function temperature_2_beta(T; unit=:h)
     if unit == :h
         return 5*_h/_k/pi/T
-    else
+    elseif unit == :ħ
         return 10*_h/_k/T
+    else
+        @error "Function only support units of h or ħ"
+        return missing
     end
 end
 
 """
     temperature_2_freq(T)
+
 Convert temperature from mK to GHz(physical unit)
 """
 function temperature_2_freq(T)

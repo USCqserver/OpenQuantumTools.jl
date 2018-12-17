@@ -3,12 +3,15 @@ using Test
 
 @testset "Matrix Manipulation" begin
     @test σx⊗σz == kron(σx,σz)
-end
-
-@testset "PauliDecomp" begin
+    # === matrix decomposition
     v = 1.0*σx + 2.0*σy + 3.0*σz
     res = matrix_decompose(v, [σx,σy,σz])
     @test isapprox(res, [1.0,2.0,3.0])
+    # === positivity test ===
+    r = rand(2)
+    m = r[1]*PauliVec[1][2]*PauliVec[1][2]' + r[2]*PauliVec[1][1]*PauliVec[1][1]'
+    @test check_positivity(m)
+    @test !check_positivity(σx)
 end
 
 @testset "MathObj" begin
