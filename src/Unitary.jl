@@ -1,4 +1,3 @@
-using DifferentialEquations
 export calculate_unitary, unitary_check
 
 """
