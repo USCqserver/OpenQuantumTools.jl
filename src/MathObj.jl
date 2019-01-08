@@ -1,6 +1,6 @@
 export σx, σz, σy, σi, σ, ⊗, PauliVec, comm, comm!, Hamiltonian
 export matrix_decompose, check_positivity
-export eigen_value_eval, eigen_state_eval, inst_population
+export eigen_value_eval, eigen_state_eval, inst_population, gibbs_state
 
 const σx = [0.0+0.0im 1; 1 0]
 const σy = [0.0+0.0im -1.0im; 1.0im 0]
@@ -154,4 +154,29 @@ function check_positivity(m::Array{T,2}) where T<:Number
         d = m
     end
     eigmin(d) > 0
+end
+
+"""
+    gibbs_state(h, β)
+
+Calculate the Gibbs state of the matrix `h` at temperature `β`.
+
+# Examples
+```julia-repl
+julia> gibbs_state(σz, 0.1)
+2×2 Array{Complex{Float64},2}:
+ 0.119203+0.0im       0.0+0.0im
+      0.0+0.0im  0.880797+0.0im
+```
+"""
+function gibbs_state(h, β)
+    res = zeros(eltype(h), size(h))
+    Z = 0.0
+    eig_sys = eigen(Hermitian(h))
+    for (i, E) in enumerate(eig_sys.values)
+        t = exp(-β*E)
+        BLAS.syr!('U', Complex(t), eig_sys.vectors[:, i], res)
+        Z += t
+    end
+    res/Z
 end

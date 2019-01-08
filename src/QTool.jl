@@ -1,6 +1,7 @@
 module QTool
 
 using LinearAlgebra
+using DifferentialEquations
 include("MathObj.jl")
 include("Unitary.jl")
 include("QUnit.jl")
