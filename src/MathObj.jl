@@ -1,6 +1,7 @@
 export σx, σz, σy, σi, σ, ⊗, PauliVec, comm, comm!, Hamiltonian
 export matrix_decompose, check_positivity
 export eigen_value_eval, eigen_state_eval, inst_population, gibbs_state
+export low_level_hamiltonian
 
 const σx = [0.0+0.0im 1; 1 0]
 const σy = [0.0+0.0im -1.0im; 1.0im 0]
@@ -45,7 +46,7 @@ end
 
 " Evaluate the Hamiltonian at time `t` "
 function (h::Hamiltonian)(t::Real)
-    res = zeros(h.m[1])
+    res = zeros(ComplexF64, size(h.m[1]))
     for (f,m) in zip(h.f,h.m)
         axpy!(f(t),m,res)
     end
@@ -164,19 +165,46 @@ Calculate the Gibbs state of the matrix `h` at temperature `β`.
 # Examples
 ```julia-repl
 julia> gibbs_state(σz, 0.1)
-2×2 Array{Complex{Float64},2}:
- 0.119203+0.0im       0.0+0.0im
-      0.0+0.0im  0.880797+0.0im
-```
+2×2 LinearAlgebra.Hermitian{Complex{Float64},Array{Complex{Float64},2}}:
+ 0.450166+0.0im       0.0+0.0im
+      0.0-0.0im  0.549834+0.0im
 """
 function gibbs_state(h, β)
-    res = zeros(eltype(h), size(h))
+    res = zeros(ComplexF64, size(h))
     Z = 0.0
     eig_sys = eigen(Hermitian(h))
     for (i, E) in enumerate(eig_sys.values)
         t = exp(-β*E)
-        BLAS.syr!('U', Complex(t), eig_sys.vectors[:, i], res)
+        BLAS.her!('U', t, eig_sys.vectors[:, i], res)
         Z += t
     end
-    res/Z
+    Hermitian(res/Z)
+end
+
+"""
+    low_level_hamiltonian(h, levels)
+
+Calculate the Hamiltonian `h` projected to lower energy subspace containing `levels` energy levels.
+
+# Examples
+```julia-repl
+julia> low_level_hamiltonian(σx⊗σx, 2)
+4×4 LinearAlgebra.Hermitian{Complex{Float64},Array{Complex{Float64},2}}:
+ -0.5+0.0im  0.0+0.0im  0.0+0.0im   0.5+0.0im
+  0.0-0.0im  0.0+0.0im  0.0+0.0im   0.0+0.0im
+  0.0-0.0im  0.0-0.0im  0.0+0.0im   0.0+0.0im
+  0.5-0.0im  0.0-0.0im  0.0-0.0im  -0.5+0.0im
+"""
+function low_level_hamiltonian(h, levels)
+    if levels > size(h)[1]
+        @warn "Subspace dimension bigger than total dimension."
+        return h
+    else
+        eig_sys = eigen(Hermitian(h))
+        res = zeros(eltype(h), size(h))
+        for i in levels
+            BLAS.her!('U', eig_sys.values[i], eig_sys.vectors[:, i], res)
+        end
+        return Hermitian(res)
+    end
 end

@@ -16,6 +16,8 @@ end
 
 @testset "MathObj" begin
     hfun(s) = (1-s)*σx + s*σz
+    hobj = Hamiltonian([(x)->1-x, (x)->x], [σx, σz])
+    @test hfun(0.5) == hobj(0.5)
     t = [0.0, 1.0]
     states = [PauliVec[1][2], PauliVec[1][1]]
     res = inst_population(t, states, hfun, level=1:2)
