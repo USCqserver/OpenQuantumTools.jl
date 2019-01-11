@@ -190,10 +190,10 @@ Calculate the Hamiltonian `h` projected to lower energy subspace containing `lev
 ```julia-repl
 julia> low_level_hamiltonian(σx⊗σx, 2)
 4×4 LinearAlgebra.Hermitian{Complex{Float64},Array{Complex{Float64},2}}:
- -0.5+0.0im  0.0+0.0im  0.0+0.0im   0.5+0.0im
-  0.0-0.0im  0.0+0.0im  0.0+0.0im   0.0+0.0im
-  0.0-0.0im  0.0-0.0im  0.0+0.0im   0.0+0.0im
-  0.5-0.0im  0.0-0.0im  0.0-0.0im  -0.5+0.0im
+ -0.5+0.0im   0.0+0.0im   0.0+0.0im   0.5+0.0im
+  0.0-0.0im  -0.5+0.0im   0.5+0.0im   0.0+0.0im
+  0.0-0.0im   0.5-0.0im  -0.5+0.0im   0.0+0.0im
+  0.5-0.0im   0.0-0.0im   0.0-0.0im  -0.5+0.0im
 """
 function low_level_hamiltonian(h, levels)
     if levels > size(h)[1]
@@ -202,7 +202,7 @@ function low_level_hamiltonian(h, levels)
     else
         eig_sys = eigen(Hermitian(h))
         res = zeros(eltype(h), size(h))
-        for i in levels
+        for i in range(1,stop=levels)
             BLAS.her!('U', eig_sys.values[i], eig_sys.vectors[:, i], res)
         end
         return Hermitian(res)
