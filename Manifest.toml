@@ -101,9 +101,9 @@ version = "4.31.2"
 
 [[DiffEqBiological]]
 deps = ["Compat", "DataStructures", "DiffEqBase", "DiffEqJump", "MacroTools", "Random", "Reexport", "Statistics", "SymEngine", "Test"]
-git-tree-sha1 = "1a107ec930651bfe528f69633c34e5548c335c22"
+git-tree-sha1 = "d8ea0d20ceff026d4d11b0274c331ba1a82e303d"
 uuid = "eb300fae-53e8-50a0-950c-e21f52c2b7e0"
-version = "3.4.1"
+version = "3.4.2"
 
 [[DiffEqCallbacks]]
 deps = ["DataStructures", "DiffEqBase", "LinearAlgebra", "OrdinaryDiffEq", "RecipesBase", "RecursiveArrayTools", "StaticArrays", "Test"]
@@ -420,9 +420,9 @@ uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 
 [[PoissonRandom]]
 deps = ["Random", "Statistics", "Test"]
-git-tree-sha1 = "831a15553303ad6ee277503672b51d1abfd83d38"
+git-tree-sha1 = "99d878d6de90bbf73bca7c970c1a25386b16b11f"
 uuid = "e409e4f3-bfea-5376-8464-e040bb5c01ab"
-version = "0.3.0"
+version = "0.3.1"
 
 [[PositiveFactorizations]]
 deps = ["LinearAlgebra", "Test"]

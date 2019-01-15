@@ -1,7 +1,9 @@
+using Optim
+
 export σx, σz, σy, σi, σ, ⊗, PauliVec, comm, comm!, Hamiltonian
 export matrix_decompose, check_positivity
 export eigen_value_eval, eigen_state_eval, inst_population, gibbs_state
-export low_level_hamiltonian
+export low_level_hamiltonian, minimum_gap
 
 const σx = [0.0+0.0im 1; 1 0]
 const σy = [0.0+0.0im -1.0im; 1.0im 0]
@@ -207,4 +209,17 @@ function low_level_hamiltonian(h, levels)
         end
         return Hermitian(res)
     end
+end
+
+"""
+    minimum_gap(h)
+
+Calculate the minimum gap of Hamiltonian `h` using Optim.jl package.
+"""
+function minimum_gap(h)
+    function gap(s)
+        eig_sys = eigen(Hermitian(h(s)))
+        eig_sys.values[2]-eig_sys.values[1]
+    end
+    optimize(gap, 0.0, 1.0)
 end
