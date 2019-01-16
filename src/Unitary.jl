@@ -31,3 +31,12 @@ function unitary_check(𝐔::Array{T,2}; rtol=1e-6, atol=1e-8) where T<:Number
     a2 = isapprox(𝐔'*𝐔, Matrix{eltype(𝐔)}(I,size(𝐔)),rtol=rtol,atol=atol)
     a1 && a2
 end
+
+function solve_schrodinger(𝐇, u0; rtol=1e-6,atol=1e-8)
+    function f(du, u, p, t)
+        hmat = -1.0im * 𝐇(t)
+        mul!(du, hmat, u)
+    end
+    prob = ODEProblem(f, u0, (0.0,1.0))
+    sol = solve(prob,Tsit5(),reltol=rtol,abstol=atol)
+end
