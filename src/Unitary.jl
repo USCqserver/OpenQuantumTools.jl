@@ -1,4 +1,4 @@
-export calculate_unitary, unitary_check
+export calculate_unitary, unitary_check, solve_schrodinger
 
 """
     calculate_unitary(𝐇; rtol=1e-6, atol=1e-8)
