@@ -32,3 +32,9 @@ end
     @test unitary_check(u_res)
     @test !unitary_check([0 1; 0 0])
 end
+
+@testset "Hamiltonian Tools" begin
+    @test ising_terms(["x"],[2],0.5,2) == 0.5*σi⊗σx
+    @test ising_terms(["z","z"],[1,2],1,3) == σz⊗σz⊗σi
+    @test standard_driver(2) == σx⊗σi + σi⊗σx
+end

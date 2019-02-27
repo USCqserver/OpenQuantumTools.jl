@@ -5,7 +5,7 @@ using DifferentialEquations
 include("MathObj.jl")
 include("Unitary.jl")
 include("QUnit.jl")
-export q_translate, construct_hamming_weight_op
+export q_translate, construct_hamming_weight_op, ising_terms, standard_driver
 
 # == translate string to hamiltonian matrices ==
 """
@@ -33,6 +33,28 @@ function operator_map(x)
         res = res * "σ"*lowercase(x[i]) * "⊗"
     end
     res = res * "σ"*lowercase(x[end])
+end
+
+function ising_terms(ops, q_ind, weight, num_qubit)
+    res = weight
+    for i in 1:num_qubit
+        idx = findfirst((x)->x==i, q_ind)
+        if idx != nothing
+            op2 = eval(Meta.parse("σ"*lowercase(ops[idx])))
+            res = res ⊗ op2
+        else
+            res = res ⊗ σi
+        end
+    end
+    res
+end
+
+function standard_driver(num_qubit)
+    res = ""
+    for idx in 1:num_qubit
+        res = res * "I"^(idx-1)*"X"*"I"^(num_qubit-idx) *"+"
+    end
+    q_translate(res[1:end-1])
 end
 
 """
