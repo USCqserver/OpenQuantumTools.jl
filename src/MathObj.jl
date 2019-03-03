@@ -71,14 +71,23 @@ function eigen_state_eval(hfun, t::AbstractArray{Float64,1}; levels::Array{Int64
         eig_sys = eigen(Hermitian(hfun(t[i])))
         res[i] = [eig_sys.vectors[:,x] for x in levels]
     end
+    res
+end
+
+"""
+    eigen_state_continuation!(eigen_states, t::AbstractArray{Float64,1})
+
+Give a list of `eigen_states` at different time `t`, adjust the sign of each eigen state such that the inner product between the neighboring eigen states are positive.
+"""
+function eigen_state_continuation!(eigen_states, t::AbstractArray{Float64,1})
+    res_dim = length(eigen_states[1])
     for i in range(2,stop=length(t))
         for j in range(1,length=res_dim)
-            if real(res[i][j]'*res[i-1][j]) < 0
-                res[i][j] = -res[i][j]
+            if real(eigen_states[i][j]'*eigen_states[i-1][j]) < 0
+                eigen_states[i][j] = -eigen_states[i][j]
             end
         end
     end
-    res
 end
 
 """
@@ -94,6 +103,23 @@ function eigen_value_eval(hfun, t::AbstractArray{Float64,1}; levels::Array{Int64
         res[i] = [eig_sys.values[x] for x in levels]
     end
     res
+end
+
+"""
+    eigen_sys_eval(hfun, t[, levels])
+
+Calculate the eigen values and eigen states of Hamiltonian `hfun` at each points of `t`. The output levels are specified by `levels` argument.
+"""
+function eigen_sys_eval(hfun, t::AbstractArray{Float64,1}; levels::Array{Int64,1}=[1,])
+    res_dim = length(levels)
+    res_value = Array{Array{Float64,1},1}(undef, length(t))
+    res_vector = Array{Array{Array{ComplexF64,1},1},1}(undef, length(t))
+    for i in eachindex(t)
+        eig_sys = eigen(Hermitian(hfun(t[i])))
+        res_value[i] = [eig_sys.values[x] for x in levels]
+        res_vector[i] = [eig_sys.vectors[:,x] for x in levels]
+    end
+    res_value, res_vector
 end
 
 """
