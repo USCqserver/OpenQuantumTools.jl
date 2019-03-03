@@ -2,7 +2,7 @@ using Optim
 
 export σx, σz, σy, σi, σ, ⊗, PauliVec, comm, comm!, Hamiltonian
 export matrix_decompose, check_positivity
-export eigen_value_eval, eigen_state_eval, inst_population, gibbs_state
+export eigen_value_eval, eigen_state_eval, inst_population, gibbs_state, eigen_sys_eval, eigen_state_continuation!
 export low_level_hamiltonian, minimum_gap
 
 const σx = [0.0+0.0im 1; 1 0]
