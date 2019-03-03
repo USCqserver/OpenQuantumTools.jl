@@ -22,6 +22,7 @@ end
     states = [PauliVec[1][2], PauliVec[1][1]]
     res = inst_population(t, states, hfun, level=1:2)
     @test isapprox(res, [[1.0,0],[0.5,0.5]])
+    @test isapprox(eigen_value_eval(hobj, [0.0, 0.5], levels=[1,2]), [[-1.0, 1.0], [-1.0, 1.0]/sqrt(2)])
 end
 
 @testset "Unitary" begin

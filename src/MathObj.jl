@@ -75,14 +75,13 @@ function eigen_state_eval(hfun, t::AbstractArray{Float64,1}; levels::Array{Int64
 end
 
 """
-    eigen_state_continuation!(eigen_states, t::AbstractArray{Float64,1})
+    eigen_state_continuation!(eigen_states)
 
-Give a list of `eigen_states` at different time `t`, adjust the sign of each eigen state such that the inner product between the neighboring eigen states are positive.
+Give a list of `eigen_states` at different time, adjust the sign of each eigen state such that the inner product between the neighboring eigen states are positive.
 """
-function eigen_state_continuation!(eigen_states, t::AbstractArray{Float64,1})
-    res_dim = length(eigen_states[1])
-    for i in range(2,stop=length(t))
-        for j in range(1,length=res_dim)
+function eigen_state_continuation!(eigen_states)
+    for i in range(2,stop=length(eigen_states))
+        for j in range(1,length=length(eigen_states[1]))
             if real(eigen_states[i][j]'*eigen_states[i-1][j]) < 0
                 eigen_states[i][j] = -eigen_states[i][j]
             end
