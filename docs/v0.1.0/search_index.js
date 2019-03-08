@@ -17,11 +17,35 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Define-mathematical-symbols-and-operations-1",
+    "location": "index.html#Math-Symbols-1",
     "page": "Home",
-    "title": "Define mathematical symbols and operations",
+    "title": "Math Symbols",
     "category": "section",
-    "text": "The package defines some commonly used mathematical symbols and operators. For example, the single qubit Pauli matrices are defined by σx, σy, σz and σi. One can simply calculate the tensor product of single qubits Pauli matrices byjulia> σx⊗σz\r\n4×4 Array{Complex{Float64},2}:\r\n 0.0+0.0im   0.0+0.0im  1.0+0.0im   0.0+0.0im\r\n 0.0+0.0im  -0.0+0.0im  0.0+0.0im  -1.0+0.0im\r\n 1.0+0.0im   0.0+0.0im  0.0+0.0im   0.0+0.0im\r\n 0.0+0.0im  -1.0+0.0im  0.0+0.0im  -0.0+0.0im"
+    "text": "The package defines some commonly used mathematical symbols and operators. Some of its features include:"
+},
+
+{
+    "location": "index.html#Pauli-Matrices-1",
+    "page": "Home",
+    "title": "Pauli Matrices",
+    "category": "section",
+    "text": "Single qubit Pauli matrices are defined by σx, σy, σz and σi. One can simply calculate the tensor product of single qubits Pauli matrices byjulia> σx⊗σz\r\n4×4 Array{Complex{Float64},2}:\r\n 0.0+0.0im   0.0+0.0im  1.0+0.0im   0.0+0.0im\r\n 0.0+0.0im  -0.0+0.0im  0.0+0.0im  -1.0+0.0im\r\n 1.0+0.0im   0.0+0.0im  0.0+0.0im   0.0+0.0im\r\n 0.0+0.0im  -1.0+0.0im  0.0+0.0im  -0.0+0.0imThe eigenvectors of each Pauli matrices are also defined in constant PauliVec, where PauliVec[1],PauliVec[2],PauliVec[3] corresponds to eigenvectors of σx, σy, σz. Additionally, the first eigenvector is the one with positive eigenvaluejulia> σz*PauliVec[3][1] == PauliVec[3][1]\r\ntrue"
+},
+
+{
+    "location": "index.html#Construction-of-Multi-Qubits-Matrices-1",
+    "page": "Home",
+    "title": "Construction of Multi-Qubits Matrices",
+    "category": "section",
+    "text": "Multi-qubits matrices can be construct with two different methods."
+},
+
+{
+    "location": "index.html#Hamiltonian-1",
+    "page": "Home",
+    "title": "Hamiltonian",
+    "category": "section",
+    "text": ""
 },
 
 {
@@ -29,7 +53,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "QTool.PauliVec",
     "category": "constant",
-    "text": "PauliVec\n\nConstants for the eigen vectors of single qubit Pauli matrices. Indices 1, 2 and 3 corresponds to the eigen vectors of σ_x, σ_y and σ_z.\n\nExamples\n\njulia> σx*PauliVec[1][1] == PauliVec[1][1]\ntrue\n\n\n\n\n\n"
+    "text": "PauliVec\n\nConstants for the eigenvectors of single qubit Pauli matrices. Indices 1, 2 and 3 corresponds to the eigenvectors of σ_x, σ_y and σ_z.\n\nExamples\n\njulia> σx*PauliVec[1][1] == PauliVec[1][1]\ntrue\n\n\n\n\n\n"
 },
 
 {
@@ -205,7 +229,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public",
     "title": "Public",
     "category": "page",
-    "text": "Modules = [QTool]\nPrivate = false"
+    "text": "Modules = [QTool]\r\nPrivate = false"
 },
 
 ]}
