@@ -63,7 +63,14 @@ function comm!(Y, A, B)
     axpy!(-1.0,B*A,Y)
 end
 
-" Object to hold general time dependent Hamiltonians, whose form is assumed to be a summation of time dependent function times constant matrices. "
+"""
+Object to hold general time dependent Hamiltonians, whose form is assumed to be a summation of time dependent function times constant matrices.
+
+**Fields**
+- `f` -- list of time dependent functions.
+- `m` -- list of constant matrices.
+- `n_qubit` -- total number of qubits.
+"""
 struct Hamiltonian
     " List of time dependent functions "
     f::Array{Function, 1}
