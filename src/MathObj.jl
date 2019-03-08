@@ -13,8 +13,35 @@ const σ = [σx, σy, σz, σi]
 xvec = [[1.0+0.0im, 1.0]/sqrt(2), [1.0+0.0im, -1.0]/sqrt(2)]
 yvec = [[1.0im, -1.0]/sqrt(2), [1.0im, 1.0]/sqrt(2)]
 zvec = [[1.0+0.0im, 0], [0, 1.0+0.0im]]
+
+"""
+    PauliVec
+
+Constants for the eigenvectors of single qubit Pauli matrices. Indices 1, 2 and 3 corresponds to the eigenvectors of ``σ_x``, ``σ_y`` and ``σ_z``.
+
+# Examples
+```julia-repl
+julia> σx*PauliVec[1][1] == PauliVec[1][1]
+true
+```
+"""
 const PauliVec = [xvec, yvec, zvec]
 
+"""
+    ⊗(A, B)
+
+Calculate the tensor product of `A` and `B`.
+
+# Examples
+```julia-repl
+julia> σx⊗σz
+4×4 Array{Complex{Float64},2}:
+ 0.0+0.0im   0.0+0.0im  1.0+0.0im   0.0+0.0im
+ 0.0+0.0im  -0.0+0.0im  0.0+0.0im  -1.0+0.0im
+ 1.0+0.0im   0.0+0.0im  0.0+0.0im   0.0+0.0im
+ 0.0+0.0im  -1.0+0.0im  0.0+0.0im  -0.0+0.0im
+```
+"""
 ⊗ = kron
 
 """
