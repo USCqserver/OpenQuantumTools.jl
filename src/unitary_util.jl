@@ -1,5 +1,3 @@
-export calculate_unitary, unitary_check, solve_schrodinger, solve_von_neumann
-
 """
     calculate_unitary(𝐇; rtol=1e-6, atol=1e-8)
 

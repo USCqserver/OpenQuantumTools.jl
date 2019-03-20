@@ -34,8 +34,9 @@ end
     @test !unitary_check([0 1; 0 0])
 end
 
-@testset "Hamiltonian Tools" begin
+@testset "Hamiltonian Utility" begin
     @test ising_terms(["x"],[2],0.5,2) == 0.5*σi⊗σx
     @test ising_terms(["z","z"],[2,3],-2,4) == -2*σi⊗σz⊗σz⊗σi
     @test standard_driver(2) == σx⊗σi + σi⊗σx
+    @test collective_operator("z", 3) ≈ σz⊗σi⊗σi + σi⊗σz⊗σi + σi⊗σi⊗σz
 end

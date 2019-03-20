@@ -1,6 +1,3 @@
-export ħ, Planck, Boltzmann
-export temperature_2_beta, temperature_2_freq
-
 ħ = 1.054571800e-34
 Planck = 6.626070040e-34
 Boltzmann = 1.38064852e-23

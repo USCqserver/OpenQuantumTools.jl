@@ -1,11 +1,12 @@
 name = "QTool"
 uuid = "e8834dde-9baa-11e8-0b86-8102e36a51ba"
 authors = ["Huo Chen <neversakura@hotmail.com>"]
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
+Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
