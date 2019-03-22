@@ -93,3 +93,17 @@ function check_positivity(m::Array{T,2}) where T<:Number
     end
     eigmin(d) > 0
 end
+
+# function partial_trace(ρ, qubit_2_keep)
+#     num_qubit = Int(log2(size(rho,1)))
+#     qubit_axis = [(i, num_qubit + i) for i in range(1,stop=num_qubit) if !(i in qubit_2_keep)]
+#     minus_factor = [(i, 2 * i) for i in range(0,stop=length(qubit_axis)-1)]
+#     minus_qubit_axis = [(q[1] - m[1], q[2] - m[2])
+#                         for (q, m) in zip(qubit_axis, minus_factor)]
+#     ρ_res = reshape(ρ, repeat([2,2], num_qubit)...)
+#     qubit_left = num_qubit - length(qubit_axis)
+#     res = zeros(eltype(ρ), 2^qubit_left)
+#     for (i, j) in minus_qubit_axis
+#         res += ρ
+#     end
+# end

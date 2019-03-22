@@ -119,3 +119,11 @@ function construct_hamming_weight_op(num_qubit::Int64, op::String)
     end
     rmul!(res, 0.5)
 end
+
+function GHZ_entanglement_witness(num_qubit)
+    s = collective_operator("z", num_qubit)
+    for k in 2:num_qubit
+        s += ising_terms(["z","z"], [k-1,k], 1.0, num_qubit)
+    end
+    (num_qubit-1)I - s
+end

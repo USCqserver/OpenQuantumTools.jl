@@ -3,16 +3,22 @@ module QTool
 using Reexport
 using Optim # optimize package is used to find minimal gap
 @reexport using LinearAlgebra
-@reexport using DifferentialEquations
+
+# functions needed for noise module
+import SpecialFunctions.trigamma
+
+# end import for noise module
+
+include("load_util.jl")
 include("hamiltonian_construction_util.jl")
 include("hamiltonian_obj.jl")
 include("unit_util.jl")
 include("unitary_util.jl")
 include("math_util.jl")
 
+export load_diff_eq
 
-
-export q_translate, construct_hamming_weight_op, ising_terms, standard_driver, collective_operator
+export q_translate, construct_hamming_weight_op, ising_terms, standard_driver, collective_operator, GHZ_entanglement_witness
 
 export ħ, Planck, Boltzmann
 export temperature_2_beta, temperature_2_freq
@@ -20,6 +26,8 @@ export temperature_2_beta, temperature_2_freq
 export calculate_unitary, unitary_check, solve_schrodinger, solve_von_neumann
 
 export Hamiltonian, eigen_value_eval, eigen_state_eval, inst_population, gibbs_state, eigen_sys_eval, eigen_state_continuation!, low_level_hamiltonian, minimum_gap
+
+export OhmicBath, γ, correlation
 
 
 end # end module

@@ -219,9 +219,9 @@ version = "0.1.1"
 
 [[LazyArrays]]
 deps = ["FillArrays", "LinearAlgebra", "StaticArrays", "Test"]
-git-tree-sha1 = "e2761d301816f261b5c6ce7ae0c4718ac1669c25"
+git-tree-sha1 = "5e65ca3ab05ae82e441fa51e9e91fb3fca1e7bb5"
 uuid = "5078a376-72f3-5289-bfd5-ec5146d43c02"
-version = "0.6.0"
+version = "0.7.0"
 
 [[LibGit2]]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
@@ -293,9 +293,9 @@ version = "0.3.2"
 
 [[Optim]]
 deps = ["Calculus", "DiffEqDiffTools", "ForwardDiff", "LineSearches", "LinearAlgebra", "NLSolversBase", "NaNMath", "Parameters", "PositiveFactorizations", "Printf", "Random", "SparseArrays", "StatsBase", "Test"]
-git-tree-sha1 = "0f2a6c6ff9db396cc7af15bb1cf057a26662ff17"
+git-tree-sha1 = "ed8d072e6bbab73ab294a11eb37d0dc50a8aeafd"
 uuid = "429524aa-4258-5aef-a3af-852621145aeb"
-version = "0.17.2"
+version = "0.18.0"
 
 [[OrderedCollections]]
 deps = ["Random", "Serialization", "Test"]
@@ -448,9 +448,9 @@ uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 
 [[Sundials]]
 deps = ["BinaryProvider", "DataStructures", "DiffEqBase", "Libdl", "LinearAlgebra", "Reexport", "SparseArrays", "Test"]
-git-tree-sha1 = "e29f8a9555f90d07912df9be35fabca479bbccea"
+git-tree-sha1 = "b3dc62f5b06f621816ab30ef3db5dbf0d3fdd364"
 uuid = "c3572dad-4567-51f8-b174-8c6c989267f4"
-version = "3.2.0"
+version = "3.3.0"
 
 [[TableTraits]]
 deps = ["IteratorInterfaceExtensions", "Test"]

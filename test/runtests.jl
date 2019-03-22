@@ -26,6 +26,7 @@ end
 end
 
 @testset "Unitary" begin
+    load_diff_eq()
     hfun(t) = 5*σx
     sol = calculate_unitary(hfun)
     u_res = exp(-1.0im*5*0.5*σx)
@@ -39,4 +40,8 @@ end
     @test ising_terms(["z","z"],[2,3],-2,4) == -2*σi⊗σz⊗σz⊗σi
     @test standard_driver(2) == σx⊗σi + σi⊗σx
     @test collective_operator("z", 3) ≈ σz⊗σi⊗σi + σi⊗σz⊗σi + σi⊗σi⊗σz
+end
+
+@testset "Qunatum Unit Conversion" begin
+    @test isapprox(temperature_2_freq(1e3), 20.8366176361328, atol=1e-4, rtol=1e-4)
 end
