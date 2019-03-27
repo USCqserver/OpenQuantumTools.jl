@@ -1,5 +1,11 @@
 # This file is machine-generated - editing it directly is not advised
 
+[[Arpack]]
+deps = ["BinaryProvider", "Libdl", "LinearAlgebra", "Random", "SparseArrays", "Test"]
+git-tree-sha1 = "1ce1ce9984683f0b6a587d5bdbc688ecb480096f"
+uuid = "7d9fca2a-8960-54d3-9f78-7d1dccf2cb97"
+version = "0.3.0"
+
 [[ArrayInterface]]
 deps = ["Requires", "Test"]
 git-tree-sha1 = "6a1a371393e56f5e8d5657fe4da4b11aea0bfbae"

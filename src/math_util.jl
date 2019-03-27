@@ -1,7 +1,3 @@
-export σx, σz, σy, σi, σ, ⊗, PauliVec, comm, comm!
-export matrix_decompose, check_positivity
-
-
 const σx = [0.0+0.0im 1; 1 0]
 const σy = [0.0+0.0im -1.0im; 1.0im 0]
 const σz = [1.0+0.0im 0; 0 -1]
@@ -10,6 +6,10 @@ const σ = [σx, σy, σz, σi]
 xvec = [[1.0+0.0im, 1.0]/sqrt(2), [1.0+0.0im, -1.0]/sqrt(2)]
 yvec = [[1.0im, -1.0]/sqrt(2), [1.0im, 1.0]/sqrt(2)]
 zvec = [[1.0+0.0im, 0], [0, 1.0+0.0im]]
+
+const spσz = sparse(σz)
+const spσx = sparse(σx)
+const spσi = sparse(I, 2, 2)
 
 """
     PauliVec

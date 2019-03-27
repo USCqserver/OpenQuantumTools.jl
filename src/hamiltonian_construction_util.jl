@@ -11,18 +11,23 @@ julia> q_translate("X+2.0Z")
  1.0+0.0im  -2.0+0.0im
 ```
 """
-function q_translate(h::String)
-    h_str = replace(h, r"[XYZI]+" => operator_map)
-    @debug "Translated string" h_str
-    eval(Meta.parse(h_str))
-end
-
-function operator_map(x)
-    res = ""
-    for i in range(1, length=length(x)-1)
-        res = res * "σ"*lowercase(x[i]) * "⊗"
+function q_translate(h::String; sp=false)
+    # define operator map to replace [XYZI] with corresponding Pauli matrices
+    function operator_map(x)
+        if sp ==false
+            σ_tag = "σ"
+        else
+            σ_tag = "spσ"
+        end
+        res = ""
+        for i in range(1, length=length(x)-1)
+            res = res * σ_tag * lowercase(x[i]) * "⊗"
+        end
+        res = res * σ_tag * lowercase(x[end])
     end
-    res = res * "σ"*lowercase(x[end])
+
+    h_str = replace(h, r"[XYZI]+" => operator_map)
+    eval(Meta.parse(h_str))
 end
 
 """
@@ -44,15 +49,22 @@ julia> ising_terms(["z", "z"], [1, 3], 0.5, 3)
  0.0+0.0im  -0.0+0.0im  0.0+0.0im  -0.0+0.0im  -0.0+0.0im   0.0-0.0im  -0.0+0.0im   0.5-0.0im
 ```
 """
-function ising_terms(ops, q_ind, weight, num_qubit)
+function ising_terms(ops, q_ind, weight, num_qubit; sp=false)
+    if sp == false
+        σ_tag = "σ"
+        i_tag = σi
+    else
+        σ_tag = "spσ"
+        i_tag = spσi
+    end
     res = weight
     for i in 1:num_qubit
         idx = findfirst((x)->x==i, q_ind)
         if idx != nothing
-            op2 = eval(Meta.parse("σ"*lowercase(ops[idx])))
+            op2 = eval(Meta.parse(σ_tag * lowercase(ops[idx])))
             res = res ⊗ op2
         else
-            res = res ⊗ σi
+            res = res ⊗ i_tag
         end
     end
     res
@@ -73,13 +85,13 @@ julia> collective_operator("z", 2)
  0.0+0.0im  0.0+0.0im  0.0+0.0im  -2.0+0.0im
 ```
 """
-function collective_operator(op, num_qubit)
+function collective_operator(op, num_qubit; sp=false)
     op_name = uppercase(op)
     res = ""
     for idx in 1:num_qubit
         res = res * "I"^(idx-1)*op_name*"I"^(num_qubit-idx) *"+"
     end
-    q_translate(res[1:end-1])
+    q_translate(res[1:end-1]; sp=sp)
 end
 
 """
@@ -87,12 +99,12 @@ end
 
 Construct the standard driver Hamiltonian for a system of `num_qubit` qubits. For example, a two qubits standard driver matrix is `` IX + XI ``.
 """
-function standard_driver(num_qubit)
+function standard_driver(num_qubit; sp=false)
     res = ""
     for idx in 1:num_qubit
         res = res * "I"^(idx-1)*"X"*"I"^(num_qubit-idx) *"+"
     end
-    q_translate(res[1:end-1])
+    q_translate(res[1:end-1], sp=sp)
 end
 
 """
@@ -110,14 +122,8 @@ julia> construct_hamming_weight_op(2,"z")
  0.0+0.0im  0.0+0.0im  0.0+0.0im  2.0+0.0im
 ```
 """
-function construct_hamming_weight_op(num_qubit::Int64, op::String)
-    res = zeros(ComplexF64, (2^num_qubit, 2^num_qubit))
-    for i in range(1, length=num_qubit)
-        op_name = "I"^(i-1) * op * "I"^(num_qubit-i)
-        operator = I - eval(Meta.parse(operator_map(op_name)))
-        res = res + operator
-    end
-    rmul!(res, 0.5)
+function construct_hamming_weight_op(num_qubit::Int64, op::String; sp=false)
+    0.5 * (num_qubit*I - collective_operator(op, num_qubit=num_qubit, sp=sp))
 end
 
 function GHZ_entanglement_witness(num_qubit)
