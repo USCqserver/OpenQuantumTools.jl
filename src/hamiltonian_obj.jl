@@ -90,18 +90,16 @@ function eigen_sys_eval(hfun, t::AbstractArray{Float64,1}; levels::Array{Int64,1
     res_value, res_vector
 end
 
-function sp_eigen_sys_eval(hfun, t::AbstractArray{Float64,1}; sys_real=true, nev=2, which=:SR, tol=1e-4)
-    if sys_real == true
-        hfun_call = (s)->Symmetric(real(hfun(s)))
+function sp_eigen_sys_eval(hfun, t::AbstractArray{Float64,1}; is_real=true, nev=2, which=:SR, tol=1e-4)
+    if is_real == true
         res_vector = Array{Array{Float64, 2}, 1}(undef, length(t))
         res_value = Array{Array{Float64,1},1}(undef, length(t))
     else
-        hfun_call = (s)->Hermitian(hfun(s))
         res_vector = Array{Array{ComplexF64, 2}, 1}(undef, length(t))
         res_value = Array{Array{ComplexF64,1},1}(undef, length(t))
     end
     for (idx, time) in enumerate(t)
-        H =hfun_call(time)
+        H =hfun(time)
         v, Φ = eigs(H, nev=nev, which=which, tol=tol)
         res_value[idx] = v
         res_vector[idx] = Φ
