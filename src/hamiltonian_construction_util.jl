@@ -31,9 +31,9 @@ function q_translate(h::String; sp=false)
 end
 
 """
-    ising_terms(ops, q_ind, weight, num_qubit)
+    ising_terms(ops, q_ind, weight, num_qubit, sp=false)
 
-Construct an ising term of the multi-qubits Hamiltonian. `ops` is a list of Pauli operator names which appears in the ising term. `q_ind` is the list of indices corresponding to the Pauli matrices in `ops`. `weight` is the constant factor of this ising term. `num_qubit` is the total number of qubits. For example, an ising term `` Z_1 I Z_3/2 `` can be constructed as
+Construct an ising term of the multi-qubits Hamiltonian. `ops` is a list of Pauli operator names which appears in the ising term. `q_ind` is the list of indices corresponding to the Pauli matrices in `ops`. `weight` is the constant factor of this ising term. `num_qubit` is the total number of qubits. A sparse matrix can be construct by setting `sp` to `true`. The following example construct an ising term of `` Z_1 I Z_3/2 ``.
 
 # Examples
 ```julia-repl
@@ -132,4 +132,20 @@ function GHZ_entanglement_witness(num_qubit)
         s += ising_terms(["z","z"], [k-1,k], 1.0, num_qubit)
     end
     (num_qubit-1)I - s
+end
+
+function local_field_term(h, idx, num_qubit; sp=false)
+    res = ising_terms(["z"], [idx[1]], h[1], num_qubit, sp=sp)
+    for i in 2:length(idx)
+        res += ising_terms(["z"], [idx[i]], h[i], num_qubit, sp=sp)
+    end
+    res
+end
+
+function two_local_term(j, idx, num_qubit; sp=false)
+    res = ising_terms(["z", "z"], idx[1], j[1], num_qubit, sp=sp)
+    for i in 2:length(idx)
+        res += ising_terms(["z", "z"], idx[i], j[i], num_qubit, sp=sp)
+    end
+    res
 end

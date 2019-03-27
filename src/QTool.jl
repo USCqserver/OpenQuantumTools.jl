@@ -23,7 +23,7 @@ export load_diff_eq
 export σx, σz, σy, σi, σ, ⊗, PauliVec, comm, comm!, spσx, spσz, spσi
 export matrix_decompose, check_positivity
 
-export q_translate, construct_hamming_weight_op, ising_terms, standard_driver, collective_operator, GHZ_entanglement_witness
+export q_translate, construct_hamming_weight_op, ising_terms, standard_driver, collective_operator, GHZ_entanglement_witness, local_field_term, two_local_term
 
 export ħ, Planck, Boltzmann
 export temperature_2_beta, temperature_2_freq
