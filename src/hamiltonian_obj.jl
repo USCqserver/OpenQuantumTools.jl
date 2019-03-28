@@ -174,6 +174,7 @@ julia> low_level_hamiltonian(σx⊗σx, 2)
   0.0-0.0im  -0.5+0.0im   0.5+0.0im   0.0+0.0im
   0.0-0.0im   0.5-0.0im  -0.5+0.0im   0.0+0.0im
   0.5-0.0im   0.0-0.0im   0.0-0.0im  -0.5+0.0im
+```
 """
 function low_level_hamiltonian(h, levels)
     if levels > size(h)[1]

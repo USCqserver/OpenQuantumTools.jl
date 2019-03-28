@@ -31,7 +31,7 @@ function q_translate(h::String; sp=false)
 end
 
 """
-    ising_terms(ops, q_ind, weight, num_qubit, sp=false)
+    ising_terms(ops, q_ind, weight, num_qubit; sp=false)
 
 Construct an ising term of the multi-qubits Hamiltonian. `ops` is a list of Pauli operator names which appears in the ising term. `q_ind` is the list of indices corresponding to the Pauli matrices in `ops`. `weight` is the constant factor of this ising term. `num_qubit` is the total number of qubits. A sparse matrix can be construct by setting `sp` to `true`. The following example construct an ising term of `` Z_1 I Z_3/2 ``.
 
@@ -71,9 +71,9 @@ function ising_terms(ops, q_ind, weight, num_qubit; sp=false)
 end
 
 """
-    collective_operator(op, num_qubit)
+    collective_operator(op, num_qubit; sp=false)
 
-Construct the collective operator for a system of `num_qubit` qubits. `op` is the name of the collective Pauli matrix. For example, the following code construct an `` IZ + ZI `` matrix.
+Construct the collective operator for a system of `num_qubit` qubits. `op` is the name of the collective Pauli matrix. For example, the following code construct an `` IZ + ZI `` matrix. Generate sparse matrix when `sp` is set to true.
 
 # Examples
 ```julia-repl
@@ -95,9 +95,9 @@ function collective_operator(op, num_qubit; sp=false)
 end
 
 """
-    standard_driver(num_qubit)
+    standard_driver(num_qubit; sp=false)
 
-Construct the standard driver Hamiltonian for a system of `num_qubit` qubits. For example, a two qubits standard driver matrix is `` IX + XI ``.
+Construct the standard driver Hamiltonian for a system of `num_qubit` qubits. For example, a two qubits standard driver matrix is `` IX + XI ``. Generate sparse matrix when sp is set to true.
 """
 function standard_driver(num_qubit; sp=false)
     res = ""
@@ -108,9 +108,9 @@ function standard_driver(num_qubit; sp=false)
 end
 
 """
-    construct_hamming_weight_op(num_qubit::Int64, op::String)
+    construct_hamming_weight_op(num_qubit::Int64, op::String; sp=false)
 
-Construct the Hamming weight operator for system of size `num_qubit`. The type of the Hamming weight operator is specified by op: "x", "y" or "z".
+Construct the Hamming weight operator for system of size `num_qubit`. The type of the Hamming weight operator is specified by op: "x", "y" or "z". Generate sparse matrix when sp is set to true.
 
 # Examples
 ```julia-repl

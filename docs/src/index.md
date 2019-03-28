@@ -21,6 +21,7 @@ The eigenvectors of each Pauli matrices are also defined in constant [`PauliVec`
 julia> σz*PauliVec[3][1] == PauliVec[3][1]
 true
 ```
+Additionally, a sparse version of Pauli matrices are defined in ```spσx``` et al. They can be used to construct Hamiltonian in the form of sparse matrix.
 ### Construction of Multi-Qubits Matrices
 Multi-qubits matrices can be construct with two different methods.
 

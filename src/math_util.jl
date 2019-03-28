@@ -9,6 +9,7 @@ zvec = [[1.0+0.0im, 0], [0, 1.0+0.0im]]
 
 const spσz = sparse(σz)
 const spσx = sparse(σx)
+const spσy = sparse(σy)
 const spσi = sparse(I, 2, 2)
 
 """
