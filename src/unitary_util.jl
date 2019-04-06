@@ -39,8 +39,9 @@ function solve_schrodinger(𝐇, u0; kwargs...)
         hmat = 𝐇(t)
         mul!(J, -1.0im, hmat)
     end
-    prob = ODEProblem(f, u0, (0.0,1.0))
-    sol = solve(prob,Tsit5(); kwargs...)
+    ff =ODEFunction(f; jac=f_jac)
+    prob = ODEProblem(ff, u0, (0.0, 1.0))
+    sol = solve(prob, Tsit5(); kwargs...)
 end
 
 function solve_von_neumann(𝐇, u0; kwargs...)
