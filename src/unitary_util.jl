@@ -35,12 +35,16 @@ function solve_schrodinger(𝐇, u0; kwargs...)
         hmat = -1.0im * 𝐇(t)
         mul!(du, hmat, u)
     end
+    function f_jac(J, u, p, t)
+        hmat = 𝐇(t)
+        mul!(J, -1.0im, hmat)
+    end
     prob = ODEProblem(f, u0, (0.0,1.0))
     sol = solve(prob,Tsit5(); kwargs...)
 end
 
 function solve_von_neumann(𝐇, u0; kwargs...)
-    function f(du, u,p ,t)
+    function f(du, u, p ,t)
         hmat = -1.0im * 𝐇(t)
         mul!(du, hmat, u)
         axpy!(-1.0, u*hmat, du)
