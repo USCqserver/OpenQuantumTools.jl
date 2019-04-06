@@ -24,7 +24,7 @@ end
     @test isapprox(res, [[1.0,0],[0.5,0.5]])
     @test isapprox(eigen_value_eval(hobj, [0.0, 0.5], levels=[1,2]), [[-1.0, 1.0], [-1.0, 1.0]/sqrt(2)])
     hfun(s) = -(1-s)*standard_driver(2) + s * (0.1*σz⊗σi + σz⊗σz)
-    sphfun(s) = -(1-s)*standard_driver(2,sp=true) + s * (0.1*spσz⊗spσi + spσz⊗spσz)
+    sphfun(s) = real(-(1-s)*standard_driver(2,sp=true) + s * (0.1*spσz⊗spσi + spσz⊗spσz))
     spw, spv = sp_eigen_sys_eval(sphfun, [0.5])
     w, v = eigen_sys_eval(hfun, [0.5], levels=[1,2])
     @test isapprox(w[1], spw[1], atol=1e-4)
@@ -40,6 +40,8 @@ end
     @test isapprox(u_res, sol(0.5), rtol=1e-6, atol=1e-8)
     @test unitary_check(u_res)
     @test !unitary_check([0 1; 0 0])
+    ode_res = solve_schrodinger(hfun, PauliVec[3][1])
+    @test isapprox(exp(-1.0im*5*σx) * PauliVec[3][1] , ode_res.u[end], rtol=1e-4, atol=1e-4)
 end
 
 @testset "Hamiltonian Utility" begin
