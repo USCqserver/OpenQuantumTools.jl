@@ -33,7 +33,7 @@ export calculate_unitary, unitary_check, solve_schrodinger, solve_von_neumann
 
 export Hamiltonian, eigen_value_eval, eigen_state_eval, inst_population, gibbs_state, eigen_sys_eval, eigen_state_continuation!, low_level_hamiltonian, minimum_gap, sp_eigen_sys_eval
 
-export OhmicBath, γ, correlation, HybridOhmic
+#export OhmicBath, γ, correlation, HybridOhmic
 
 
 end # end module
