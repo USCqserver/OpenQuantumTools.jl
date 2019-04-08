@@ -1,6 +1,9 @@
 using QTool
 using Test
 
+include("qinter.jl")
+include("integration.jl")
+
 @testset "Matrix Manipulation" begin
     @test σx⊗σz == kron(σx,σz)
     # === matrix decomposition
@@ -55,4 +58,13 @@ end
 
 @testset "Qunatum Unit Conversion" begin
     @test isapprox(temperature_2_freq(1e3), 20.8366176361328, atol=1e-4, rtol=1e-4)
+end
+
+@testset "Spectrum functions" begin
+    η=1e-4
+    ωc=8*pi
+    β=1/2.23
+    bath = OhmicBath(η,ωc,β)
+    @test γ(0.0,bath) == 2*pi*η/β
+    @test isapprox(-0.0025132734115775254, S(0.0,bath), atol=1e-6)
 end

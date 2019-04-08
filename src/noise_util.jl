@@ -14,6 +14,12 @@ struct OhmicBath
     β::Float64
 end
 
+function Ohmic(η, fc, T)
+    ωc = 2 * π * fc
+    β = temperature_2_beta(T)
+    OhmicBath(η, ωc, β)
+end
+
 function Base.show(io::IO, ::MIME"text/plain", m::OhmicBath)
     print(io, "Ohmic bath instance:\n", "η (unitless): ", m.η, "\n", "ωc (GHz): ", m.ωc/pi/2,
         "\n", "T (mK): ", beta_2_temperature(m.β))
@@ -67,6 +73,17 @@ function γ(w::Float64, params::OhmicBath)
     else
         return 2* pi* params.η / params.β
     end
+end
+
+"""
+    S(w::Float64, params::OhmicBath; atol=1e-7)
+
+Calculate the Lamb shift of Ohmic spectrum. `atol` is the absolute tolerance for Cauchy principal value integral.
+"""
+function S(w::Float64, params::OhmicBath; atol=1e-7)
+    f(x)= γ(x, params)
+    res = cauchy_principal_value(f, w, atol=atol)
+    -res[1]/2/pi
 end
 
 """
