@@ -3,6 +3,8 @@ using Test
 
 include("qinter.jl")
 include("integration.jl")
+include("adiabatic_me_test.jl")
+
 
 @testset "Matrix Manipulation" begin
     @test σx⊗σz == kron(σx,σz)

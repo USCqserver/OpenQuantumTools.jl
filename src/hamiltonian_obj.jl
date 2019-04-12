@@ -148,6 +148,7 @@ julia> gibbs_state(σz, 0.1)
 2×2 LinearAlgebra.Hermitian{Complex{Float64},Array{Complex{Float64},2}}:
  0.450166+0.0im       0.0+0.0im
       0.0-0.0im  0.549834+0.0im
+```
 """
 function gibbs_state(h, β)
     res = zeros(ComplexF64, size(h))
