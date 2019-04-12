@@ -1,17 +1,12 @@
 module QTool
 
 using Reexport
-using Optim # optimize package is used to find minimal gap
-using Arpack
 @reexport using SparseArrays
 @reexport using LinearAlgebra
 
 include("load_util.jl")
-include("hamiltonian_construction_util.jl")
-include("hamiltonian_obj.jl")
 include("unit_util.jl")
 include("unitary_util.jl")
-include("math_util.jl")
 include("noise_util.jl")
 include("diff_util.jl")
 
@@ -19,6 +14,8 @@ include("QInterpolate/QInterpolate.jl")
 @reexport using .QInterpolate
 include("Integration/Integration.jl")
 @reexport using .Integration
+include("QHamil/QHamil.jl")
+@reexport using .QHamil
 
 export load_diff_eq
 
@@ -31,8 +28,6 @@ export ħ, Planck, Boltzmann
 export temperature_2_beta, temperature_2_freq
 
 export calculate_unitary, unitary_check, solve_schrodinger, solve_von_neumann
-
-export Hamiltonian, eigen_value_eval, eigen_state_eval, inst_population, gibbs_state, eigen_sys_eval, eigen_state_continuation!, low_level_hamiltonian, minimum_gap, sp_eigen_sys_eval
 
 export OhmicBath, Ohmic, γ, S, correlation, HybridOhmic
 

@@ -1,31 +1,35 @@
 """
-Object to hold general time dependent Hamiltonians, whose form is assumed to be a summation of time dependent function times constant matrices.
+    matrix_decompose(mat::Array{T,2}, basis::Array{Array{T,2},1})
 
-**Fields**
-- `f` -- list of time dependent functions.
-- `m` -- list of constant matrices.
-- `n_qubit` -- total number of qubits.
+Decompse matrix `mat` onto matrix basis `basis`
+
+# Examples
+```julia-repl
+julia> matrix_decompose(1.0*σx+2.0*σy+3.0*σz, [σx,σy,σz])
+3-element Array{Complex{Float64},1}:
+ 1.0 + 0.0im
+ 2.0 + 0.0im
+ 3.0 + 0.0im
+```
 """
-struct Hamiltonian
-    " List of time dependent functions "
-    f::Array{Function, 1}
-    " List of constant matrices "
-    m::Array{Array{ComplexF64,2},1}
-    " Total number of qubits "
-    n_qubit::Int64
+function matrix_decompose(mat::Array{T,2}, basis::Array{Array{T,2},1}) where T<:Number
+    dim = size(basis[1])[1]
+    [tr(mat*b)/dim for b in basis]
 end
 
-" Evaluate the Hamiltonian at time `t` "
-function (h::Hamiltonian)(t::Real)
-    res = zeros(ComplexF64, size(h.m[1]))
-    for (f,m) in zip(h.f,h.m)
-        axpy!(f(t),m,res)
+"""
+    check_positivity(m)
+
+Check if matrix `m` is positive. Internally it compares the minimum eigen value of `m` to 0.
+"""
+function check_positivity(m::Array{T,2}) where T<:Number
+    if !ishermitian(m)
+        @warn "Input fails the numerical test for Hermitian matrix. Use the upper triangle to construct a new Hermitian matrix."
+        d = Hermitian(m)
+    else
+        d = m
     end
-    res
-end
-
-function Hamiltonian(f::Array{Function,1},m::Array{Array{T,2},1}) where T<:Number
-    Hamiltonian(f,m,log2(size(m[1])[1]))
+    eigmin(d) > 0
 end
 
 """
@@ -156,7 +160,7 @@ function gibbs_state(h, β)
     eig_sys = eigen(Hermitian(h))
     for (i, E) in enumerate(eig_sys.values)
         t = exp(-β*E)
-        BLAS.her!('U', t, eig_sys.vectors[:, i], res)
+        her!('U', t, eig_sys.vectors[:, i], res)
         Z += t
     end
     Hermitian(res/Z)
@@ -185,7 +189,7 @@ function low_level_hamiltonian(h, levels)
         eig_sys = eigen(Hermitian(h))
         res = zeros(eltype(h), size(h))
         for i in range(1,stop=levels)
-            BLAS.her!('U', eig_sys.values[i], eig_sys.vectors[:, i], res)
+            her!('U', eig_sys.values[i], eig_sys.vectors[:, i], res)
         end
         return Hermitian(res)
     end
