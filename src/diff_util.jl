@@ -13,6 +13,6 @@ function adiabatic_me_update!(du, u, A, γ, S)
             du[a, b] += -0.5 * (Γ[a] + Γ[b]) * u[a, b] + γ[1, 1] * A[a, a] * A[b, b] * u[a, b]
         end
     end
-    H_ls = Diagonal(sum(S .* A2, dims=1))
+    H_ls = Diagonal(sum(S .* A2, dims=1)[1,:])
     axpy!(-1.0im, H_ls*u-u*H_ls, du)
 end

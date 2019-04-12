@@ -16,7 +16,8 @@
     H = -0.5 * standard_driver(2) + 0.5*(0.1*σz⊗σi + 0.5*σz⊗σz)
     op = σz⊗σi + σi⊗σz
     w, v = eigen(Hermitian(H))
-    rho = v[:,1] * v[:,1]'
+    state = (v[:, 1] + v[:, 2] + v[:, 3])/sqrt(3)
+    rho = state* state'
     u = v'*rho*v
     L_ij = Array{Array{Complex{Float64},2}, 2}(undef, (4, 4))
     A_ij = Array{Complex{Float64}, 2}(undef, (4, 4))
@@ -33,7 +34,7 @@
         for j in 1:4
             w_ab[i,j] = w[j] - w[i]
             if i!=j
-                T = L_ij[i,j]'*L_ij[i,j]
+                T = L_ij[i,j]' * L_ij[i,j]
                 push!(drho, gamma(w[j]-w[i])*(L_ij[i,j]*rho*L_ij[i,j]'-0.5*(T*rho+rho*T)))
                 push!(hls, T*Sf(w[j]-w[i]))
             end
