@@ -32,84 +32,57 @@ function check_positivity(m::Array{T,2}) where T<:Number
     eigmin(d) > 0
 end
 
-"""
-    eigen_state_eval(hfun, t[, levels=[1,]])
 
-Calculate the eigen states of Hamiltonian `hfun` at each points of `t`. The output levels are specified by `levels` argument.
 """
-function eigen_state_eval(hfun, t::AbstractArray{Float64,1}; levels::Array{Int64,1}=[1,])
-    res_dim = length(levels)
-    res = Array{Array{Array{ComplexF64,1},1},1}(undef, length(t))
-    for i in eachindex(t)
-        eig_sys = eigen(Hermitian(hfun(t[i])))
-        res[i] = [eig_sys.vectors[:,x] for x in levels]
+    eigen_state_continuation!(eigen_states, reference=nothing)
+
+Give an `eigen_states` matrix with dimension (dim, dim, time), adjust the sign of each eigenstate such that the inner product between the neighboring eigenstates are positive.
+"""
+function eigen_state_continuation!(eigen_states, reference=nothing)
+    dim = size(eigen_states)
+    if reference != nothing
+        for i range(1, length=dim[2])
+            if real(eigen_states[:, i, 1]' * reference[:, i]) < 0
+                eigen_states[:, i, 1] = -eigen_states[:, i, 1]
+            end
+        end
     end
-    res
-end
-
-"""
-    eigen_state_continuation!(eigen_states)
-
-Give a list of `eigen_states` at different time, adjust the sign of each eigen state such that the inner product between the neighboring eigen states are positive.
-"""
-function eigen_state_continuation!(eigen_states)
-    for i in range(2,stop=length(eigen_states))
-        for j in range(1,length=length(eigen_states[1]))
-            if real(eigen_states[i][j]'*eigen_states[i-1][j]) < 0
-                eigen_states[i][j] = -eigen_states[i][j]
+    for i in range(2, stop=size[3])
+        for j in range(1, length=dim[2])
+            if real(eigen_states[:, j, i]' * eigen_states[:, j, i-1]) < 0
+                eigen_states[:, j, i] = -eigen_states[:, j, i]
             end
         end
     end
 end
 
-"""
-    eigen_value_eval(hfun, t[, levels])
-
-Calculate the eigen values of Hamiltonian `hfun` at each points of `t`. The output levels are specified by `levels` argument.
-"""
-function eigen_value_eval(hfun, t::AbstractArray{Float64,1}; levels::Array{Int64,1}=[1,])
-    res_dim = length(levels)
-    res = Array{Array{Float64,1},1}(undef, length(t))
-    for i in eachindex(t)
-        eig_sys = eigen(Hermitian(hfun(t[i])))
-        res[i] = [eig_sys.values[x] for x in levels]
-    end
-    res
-end
 
 """
-    eigen_sys_eval(hfun, t[, levels])
+    eigen_eval(hfun, t; levels=2, tol=1e-4)
 
-Calculate the eigen values and eigen states of Hamiltonian `hfun` at each points of `t`. The output levels are specified by `levels` argument.
+Calculate the eigen values and eigen states of Hamiltonian `hfun` at each points of `t`. The output keeps the lowest `levels` eigenstates and their corresponding eigenvalues. `tol` specifies the error tolerance for sparse matrices decomposition.
 """
-function eigen_sys_eval(hfun, t::AbstractArray{Float64,1}; levels::Array{Int64,1}=[1,])
-    res_dim = length(levels)
-    res_value = Array{Array{Float64,1},1}(undef, length(t))
-    res_vector = Array{Array{Array{ComplexF64,1},1},1}(undef, length(t))
-    for i in eachindex(t)
-        eig_sys = eigen(Hermitian(hfun(t[i])))
-        res_value[i] = [eig_sys.values[x] for x in levels]
-        res_vector[i] = [eig_sys.vectors[:,x] for x in levels]
-    end
-    res_value, res_vector
-end
-
-function sp_eigen_sys_eval(hfun, t::AbstractArray{Float64,1}; is_real=true, nev=2, which=:SR, tol=1e-4)
-    if is_real == true
-        res_vector = Array{Array{Float64, 2}, 1}(undef, length(t))
-        res_value = Array{Array{Float64,1},1}(undef, length(t))
+function eigen_eval(hfun, t::AbstractArray{Float64,1}; levels::Int=2, tol=1e-4)
+    t_dim = length(t)
+    H = hfun(t[1])
+    res_val = Array{eltype(H), 2}(undef, (levels, t_dim))
+    res_vec = Array{eltype(H), 3}(undef, (size(H)[1], levels, t_dim))
+    if issparse(H)
+        eigfun = (x)-> eigs(x, nev=levels, which=:SR, tol=tol)
     else
-        res_vector = Array{Array{ComplexF64, 2}, 1}(undef, length(t))
-        res_value = Array{Array{ComplexF64,1},1}(undef, length(t))
+        eigfun = (x)-> eigen(Hermitian(x))
     end
-    for (idx, time) in enumerate(t)
-        H =hfun(time)
-        v, Φ = eigs(H, nev=nev, which=which, tol=tol)
-        res_value[idx] = v
-        res_vector[idx] = Φ
+    val, vec = eigfun(H)
+    res_val[:, 1] = val[1:levels]
+    res_vec[:, :, 1] = vec[:, 1:levels]
+    for (i, t_val) in enumerate(t[2:end])
+        val, vec = eigfun(hfun(t_val))
+        res_val[:, i+1] = val[1:levels]
+        res_vec[:, :, i+1] = vec[:, 1:levels]
     end
-    res_value, res_vector
+    res_val, res_vec
 end
+
 
 """
     function inst_population(t, states, hamiltonian; level=1)

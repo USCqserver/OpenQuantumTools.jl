@@ -2,7 +2,7 @@ module QHamil
 
 import LinearAlgebra:kron, tr, mul!, axpy!, ishermitian, Hermitian, eigmin, I, eigen
 import LinearAlgebra.BLAS:her!
-import SparseArrays:sparse
+import SparseArrays:sparse, issparse
 import Arpack:eigs
 import Optim:optimize # optimize package is used to find minimal gap
 
@@ -12,7 +12,7 @@ export matrix_decompose, check_positivity
 
 export q_translate, construct_hamming_weight_op, ising_terms, standard_driver, collective_operator, GHZ_entanglement_witness, local_field_term, two_local_term
 
-export Hamiltonian, eigen_value_eval, eigen_state_eval, inst_population, gibbs_state, eigen_sys_eval, eigen_state_continuation!, low_level_hamiltonian, minimum_gap, sp_eigen_sys_eval
+export Hamiltonian, inst_population, gibbs_state, eigen_eval, eigen_state_continuation!, low_level_hamiltonian, minimum_gap
 
 include("matrix_tool.jl")
 include("utility_func.jl")

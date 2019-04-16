@@ -27,14 +27,13 @@ end
     states = [PauliVec[1][2], PauliVec[1][1]]
     res = inst_population(t, states, hfun, level=1:2)
     @test isapprox(res, [[1.0,0],[0.5,0.5]])
-    @test isapprox(eigen_value_eval(hobj, [0.0, 0.5], levels=[1,2]), [[-1.0, 1.0], [-1.0, 1.0]/sqrt(2)])
     hfun(s) = -(1-s)*standard_driver(2) + s * (0.1*σz⊗σi + σz⊗σz)
     sphfun(s) = real(-(1-s)*standard_driver(2,sp=true) + s * (0.1*spσz⊗spσi + spσz⊗spσz))
-    spw, spv = sp_eigen_sys_eval(sphfun, [0.5])
-    w, v = eigen_sys_eval(hfun, [0.5], levels=[1,2])
-    @test isapprox(w[1], spw[1], atol=1e-4)
-    @test isapprox(spv[1][:,1], v[1][1], atol=1e-4) || isapprox(spv[1][:,1], -v[1][1], atol=1e-4)
-    @test isapprox(spv[1][:,2], v[1][2], atol=1e-4) || isapprox(spv[1][:,2], -v[1][2], atol=1e-4)
+    spw, spv = eigen_eval(sphfun, [0.5])
+    w, v = eigen_eval(hfun, [0.5], levels=2)
+    @test isapprox(w, spw, atol=1e-4)
+    @test isapprox(spv[:,1,1], v[:,1,1], atol=1e-4) || isapprox(spv[:,1,1], -v[:,1,1], atol=1e-4)
+    @test isapprox(spv[:,2,1], v[:,2,1], atol=1e-4) || isapprox(spv[:,2,1], -v[:,2,1], atol=1e-4)
 end
 
 @testset "Unitary" begin
