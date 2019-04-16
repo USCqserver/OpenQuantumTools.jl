@@ -41,7 +41,7 @@ Give an `eigen_states` matrix with dimension (dim, dim, time), adjust the sign o
 function eigen_state_continuation!(eigen_states, reference=nothing)
     dim = size(eigen_states)
     if reference != nothing
-        for i range(1, length=dim[2])
+        for i in range(1, length=dim[2])
             if real(eigen_states[:, i, 1]' * reference[:, i]) < 0
                 eigen_states[:, i, 1] = -eigen_states[:, i, 1]
             end
