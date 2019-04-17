@@ -15,6 +15,22 @@ struct OhmicBath
 end
 
 """
+    Ohmic(η, fc, T)
+
+Construct OhmicBath from parameters with physical unit: `η`--unitless interaction strength; `fc`--cutoff frequency in GHz; `T`--temperature in mK.
+"""
+function Ohmic(η, fc, T)
+    ωc = 2 * π * fc
+    β = temperature_2_beta(T)
+    OhmicBath(η, ωc, β)
+end
+
+function Base.show(io::IO, ::MIME"text/plain", m::OhmicBath)
+    print(io, "Ohmic bath instance:\n", "η (unitless): ", m.η, "\n", "ωc (GHz): ", m.ωc/pi/2,
+        "\n", "T (mK): ", beta_2_temperature(m.β))
+end
+
+"""
     γ(w::Float64, params::OhmicBath)
 
 Calculate real part of Ohmic spectrum. The value between [-1000, 1000]*eps() is set to ``2πη/β``.
@@ -64,4 +80,17 @@ function polaron_correlation(τ, params::OhmicBath)
         res *= ( x / sinh(x) )^(4 * params.η)
     end
     res
+end
+
+"""
+    interpolate_spectral_density(ω_grid, params::OhmicBath)
+
+Calculate the Ohmic bath spectral density γ and S on grid `ω_grid`, and construct interpolation objects for them.
+"""
+function interpolate_spectral_density(ω_grid::AbstractRange{T}, params::OhmicBath) where T<: Number
+    γ_list = [γ(ω, params) for ω in ω_grid]
+    s_list = [S(ω, params) for ω in ω_grid]
+    γ_itp = construct_interpolations(ω_grid, γ_list)
+    s_itp = construct_interpolations(ω_grid, s_list)
+    γ_itp, s_itp
 end

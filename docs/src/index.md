@@ -25,4 +25,7 @@ Additionally, a sparse version of Pauli matrices are defined in ```spσx``` et a
 ### Construction of Multi-Qubits Matrices
 Multi-qubits matrices can be construct with two different methods.
 
+### Adiabatic Master Equation
+
+
 ## Hamiltonian

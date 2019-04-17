@@ -83,6 +83,9 @@ function eigen_eval(hfun, t::AbstractArray{Float64,1}; levels::Int=2, tol=1e-4)
     res_val, res_vec
 end
 
+function proj_2lvl(hfun, dh, t_list)
+
+end
 
 """
     function inst_population(t, states, hamiltonian; level=1)

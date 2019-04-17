@@ -1,3 +1,7 @@
+function solve_adiabatic_me(hfun, u0, tf, inter_op, bath)
+
+end
+
 function adiabatic_me_update!(du, u, A, γ, S)
     A2 = abs2.(A)
     γA = γ .* A2
