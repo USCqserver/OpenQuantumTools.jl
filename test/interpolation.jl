@@ -1,4 +1,4 @@
-@testset "Complex interpolations" begin
+@testset "QInterpolation" begin
     # test for complex number interpolation
     x = range(0,stop=10,length=100)
     y1 = Array(x) + 1.0im*Array(x)
@@ -24,9 +24,7 @@
     # Test for complex vector gradient
     res_g_yvec = gradient(inter_yvec, 1.0)
     @test isapprox(res_g_yvec, [1.0+1.0im,-1], atol=1e-6)
-end
-
-@testset "Extrapolation" begin
+    # Test for real number extrapolation
     x = range(1.0,stop=10.0)
     eitp = construct_interpolations(x, Array(x) , extrapolation="line")
     @test isapprox(eitp(0.0),0.0, atol=1e-8)
