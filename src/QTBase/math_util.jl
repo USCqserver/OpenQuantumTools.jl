@@ -247,9 +247,11 @@ function minimum_gap(h)
     optimize(gap, 0.0, 1.0)
 end
 
-function proj_2lvl(hfun, dhfun, s_axis::AbstractArray{T, 1}; reference=nothing, tol=1e-4) where T<:Number
+function proj_2lvl(hfun, dhfun, interaction, s_axis::AbstractArray{T, 1}; reference=nothing, tol=1e-4) where T<:Number
+
     ev = Array{Float64, 2}(undef, (2, length(s_axis)))
     dθ = Array{Float64, 1}(undef, length(s_axis))
+    op = Array{Float64, 2}(undef, (3, length(s_axis)))
 
     H = hfun(s_axis[1])
     dH = dhfun(s_axis[1])
@@ -267,13 +269,17 @@ function proj_2lvl(hfun, dhfun, s_axis::AbstractArray{T, 1}; reference=nothing, 
             end
         end
         ev[:, 1] = w
-        dθ[1] = pv[:, 2]' * dH * pv[:, 1] / (w[2] - w[1])
+        p1 = @view pv[:,1]
+        p2 = @view pv[:,2]
+        dθ[1] = p2' * dH * p1 / (w[2] - w[1])
+        op[1, 1] = p1' * interaction * p1
+        op[2, 1] = p2' * interaction * p2
+        op[3, 1] = p2' * interaction * p1
 
         for (i, s) in enumerate(s_axis[2:end])
             H = hfun(s)
             dH = dhfun(s)
             w, cv = eigs(H, nev=2, which=:SR, tol=tol, v0=pv[:, 1])
-            ev[:, i+1] = w
             for j in 1:2
                 if cv[:, j]' * pv[:, j] < 0
                     pv[:, j] = -cv[:, j]
@@ -281,7 +287,13 @@ function proj_2lvl(hfun, dhfun, s_axis::AbstractArray{T, 1}; reference=nothing, 
                     pv[:, j] = cv[:, j]
                 end
             end
-            dθ[i+1] = pv[:, 2]' * dH * pv[:, 1] / (w[2] - w[1])
+            ev[:, i+1] = w
+            p1 = @view pv[:,1]
+            p2 = @view pv[:,2]
+            dθ[i+1] = p2' * dH * p1 / (w[2] - w[1])
+            op[1, i+1] = p1' * interaction * p1
+            op[2, i+1] = p2' * interaction * p2
+            op[3, i+1] = p2' * interaction * p1
         end
 
     else
@@ -295,13 +307,17 @@ function proj_2lvl(hfun, dhfun, s_axis::AbstractArray{T, 1}; reference=nothing, 
             end
         end
         ev[:, 1] = w
-        dθ[1] = pv[:, 2]' * dH * pv[:, 1] / (w[2] - w[1])
+        p1 = @view pv[:,1]
+        p2 = @view pv[:,2]
+        dθ[1] = p2' * dH * p1 / (w[2] - w[1])
+        op[1, 1] = p1' * interaction * p1
+        op[2, 1] = p2' * interaction * p2
+        op[3, 1] = p2' * interaction * p1
 
         for (i, s) in enumerate(s_axis[2:end])
             H = hfun(s)
             dH = dhfun(s)
             w, cv = eigen!(Hermitian(H))
-            ev[:, i+1] = w
             for j in 1:2
                 if cv[:, j]' * pv[:, j] < 0
                     pv[:, j] = -cv[:, j]
@@ -309,8 +325,14 @@ function proj_2lvl(hfun, dhfun, s_axis::AbstractArray{T, 1}; reference=nothing, 
                     pv[:, j] = cv[:, j]
                 end
             end
-            dθ[i+1] = pv[:, 2]' * dH * pv[:, 1] / (w[2] - w[1])
+            ev[:, i+1] = w
+            p1 = @view pv[:,1]
+            p2 = @view pv[:,2]
+            dθ[i+1] = p2' * dH * p1 / (w[2] - w[1])
+            op[1, i+1] = p1' * interaction * p1
+            op[2, i+1] = p2' * interaction * p2
+            op[3, i+1] = p2' * interaction * p1
         end
     end
-    ev, dθ
+    ev, dθ, op
 end

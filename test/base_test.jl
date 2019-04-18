@@ -22,9 +22,10 @@
     # == Hamiltonian analysis ===
     hfun(s) = (1-s)*real(σx)+ s*real(σz)
     dhfun(s) = -real(σx) + real(σz)
-    ev,dθ = proj_2lvl(hfun, dhfun, [0.0, 0.5, 1.0])
+    ev, dθ, op = proj_2lvl(hfun, dhfun, σz, [0.0, 0.5, 1.0])
     @test ev ≈ [-1.0 -sqrt(0.5) -1.0; 1.0 sqrt(0.5) 1]
-    @test dθ ≈ [-0.5, -1.0, -0.5] 
+    @test dθ ≈ [-0.5, -1.0, -0.5]
+    @test op ≈ [0.0 -sqrt(0.5) -1.0; 0.0 sqrt(0.5) 1; -1.0 -sqrt(0.5) 0.0]
     #hobj = Hamiltonian([(x)->1-x, (x)->x], [σx, σz])
     #@test hfun(0.5) == hobj(0.5)
     t = [0.0, 1.0]
