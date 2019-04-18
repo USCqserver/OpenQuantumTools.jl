@@ -334,5 +334,21 @@ function proj_2lvl(hfun, dhfun, interaction, s_axis::AbstractArray{T, 1}; refere
             op[3, i+1] = p2' * interaction * p1
         end
     end
-    ev, dθ, op
+    ev, dθ, op, pv
 end
+
+#function proj_2lvl(hfun, dhfun, interaction, s_axis; reference=nothing, tol=1e-4)
+#    if eltype(s_axis) <: Number
+#        ev, dθ, op, _ = _proj_2lvl(hfun, dhfun, interaction, s_axis, reference=reference, tol=tol)
+#        return ev, dθ, op
+#    else
+#        res = []
+#        ev, dθ, op, pv = _proj_2lvl(hfun, dhfun, interaction, s_axis[1], reference=reference, tol=tol)
+#        push!(res, (ev, dθ, op))
+#        for i in 2:length(s_axis)
+#            ev, dθ, op, pv = _proj_2lvl(hfun, dhfun, interaction, s_axis[i], reference=pv, tol=tol)
+#            push!(res, (ev, dθ, op))
+#        end
+#        return res
+#    end
+#end
