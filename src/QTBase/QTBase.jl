@@ -1,9 +1,9 @@
 module QTBase
 
 using Reexport
-import LinearAlgebra:kron, mul!, axpy!, I, ishermitian, Hermitian, eigmin, eigen, tr
+import LinearAlgebra:kron, mul!, axpy!, I, ishermitian, Hermitian, eigmin, eigen, tr, eigen!
 import LinearAlgebra.BLAS:her!
-import SparseArrays:sparse, issparse
+import SparseArrays:sparse, issparse, spzeros
 import Arpack:eigs
 import Optim:optimize
 
@@ -15,7 +15,7 @@ export q_translate, construct_hamming_weight_op, ising_terms, standard_driver, c
 
 export matrix_decompose, check_positivity
 
-export inst_population, gibbs_state, eigen_eval, eigen_state_continuation!, low_level_hamiltonian, minimum_gap
+export inst_population, gibbs_state, eigen_eval, eigen_state_continuation!, low_level_hamiltonian, minimum_gap, proj_2lvl
 
 include("math_util.jl")
 include("unit_util.jl")

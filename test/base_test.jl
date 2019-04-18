@@ -20,7 +20,11 @@
     @test local_field_term([-1.0, 0.5], [1,3], 3, sp=true) ≈ -1.0*spσz⊗spσi⊗spσi + 0.5*spσi⊗spσi⊗spσz
     @test two_local_term([-1.0, 0.5], [[1,3],[1,2]], 3) ≈ -1.0*σz⊗σi⊗σz + 0.5*σz⊗σz⊗σi
     # == Hamiltonian analysis ===
-    hfun(s) = (1-s)*σx + s*σz
+    hfun(s) = (1-s)*real(σx)+ s*real(σz)
+    dhfun(s) = -real(σx) + real(σz)
+    ev,dθ = proj_2lvl(hfun, dhfun, [0.0, 0.5, 1.0])
+    @test ev ≈ [-1.0 -sqrt(0.5) -1.0; 1.0 sqrt(0.5) 1]
+    @test dθ ≈ [-0.5, -1.0, -0.5] 
     #hobj = Hamiltonian([(x)->1-x, (x)->x], [σx, σz])
     #@test hfun(0.5) == hobj(0.5)
     t = [0.0, 1.0]
@@ -29,6 +33,7 @@
     @test isapprox(res, [[1.0,0],[0.5,0.5]])
     hfun(s) = -(1-s)*standard_driver(2) + s * (0.1*σz⊗σi + σz⊗σz)
     sphfun(s) = real(-(1-s)*standard_driver(2,sp=true) + s * (0.1*spσz⊗spσi + spσz⊗spσz))
+    spdhfun(s) = real(standard_driver(2,sp=true) + (0.1*spσz⊗spσi + spσz⊗spσz))
     spw, spv = eigen_eval(sphfun, [0.5])
     w, v = eigen_eval(hfun, [0.5], levels=2)
     @test isapprox(w, spw, atol=1e-4)
