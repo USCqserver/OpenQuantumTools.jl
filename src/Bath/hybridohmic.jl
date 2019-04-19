@@ -31,13 +31,13 @@ end
 function polaron_correlation(τ, a, params::HybridOhmicBath)
     η = a * params.η
     ϵ = a * params.ϵ
-    W = a * params.W
+    W2 = a * params.W^2
     ohmic_part = (1+1.0im*params.ωc*τ)^(-4*η)
     if !isapprox(τ, 0, atol = 1e-9)
         x = π * τ / params.β
         ohmic_part *= ( x / sinh(x) )^(4 * η)
     end
-    slow_part = exp( - 2.0 * W^2 * τ^2 - 4.0im * τ * ϵ)
+    slow_part = exp( - 2.0 * W2 * τ^2 - 4.0im * τ * ϵ)
     ohmic_part * slow_part
 end
 
