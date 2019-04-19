@@ -19,7 +19,7 @@ export load_diff_eq
 
 export calculate_unitary, unitary_check, solve_schrodinger, solve_von_neumann
 
-export adiabatic_me_update!
+export adiabatic_me_update!, solve_adiabatic_me
 
 
 end # end module
