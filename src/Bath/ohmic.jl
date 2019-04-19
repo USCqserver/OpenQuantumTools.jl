@@ -62,7 +62,7 @@ end
 
 Calculate the correlation function of Ohmic bath.
 """
-function correlation(τ, params::OhmicBath)
+function correlation(τ, params::Union{OhmicBath, HybridOhmicBath})
     x2 = 1 / params.β / params.ωc
     x1 = 1.0im * τ / params.β
     params.η * (trigamma(-x1+1+x2)+trigamma(x1+x2)) / params.β^2

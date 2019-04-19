@@ -54,3 +54,9 @@ function Base.show(io::IO, ::MIME"text/plain", m::HybridOhmicBath)
         "ϵ (GHz): ", m.ϵ/2/pi ,"\n",
         "η (unitless): ", m.η, "\n", "ωc (GHz): ", m.ωc/pi/2, "\n", "T (mK): ", beta_2_temperature(m.β))
 end
+
+#function convolution(ω, O, a, b, c, d, params::HybridOhmicBath)
+#    O_bar = O - d * params.ϵ
+#    A = O_bar - ω * c / a
+#    Δ2 = (ω)->abs2(A) + B*(ω^2 + )
+#end
