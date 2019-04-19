@@ -58,17 +58,6 @@ function S(w::Float64, params::OhmicBath; atol=1e-7)
 end
 
 """
-    correlation(τ, params::OhmicBath)
-
-Calculate the correlation function of Ohmic bath.
-"""
-function correlation(τ, params::Union{OhmicBath, HybridOhmicBath})
-    x2 = 1 / params.β / params.ωc
-    x1 = 1.0im * τ / params.β
-    params.η * (trigamma(-x1+1+x2)+trigamma(x1+x2)) / params.β^2
-end
-
-"""
     polaron_correlation(τ, params::OhmicBath)
 
 Calculate the polaron transformed correlation function of Ohmic bath.
