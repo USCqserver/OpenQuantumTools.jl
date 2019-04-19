@@ -15,7 +15,7 @@ export q_translate, construct_hamming_weight_op, ising_terms, standard_driver, c
 
 export matrix_decompose, check_positivity
 
-export inst_population, gibbs_state, eigen_eval, eigen_state_continuation!, low_level_hamiltonian, minimum_gap, proj_2lvl
+export inst_population, gibbs_state, eigen_eval, eigen_state_continuation!, low_level_hamiltonian, minimum_gap, proj_2lvl, proj_2lvl_polaron
 
 include("math_util.jl")
 include("unit_util.jl")
