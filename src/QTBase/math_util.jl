@@ -183,18 +183,19 @@ end
 """
     gibbs_state(h, β)
 
-Calculate the Gibbs state of the matrix `h` at temperature `β`.
+Calculate the Gibbs state of the matrix `h` at temperature `T` (mK).
 
 # Examples
 ```julia-repl
-julia> gibbs_state(σz, 0.1)
-2×2 LinearAlgebra.Hermitian{Complex{Float64},Array{Complex{Float64},2}}:
- 0.450166+0.0im       0.0+0.0im
-      0.0-0.0im  0.549834+0.0im
+julia> gibbs_state(σz, 10)
+2×2 Hermitian{Complex{Float64},Array{Complex{Float64},2}}:
+ 0.178338+0.0im       0.0+0.0im
+      0.0-0.0im  0.821662+0.0im
 ```
 """
-function gibbs_state(h, β)
-    res = zeros(ComplexF64, size(h))
+function gibbs_state(h, T)
+    β = temperature_2_beta(T)
+    res = zeros(eltype(h), size(h))
     Z = 0.0
     eig_sys = eigen(Hermitian(h))
     for (i, E) in enumerate(eig_sys.values)
