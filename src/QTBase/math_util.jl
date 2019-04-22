@@ -195,9 +195,9 @@ julia> gibbs_state(σz, 10)
 """
 function gibbs_state(h, T)
     β = temperature_2_beta(T)
-    res = zeros(eltype(h), size(h))
+    res = zeros(ComplexF64, size(h))
     Z = 0.0
-    eig_sys = eigen(Hermitian(h))
+    eig_sys = eigen(Hermitian(Complex.(h)))
     for (i, E) in enumerate(eig_sys.values)
         t = exp(-β*E)
         her!('U', t, eig_sys.vectors[:, i], res)
