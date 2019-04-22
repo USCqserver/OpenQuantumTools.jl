@@ -29,8 +29,6 @@
     #res = proj_2lvl(hfun, dhfun, σz, [[0.0, 0.5], [1.0]])
     #@test res[1][1] == ev[:, 1:2]
     #@test res[2][1] == ev[:, 3:3]
-    #hobj = Hamiltonian([(x)->1-x, (x)->x], [σx, σz])
-    #@test hfun(0.5) == hobj(0.5)
     t = [0.0, 1.0]
     states = [PauliVec[1][2], PauliVec[1][1]]
     res = inst_population(t, states, hfun, level=1:2)

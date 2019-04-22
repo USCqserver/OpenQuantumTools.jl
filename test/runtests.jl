@@ -5,6 +5,8 @@ include("base_test.jl")
 include("interpolation.jl")
 include("integration.jl")
 include("adiabatic_me_test.jl")
+include("hamil_obj_test.jl")
+
 
 @testset "Spectrum functions" begin
     η=1e-4
