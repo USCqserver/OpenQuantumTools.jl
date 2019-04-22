@@ -9,7 +9,7 @@ function adiabatic_frame_ame(hfun, u0, inter_op, γf, sf; rtol=1e-6, atol=1e-6)
         γm = p*γf.(ω_ba)
         sm = p*sf.(ω_ba)
         for op in inter_op
-            adiabatic_me_update!(du, u,, op(t), γm, sm)
+            adiabatic_me_update!(du, u, op(t), γm, sm)
         end
     end
     prob = ODEProblem(f, u0, (0.0, 1.0), tf)
