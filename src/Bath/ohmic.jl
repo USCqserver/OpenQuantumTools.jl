@@ -74,12 +74,10 @@ end
 """
     interpolate_spectral_density(ω_grid, params::OhmicBath)
 
-Calculate the Ohmic bath spectral density γ and S on grid `ω_grid`, and construct interpolation objects for them.
+Calculate the Ohmic bath spectral density S on grid `ω_grid`, and construct interpolation objects for it. A separate function for γ is also returned without doing interpolation.
 """
 function interpolate_spectral_density(ω_grid::AbstractRange{T}, params::OhmicBath) where T<: Number
-    γ_list = [γ(ω, params) for ω in ω_grid]
     s_list = [S(ω, params) for ω in ω_grid]
-    γ_itp = construct_interpolations(ω_grid, γ_list)
     s_itp = construct_interpolations(ω_grid, s_list)
-    γ_itp, s_itp
+    (ω)->γ(ω, params), s_itp
 end
