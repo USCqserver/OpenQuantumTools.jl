@@ -28,3 +28,11 @@ function update!(u, t::Real, h::LinearOperator)
         axpy!(f(t),m,u)
     end
 end
+
+function comm!(du, u, t::Real, h::LinearOperator; p = -1.0im)
+    for (f, m) in zip(h.f, h.m)
+        c = p * f(t)
+        gemm!('N', 'N', c, m, u, 1.0, du)
+        gemm!('N', 'N', -c, u, m, 1.0, du)
+    end
+end

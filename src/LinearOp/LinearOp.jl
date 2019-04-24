@@ -1,8 +1,9 @@
 module LinearOp
 
 import LinearAlgebra:axpy!
+import LinearAlgebra.BLAS.gemm!
 
-export LinearOperator, update!, AdiabaticFrameHamiltonian
+export LinearOperator, update!, comm!, AdiabaticFrameHamiltonian
 export set_tf!, construct_pausing_hamiltonian
 export UnitlessAdiabaticFrameHamiltonian, UnitAdiabaticFrameHamiltonian, UnitlessAdiabaticFramePausingHamiltonian, UnitAdiabaticFramePausingHamiltonian
 
