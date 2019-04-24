@@ -4,22 +4,13 @@ using Reexport
 
 @reexport using LinearAlgebra
 
-include("load_util.jl")
-include("unitary_util.jl")
-include("diff_util.jl")
-
 include("QTBase/QTBase.jl")
 @reexport using .QTBase
-include("QHamil/QHamil.jl")
-@reexport using .QHamil
+include("LinearOp/LinearOp.jl")
+@reexport using .LinearOp
 include("Bath/Bath.jl")
 @reexport using .Bath
-
-export load_diff_eq
-
-export calculate_unitary, unitary_check, solve_schrodinger, solve_von_neumann
-
-export adiabatic_me_update!, solve_adiabatic_me
-
+include("QSolver/QSolver.jl")
+@reexport using.QSolver
 
 end # end module

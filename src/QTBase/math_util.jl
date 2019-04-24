@@ -43,25 +43,6 @@ julia> σx⊗σz
 ⊗ = kron
 
 """
-    comm(A, B)
-
-Calculate the commutator of matrices `A` and `B`.
-"""
-function comm(A, B)
-    A*B - B*A
-end
-
-"""
-    comm!(Y, A, B)
-
-Calculate the commutator of matrices `A` and `B` and add the result to `Y`.
-"""
-function comm!(Y, A, B)
-    mul!(Y,A,B)
-    axpy!(-1.0,B*A,Y)
-end
-
-"""
     matrix_decompose(mat::Array{T,2}, basis::Array{Array{T,2},1})
 
 Decompse matrix `mat` onto matrix basis `basis`
@@ -188,22 +169,23 @@ Calculate the Gibbs state of the matrix `h` at temperature `T` (mK).
 # Examples
 ```julia-repl
 julia> gibbs_state(σz, 10)
-2×2 Hermitian{Complex{Float64},Array{Complex{Float64},2}}:
+2×2 Array{Complex{Float64},2}:
  0.178338+0.0im       0.0+0.0im
-      0.0-0.0im  0.821662+0.0im
+      0.0+0.0im  0.821662+0.0im
 ```
 """
 function gibbs_state(h, T)
     β = temperature_2_beta(T)
-    res = zeros(ComplexF64, size(h))
     Z = 0.0
-    eig_sys = eigen(Hermitian(Complex.(h)))
-    for (i, E) in enumerate(eig_sys.values)
+    w, v = eigen(Hermitian(h))
+    res = zeros(eltype(v), size(h))
+    for (i, E) in enumerate(w)
         t = exp(-β*E)
-        her!('U', t, eig_sys.vectors[:, i], res)
+        vi = @view v[:, i]
+        res += t*vi*vi'
         Z += t
     end
-    Hermitian(res/Z)
+    res/Z
 end
 
 """
@@ -214,11 +196,11 @@ Calculate the Hamiltonian `h` projected to lower energy subspace containing `lev
 # Examples
 ```julia-repl
 julia> low_level_hamiltonian(σx⊗σx, 2)
-4×4 LinearAlgebra.Hermitian{Complex{Float64},Array{Complex{Float64},2}}:
+4×4 Array{Complex{Float64},2}:
  -0.5+0.0im   0.0+0.0im   0.0+0.0im   0.5+0.0im
-  0.0-0.0im  -0.5+0.0im   0.5+0.0im   0.0+0.0im
-  0.0-0.0im   0.5-0.0im  -0.5+0.0im   0.0+0.0im
-  0.5-0.0im   0.0-0.0im   0.0-0.0im  -0.5+0.0im
+  0.0+0.0im  -0.5+0.0im   0.5+0.0im   0.0+0.0im
+  0.0+0.0im   0.5+0.0im  -0.5+0.0im   0.0+0.0im
+  0.5+0.0im   0.0+0.0im   0.0+0.0im  -0.5+0.0im
 ```
 """
 function low_level_hamiltonian(h, levels)
@@ -226,12 +208,13 @@ function low_level_hamiltonian(h, levels)
         @warn "Subspace dimension bigger than total dimension."
         return h
     else
-        eig_sys = eigen(Hermitian(h))
-        res = zeros(eltype(h), size(h))
+        w, v = eigen(Hermitian(h))
+        res = zeros(eltype(v), size(h))
         for i in range(1,stop=levels)
-            her!('U', eig_sys.values[i], eig_sys.vectors[:, i], res)
+            vi = @view v[:, i]
+            res += w[i] * vi * vi'
         end
-        return Hermitian(res)
+        return res
     end
 end
 
@@ -247,6 +230,7 @@ function minimum_gap(h)
     end
     optimize(gap, 0.0, 1.0)
 end
+
 
 function proj_2lvl(hfun, dhfun, interaction, s_axis::AbstractArray{T, 1}; reference=nothing, tol=1e-4) where T<:Number
 
@@ -419,7 +403,6 @@ function proj_2lvl_polaron(hfun, dhfun, interaction, s_axis::AbstractArray{T, 1}
     end
     ev, dθ, op, pv
 end
-
 
 
 function _decompose_interaction_abcd(v, inter_op)
