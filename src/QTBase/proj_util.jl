@@ -7,6 +7,11 @@ struct LowLevelParams
     lvl::Int
 end
 
+function get_dθ(params::LowLevelParams, i, j)
+    idx = (2 * params.lvl - i ) * (i - 1) ÷ 2 + (j - i)
+    [x[idx] for x in params.dθ]
+end
+
 function _push_dθ!(params::LowLevelParams, dH, w)
     res = []
     for i in 1:params.lvl
@@ -28,10 +33,6 @@ function _update_ref!(params::LowLevelParams, v)
             params.ref[:, i] = v[:, i]
         end
     end
-end
-
-function _dθ_idx(i, j, l)
-    (2 * l - i ) * (i - 1) ÷ 2 + (j - i)
 end
 
 function _init_lowlevel_params(s_axis, w, v, dH, interaction, lvl)
