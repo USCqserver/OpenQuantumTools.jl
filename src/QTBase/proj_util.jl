@@ -130,7 +130,7 @@ function optimal_interaction_rotation(low::LowLevelParams)
         for o in op
             res += abs2(pointer_e' * o * pointer_e - pointer_g' * o * pointer_g)
         end
-        res
+        -res
     end
 
     opt_θ = []
