@@ -8,8 +8,15 @@ struct LowLevelParams
 end
 
 function get_dθ(params::LowLevelParams, i, j)
-    idx = (2 * params.lvl - i ) * (i - 1) ÷ 2 + (j - i)
-    [x[idx] for x in params.dθ]
+    if j > i
+        idx = (2 * params.lvl - i ) * (i - 1) ÷ 2 + (j - i)
+        return [x[idx] for x in params.dθ]
+    elseif j<i
+        idx = (2 * params.lvl - j ) * (j - 1) ÷ 2 + (i - j)
+        return [-x[idx] for x in params.dθ]
+    else
+        error("No diagonal element for dθ.")
+    end
 end
 
 function _push_dθ!(params::LowLevelParams, dH, w)
@@ -110,7 +117,7 @@ function proj_low_lvl(hfun, dhfun, interaction, s_axis::AbstractArray{T, 1}; ref
 end
 
 function optimal_interaction_rotation(low::LowLevelParams)
-    if low.lvl==2
+    if low.lvl!=2
         error("Optimal rotation only works for the lowest 2 levels.")
     end
 
