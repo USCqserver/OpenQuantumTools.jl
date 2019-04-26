@@ -107,3 +107,28 @@ function proj_low_lvl(hfun, dhfun, interaction, s_axis::AbstractArray{T, 1}; ref
     end
     low_obj
 end
+
+function optimal_interaction_rotation(low::LowLevelParams)
+    if low.lvl==2
+        error("Optimal rotation only works for the lowest 2 levels.")
+    end
+
+    function obj(θ, op)
+        g = [1.0, 0]
+        e = [0, 1.0]
+        pointer_g = -cos(θ/2 - π/4) * g + cos(θ/2 + π/4) * e
+        pointer_e = -cos(θ/2 + π/4) * g - cos(θ/2 - π/4) * e
+        res = 0.0
+        for o in op
+            res += abs2(pointer_e' * o * pointer_e - pointer_g' * o * pointer_g)
+        end
+        res
+    end
+
+    opt_θ = []
+    for op in low.op
+        f = (x)->obj(x, op)
+        opt = optimize(f, -π/2, π/2)
+    end
+    push!(opt_θ, opt.minimizer)
+end
