@@ -81,3 +81,14 @@ function interpolate_spectral_density(ω_grid::AbstractRange{T}, params::OhmicBa
     s_itp = construct_interpolations(ω_grid, s_list)
     (ω)->γ(ω, params), s_itp
 end
+
+"""
+    correlation(τ, params::OhmicBath)
+
+Calculate the correlation function of Ohmic bath.
+"""
+function correlation(τ, params::OhmicBath)
+    x2 = 1 / params.β / params.ωc
+    x1 = 1.0im * τ / params.β
+    params.η * (trigamma(-x1+1+x2)+trigamma(x1+x2)) / params.β^2
+end

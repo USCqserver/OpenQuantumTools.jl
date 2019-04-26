@@ -15,6 +15,7 @@ struct RotatedTwoLevelParams
     b::Array{Float64, 1}
     c::Array{Float64, 1}
     d::Array{Float64, 1}
+    θ::Array{Float64, 1}
 end
 
 function get_dθ(params::LowLevelParams, i, j)
@@ -164,7 +165,7 @@ function rotate_by_interaction(params::LowLevelParams, θ)
     for i in eachindex(params.s)
         H = [params.ev[i][1] -1.0im*params.dθ[i][1]; 1.0im*params.dθ[i][1] params.ev[i][2]]
         U = [-cos(θ[i]/2 - π/4) -cos(θ[i]/2 + π/4); cos(θ[i]/2 + π/4) -cos(θ[i]/2 - π/4)]
-        Hr = U * H * U'
+        Hr = U' * H * U
         push!(ω, real(Hr[1,1]-Hr[2,2]))
         push!(T, Hr[1,2])
         at = 0.0
@@ -172,7 +173,7 @@ function rotate_by_interaction(params::LowLevelParams, θ)
         ct = 0.0
         dt = 0.0
         for op in params.op[i]
-            or = U * op * U'
+            or = U' * op * U
             at += (or[1,1] - or[2,2])^2
             bt += abs2(or[1,2])
             ct += or[1,2] * (or[1,1] - or[2,2])
@@ -183,5 +184,5 @@ function rotate_by_interaction(params::LowLevelParams, θ)
         push!(c, ct)
         push!(d, dt)
     end
-    RotatedTwoLevelParams(params.s, ω, T, a, b, c, d)
+    RotatedTwoLevelParams(params.s, ω, T, a, b, c, d, θ)
 end

@@ -55,8 +55,40 @@ function Base.show(io::IO, ::MIME"text/plain", m::HybridOhmicBath)
         "η (unitless): ", m.η, "\n", "ωc (GHz): ", m.ωc/pi/2, "\n", "T (mK): ", beta_2_temperature(m.β))
 end
 
-#function convolution(ω, O, a, b, c, d, params::HybridOhmicBath)
-#    O_bar = O - d * params.ϵ
-#    A = O_bar - ω * c / a
-#    Δ2 = (ω)->abs2(A) + B*(ω^2 + )
-#end
+function γ(w::Float64, params::HybridOhmicBath)
+    if w > 1000 * eps()
+        return 2 * pi * params.η * w * exp(-w/params.ωc) / (1 - exp(-params.β*w))
+    elseif w < - 1000 * eps()
+        temp = exp(params.β * w)
+        return -2 * pi * params.η * w * exp(w/params.ωc) * temp / (1 - temp)
+    else
+        return 2* pi* params.η / params.β
+    end
+end
+
+function correlation(τ, params::HybridOhmicBath)
+    x2 = 1 / params.β / params.ωc
+    x1 = 1.0im * τ / params.β
+    params.η * (trigamma(-x1+1+x2)+trigamma(x1+x2)) / params.β^2
+end
+
+function convolution(sys::RotatedTwoLevelParams, bath::HybridOhmicBath)
+    Γ10 = []
+    Γ01 = []
+    for i in eachindex(sys.s)
+        T_bar = sys.T[i] - sys.d[i] * bath.ϵ
+        A = abs2(T_bar - sys.ω[i] * sys.c[i] / sys.a[i])
+        B = (sys.a[i] * sys.b[i] - abs2(sys.c[i])) / sys.a[i]^2
+        W = sys.a[i] * bath.W^2
+        ϵ = sys.a[i] * bath.ϵ
+        γ2 = (sys.a[i] * γ(0.0, bath) / 2)^2
+        Δ = (ω) -> A + B * (ω^2 + W)
+        GL = (ω) -> sqrt(2*π/W) * exp(-(ω-ϵ)^2/2/W)
+        GH = (ω) -> sys.a[i] * γ(ω, bath) / (ω^2 + γ2)
+        integrand_12 = (ω)->Δ(ω) * GL(sys.ω[i] - ω) * GH(ω)
+        integrand_21 = (ω)->Δ(ω) * GL(-sys.ω[i] - ω) * GH(ω)
+        push!(Γ10, integrate_1d(integrand_12, -Inf, Inf)[1])
+        push!(Γ01, integrate_1d(integrand_21, -Inf, Inf)[1])
+    end
+    Γ10, Γ01
+end
