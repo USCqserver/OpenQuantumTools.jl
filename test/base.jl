@@ -22,13 +22,10 @@ m = r[1]*PauliVec[1][2]*PauliVec[1][2]' + r[2]*PauliVec[1][1]*PauliVec[1][1]'
 # == Hamiltonian analysis ===
 hfun(s) = (1-s)*real(σx)+ s*real(σz)
 dhfun(s) = -real(σx) + real(σz)
-ev, dθ, op = proj_2lvl(hfun, dhfun, σz, [0.0, 0.5, 1.0])
-@test ev ≈ [-1.0 -sqrt(0.5) -1.0; 1.0 sqrt(0.5) 1]
-@test dθ ≈ [-0.5, -1.0, -0.5]
-@test op ≈ [0.0 -sqrt(0.5) -1.0; 0.0 sqrt(0.5) 1; -1.0 -sqrt(0.5) 0.0]
-#res = proj_2lvl(hfun, dhfun, σz, [[0.0, 0.5], [1.0]])
-#@test res[1][1] == ev[:, 1:2]
-#@test res[2][1] == ev[:, 3:3]
+t_obj = proj_low_lvl(hfun, dhfun, [real(σz)], [0.0, 0.5, 1.0])
+@test isapprox(t_obj.ev, [[-1.0, 1.0], [-0.707107, 0.707107], [-1.0, 1.0]], atol=1e-6)
+@test t_obj.dθ ≈ [[0.5], [1.0], [0.5]]
+@test isapprox(t_obj.op, [[[0 -1.0; -1.0 0]], [[-0.707107 -0.707107; -0.707107 0.707107]], [[-1.0 0.0; 0.0 1.0]]], atol=1e-6)
 t = [0.0, 1.0]
 states = [PauliVec[1][2], PauliVec[1][1]]
 res = inst_population(t, states, hfun, level=1:2)
@@ -36,6 +33,7 @@ res = inst_population(t, states, hfun, level=1:2)
 hfun(s) = -(1-s)*standard_driver(2) + s * (0.1*σz⊗σi + σz⊗σz)
 sphfun(s) = real(-(1-s)*standard_driver(2,sp=true) + s * (0.1*spσz⊗spσi + spσz⊗spσz))
 spdhfun(s) = real(standard_driver(2,sp=true) + (0.1*spσz⊗spσi + spσz⊗spσz))
+interaction = [spσz⊗spσi, spσi⊗spσz]
 spw, spv = eigen_eval(sphfun, [0.5])
 w, v = eigen_eval(hfun, [0.5], levels=2)
 @test isapprox(w, spw, atol=1e-4)
