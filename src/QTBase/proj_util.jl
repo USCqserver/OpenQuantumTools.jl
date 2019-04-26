@@ -1,4 +1,4 @@
-struct LowLevelParams
+opstruct LowLevelParams
     s::AbstractArray{Float64, 1}
     ev::Array{Array{Float64, 1}, 1}
     dθ::Array{Array{Float64, 1}, 1}
@@ -127,7 +127,7 @@ function proj_low_lvl(hfun, dhfun, interaction, s_axis::AbstractArray{T, 1}; ref
     low_obj
 end
 
-function optimal_interaction_rotation(low::LowLevelParams)
+function optimal_interaction_angle(low::LowLevelParams)
     if low.lvl!=2
         error("Optimal rotation only works for the lowest 2 levels.")
     end
@@ -153,7 +153,7 @@ function optimal_interaction_rotation(low::LowLevelParams)
     opt_θ
 end
 
-function rotate_by_interaction(params::LowLevelParams, θ)
+function _rotate_by_interaction(params::LowLevelParams, θ)
     g = [1.0, 0]
     e = [0, 1.0]
     ω = []
@@ -185,4 +185,47 @@ function rotate_by_interaction(params::LowLevelParams, θ)
         push!(d, dt)
     end
     RotatedTwoLevelParams(params.s, ω, T, a, b, c, d, θ)
+end
+
+function _zero_rotate(sys:LowLevelParams)
+    g = [1.0, 0]
+    e = [0, 1.0]
+    ω = []
+    T = []
+    a = []
+    b = []
+    c = []
+    d = []
+    for i in eachindex(sys.s)
+        push!(ω, sys.ev[i][1]-sys.ev[i][2])
+        push!(T, -1.0im*sys.dθ[i][1])
+        at = 0.0
+        bt = 0.0
+        ct = 0.0
+        dt = 0.0
+        for op in params.op[i]
+            at += (op[1,1] - op[2,2])^2
+            bt += abs2(op[1,2])
+            ct += op[1,2] * (op[1,1] - op[2,2])
+            dt +=  op[1,2] * (op[1,1] + op[2,2])
+        end
+        push!(a, at)
+        push!(b, bt)
+        push!(c, ct)
+        push!(d, dt)
+    end
+    RotatedTwoLevelParams(params.s, ω, T, a, b, c, d, zeros((0,)))
+end
+
+function rotate(sys::LowLevelParams; method=nothing)
+    if method == nothing
+        return _zero_rotate(sys)
+    elseif method == "interaction"
+        θ = optimal_interaction_angle(sys)
+        return _rotate_by_interaction(sys, θ)
+    elseif method == "LZ"
+        nothing
+    else
+        @warn "No specific method: " method
+    end
 end

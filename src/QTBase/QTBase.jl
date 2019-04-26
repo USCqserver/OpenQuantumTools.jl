@@ -17,7 +17,7 @@ export matrix_decompose, check_positivity
 
 export inst_population, gibbs_state, eigen_eval, eigen_state_continuation!, low_level_hamiltonian, minimum_gap
 
-export  LowLevelParams, RotatedTwoLevelParams, rotate_by_interaction, proj_low_lvl, optimal_interaction_rotation, get_dθ
+export  LowLevelParams, RotatedTwoLevelParams, proj_low_lvl, optimal_interaction_angle, get_dθ, rotate
 
 include("unit_util.jl")
 include("math_util.jl")

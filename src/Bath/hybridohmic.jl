@@ -72,7 +72,7 @@ function correlation(τ, params::HybridOhmicBath)
     params.η * (trigamma(-x1+1+x2)+trigamma(x1+x2)) / params.β^2
 end
 
-function convolution(sys::RotatedTwoLevelParams, bath::HybridOhmicBath)
+function convolution_rate(sys::RotatedTwoLevelParams, bath::HybridOhmicBath)
     Γ10 = []
     Γ01 = []
     for i in eachindex(sys.s)
@@ -87,6 +87,19 @@ function convolution(sys::RotatedTwoLevelParams, bath::HybridOhmicBath)
         GH = (ω) -> sys.a[i] * γ(ω, bath) / (ω^2 + γ2)
         integrand_12 = (ω)->Δ(ω) * GL(sys.ω[i] - ω) * GH(ω)
         integrand_21 = (ω)->Δ(ω) * GL(-sys.ω[i] - ω) * GH(ω)
+        push!(Γ10, integrate_1d(integrand_12, -Inf, Inf)[1])
+        push!(Γ01, integrate_1d(integrand_21, -Inf, Inf)[1])
+    end
+    Γ10, Γ01
+end
+
+function integral_rate(sys::RotatedTwoLevelParams, bath::HybridOhmicBath)
+    Γ10 = []
+    Γ01 = []
+    for i in eachindex(sys.s)
+        T_bar = sys.T[i] - (sys.d[i] + sys.c[i]) * bath.ϵ
+        integrand_12 = (x)->(r.b[i] * correlation(x, bath) + constant) * polaron_correlation(x, r.a[i], bath) * exp(1.0im * r.ω[i] * x)
+        integrand_21 = (x)->(r.b[i] * correlation(x, bath) + constant) * polaron_correlation(x, r.a[i], bath) * exp(-1.0im * r.ω[i] * x)
         push!(Γ10, integrate_1d(integrand_12, -Inf, Inf)[1])
         push!(Γ01, integrate_1d(integrand_21, -Inf, Inf)[1])
     end
