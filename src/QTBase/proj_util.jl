@@ -139,4 +139,5 @@ function optimal_interaction_rotation(low::LowLevelParams)
         opt = optimize(f, -π/2, π/2)
         push!(opt_θ, opt.minimizer)
     end
+    opt_θ
 end
