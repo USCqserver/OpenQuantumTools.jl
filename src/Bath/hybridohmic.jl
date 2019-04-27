@@ -57,12 +57,12 @@ end
 
 function γ(w::Float64, params::HybridOhmicBath)
     if w > 1000 * eps()
-        return 2 * pi * params.η * w * exp(-w/params.ωc) / (1 - exp(-params.β*w))
+        return 8 * pi * params.η * w * exp(-w/params.ωc) / (1 - exp(-params.β*w))
     elseif w < - 1000 * eps()
         temp = exp(params.β * w)
-        return -2 * pi * params.η * w * exp(w/params.ωc) * temp / (1 - temp)
+        return -8 * pi * params.η * w * exp(w/params.ωc) * temp / (1 - temp)
     else
-        return 2* pi* params.η / params.β
+        return 8* pi* params.η / params.β
     end
 end
 
@@ -90,7 +90,7 @@ function convolution_rate(sys, bath::HybridOhmicBath)
         push!(Γ10, integrate_1d(integrand_12, -Inf, Inf)[1])
         push!(Γ01, integrate_1d(integrand_21, -Inf, Inf)[1])
     end
-    Γ10, Γ01
+    Γ10/2/pi, Γ01/2/pi
 end
 
 function integral_rate(sys, bath::HybridOhmicBath)
