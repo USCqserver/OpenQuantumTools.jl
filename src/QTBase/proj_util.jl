@@ -217,7 +217,7 @@ function _zero_rotate(sys::LowLevelParams)
     RotatedTwoLevelParams(params.s, ω, T, a, b, c, d, zeros((0,)))
 end
 
-function rotate(sys::LowLevelParams; method=nothing)
+function rotate_sys(sys::LowLevelParams; method=nothing)
     if method == nothing
         return _zero_rotate(sys)
     elseif method == "interaction"
