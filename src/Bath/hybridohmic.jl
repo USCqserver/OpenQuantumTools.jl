@@ -72,7 +72,7 @@ function correlation(τ, params::HybridOhmicBath)
     params.η * (trigamma(-x1+1+x2)+trigamma(x1+x2)) / params.β^2
 end
 
-function convolution_rate(sys::RotatedTwoLevelParams, bath::HybridOhmicBath)
+function convolution_rate(sys, bath::HybridOhmicBath)
     Γ10 = []
     Γ01 = []
     for i in eachindex(sys.s)
@@ -93,7 +93,7 @@ function convolution_rate(sys::RotatedTwoLevelParams, bath::HybridOhmicBath)
     Γ10, Γ01
 end
 
-function integral_rate(sys::RotatedTwoLevelParams, bath::HybridOhmicBath)
+function integral_rate(sys, bath::HybridOhmicBath)
     Γ10 = []
     Γ01 = []
     for i in eachindex(sys.s)
