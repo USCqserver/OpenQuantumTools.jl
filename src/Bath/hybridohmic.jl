@@ -83,7 +83,7 @@ function convolution_rate(sys, bath::HybridOhmicBath)
         ϵ = sys.a[i] * bath.ϵ
         γ2 = (sys.a[i] * γ(0.0, bath) / 2)^2
         Δ = (ω) -> A + B * (ω^2 + W)
-        GL = (ω) -> sqrt(2*π/W) * exp(-(ω-ϵ)^2/2/W)
+        GL = (ω) -> sqrt(π/2/W) * exp(-(ω-4*ϵ)^2/8/W)
         GH = (ω) -> sys.a[i] * γ(ω, bath) / (ω^2 + γ2)
         integrand_12 = (ω)->Δ(ω) * GL(sys.ω[i] - ω) * GH(ω)
         integrand_21 = (ω)->Δ(ω) * GL(-sys.ω[i] - ω) * GH(ω)
