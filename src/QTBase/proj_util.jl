@@ -1,4 +1,4 @@
-opstruct LowLevelParams
+struct LowLevelParams
     s::AbstractArray{Float64, 1}
     ev::Array{Array{Float64, 1}, 1}
     dθ::Array{Array{Float64, 1}, 1}
@@ -187,7 +187,7 @@ function _rotate_by_interaction(params::LowLevelParams, θ)
     RotatedTwoLevelParams(params.s, ω, T, a, b, c, d, θ)
 end
 
-function _zero_rotate(sys:LowLevelParams)
+function _zero_rotate(sys::LowLevelParams)
     g = [1.0, 0]
     e = [0, 1.0]
     ω = []
