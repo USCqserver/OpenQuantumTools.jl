@@ -203,7 +203,7 @@ function _zero_rotate(sys::LowLevelParams)
         bt = 0.0
         ct = 0.0
         dt = 0.0
-        for op in params.op[i]
+        for op in sys.op[i]
             at += (op[1,1] - op[2,2])^2
             bt += abs2(op[1,2])
             ct += op[1,2] * (op[1,1] - op[2,2])
@@ -214,7 +214,7 @@ function _zero_rotate(sys::LowLevelParams)
         push!(c, ct)
         push!(d, dt)
     end
-    RotatedTwoLevelParams(params.s, ω, T, a, b, c, d, zeros((0,)))
+    RotatedTwoLevelParams(sys.s, ω, T, a, b, c, d, zeros((0,)))
 end
 
 function rotate_sys(sys::LowLevelParams; method=nothing)
