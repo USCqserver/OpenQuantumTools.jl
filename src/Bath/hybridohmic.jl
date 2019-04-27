@@ -98,8 +98,8 @@ function integral_rate(sys, bath::HybridOhmicBath)
     Γ01 = []
     for i in eachindex(sys.s)
         T_bar = sys.T[i] - (sys.d[i] + sys.c[i]) * bath.ϵ
-        integrand_12 = (x)->(sys.b[i] * correlation(x, bath) + T_bar) * polaron_correlation(x, sys.a[i], bath) * exp(1.0im * sys.ω[i] * x)
-        integrand_21 = (x)->(sys.b[i] * correlation(x, bath) + T_bar) * polaron_correlation(x, sys.a[i], bath) * exp(-1.0im * sys.ω[i] * x)
+        integrand_12 = (x)->(sys.b[i] * correlation(x, bath) + abs2(T_bar)) * polaron_correlation(x, sys.a[i], bath) * exp(1.0im * sys.ω[i] * x)
+        integrand_21 = (x)->(sys.b[i] * correlation(x, bath) + abs2(T_bar)) * polaron_correlation(x, sys.a[i], bath) * exp(-1.0im * sys.ω[i] * x)
         push!(Γ10, integrate_1d(integrand_12, -Inf, Inf)[1])
         push!(Γ01, integrate_1d(integrand_21, -Inf, Inf)[1])
     end
