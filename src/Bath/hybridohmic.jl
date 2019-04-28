@@ -18,29 +18,11 @@ struct HybridOhmicBath
     β::Float64
 end
 
-function polaron_correlation(τ, params::HybridOhmicBath)
-    ohmic_part = (1+1.0im*params.ωc*τ)^(-4*params.η)
-    if !isapprox(τ, 0, atol = 1e-9)
-        x = π * τ / params.β
-        ohmic_part *= ( x / sinh(x) )^(4 * params.η)
-    end
-    slow_part = exp( - 2.0 * params.W^2 * τ^2 - 4.0im * τ * params.ϵ)
-    ohmic_part * slow_part
-end
+"""
+    HybridOhmic(W, η, fc, T)
 
-function polaron_correlation(τ, a, params::HybridOhmicBath)
-    η = a * params.η
-    ϵ = a * params.ϵ
-    W2 = a * params.W^2
-    ohmic_part = (1+1.0im*params.ωc*τ)^(-4*η)
-    if !isapprox(τ, 0, atol = 1e-9)
-        x = π * τ / params.β
-        ohmic_part *= ( x / sinh(x) )^(4 * η)
-    end
-    slow_part = exp( - 2.0 * W2 * τ^2 - 4.0im * τ * ϵ)
-    ohmic_part * slow_part
-end
-
+Construct HybridOhmicBath object with parameters in physical units. W: MRT width (mK); η: interaction strength (unitless); fc: Ohmic cutoff frequency (GHz); T: temperature (mK).
+"""
 function HybridOhmic(W, η, fc, T)
     W = 2 * pi * temperature_2_freq(W)
     β = temperature_2_beta(T)
@@ -49,57 +31,95 @@ function HybridOhmic(W, η, fc, T)
     HybridOhmicBath(W, ϵ, η, ωc, β)
 end
 
+"""
+    polaron_correlation(τ, bath::HybridOhmicBath[, a=1])
+
+Calculate polaron transformed correlation function of HybridOhmicBath 'bath' at time 'τ' with relative strength `a`. The effective strength will be `` a * W^2`` and `` a * η ``.
+"""
+function polaron_correlation(τ, bath::HybridOhmicBath, a=1)
+    η = a * bath.η
+    ϵ = a * bath.ϵ
+    W² = a * bath.W^2
+    ohmic_part = (1+1.0im*bath.ωc*τ)^(-4*η)
+    if !isapprox(τ, 0, atol = 1e-9)
+        x = π * τ / bath.β
+        ohmic_part *= ( x / sinh(x) )^(4*η)
+    end
+    slow_part = exp( - 2.0 * W² * τ^2 - 4.0im * τ * bath.ϵ)
+    ohmic_part * slow_part
+end
+
+"""
+    ohmic_correlation(τ, bath::HybridOhmicBath[, a=1])
+
+Calculate Ohmic part correlation function of HybridOhmicBath 'bath' at time 'τ' with relative strength `a`. The effective strength `` a * η ``.
+"""
+function ohmic_correlation(τ, bath::HybridOhmicBath, a=1)
+    η = a * bath.η
+    res = (1+1.0im*bath.ωc*τ)^(-4*η)
+    if !isapprox(τ, 0, atol = 1e-9)
+        x = π * τ / bath.β
+        res *= ( x / sinh(x) )^(4*η)
+    end
+    res
+end
+
+"""
+    reorganization_energy(bath::HybridOhmicBath)
+
+Calculate the total reorganization energy of HybridOhmicBath `bath`: ``ϵ = ϵ_L + ϵ_H``.
+"""
+function reorganization_energy(bath::HybridOhmicBath)
+    bath.ϵ + 4 * bath.η * bath.ωc
+end
+
 function Base.show(io::IO, ::MIME"text/plain", m::HybridOhmicBath)
     print(io, "Hybrid Ohmic bath instance:\n", "W (mK): ", freq_2_temperature(m.W/2/pi), "\n",
         "ϵ (GHz): ", m.ϵ/2/pi ,"\n",
         "η (unitless): ", m.η, "\n", "ωc (GHz): ", m.ωc/pi/2, "\n", "T (mK): ", beta_2_temperature(m.β))
 end
 
-function γ(w::Float64, params::HybridOhmicBath)
-    if w > 1000 * eps()
-        return 8 * pi * params.η * w * exp(-w/params.ωc) / (1 - exp(-params.β*w))
-    elseif w < - 1000 * eps()
-        temp = exp(params.β * w)
-        return -8 * pi * params.η * w * exp(w/params.ωc) * temp / (1 - temp)
+function GH(ω, bath::HybridOhmicBath, a = 1)
+    η = a * bath.η
+    S0 = 8* pi* η / params.β
+    if isapprox(ω, 0, atol=1e-8)
+        return 4 / S0
     else
-        return 8* pi* params.η / params.β
+        γ² = (S0 / 2)^2
+        return 8 * pi * η * ω * exp(-ω/params.ωc) / (1 - exp(-params.β*ω)) / (ω^2 + γ²)
     end
 end
 
-function correlation(τ, params::HybridOhmicBath)
-    x2 = 1 / params.β / params.ωc
-    x1 = 1.0im * τ / params.β
-    params.η * (trigamma(-x1+1+x2)+trigamma(x1+x2)) / params.β^2
+function GL(ω, bath::HybridOhmicBath, a=1)
+    W² = a * bath.W^2
+    ϵ = a * bath.ϵ
+    sqrt(π/2/W) * exp(-(ω-4*ϵ)^2/8/W)
 end
 
 function convolution_rate(sys, bath::HybridOhmicBath)
     Γ10 = []
     Γ01 = []
+    ϵ = reorganization(bath)
     for i in eachindex(sys.s)
-        T_bar = sys.T[i] - sys.d[i] * bath.ϵ
+        T_bar = sys.T[i] - sys.d[i] * ϵ
         A = abs2(T_bar - sys.ω[i] * sys.c[i] / sys.a[i])
         B = (sys.a[i] * sys.b[i] - abs2(sys.c[i])) / sys.a[i]^2
-        W = sys.a[i] * bath.W^2
-        ϵ = sys.a[i] * bath.ϵ
-        γ2 = (sys.a[i] * γ(0.0, bath) / 2)^2
-        Δ = (ω) -> A + B * (ω^2 + W)
-        GL = (ω) -> sqrt(π/2/W) * exp(-(ω-4*ϵ)^2/8/W)
-        GH = (ω) -> sys.a[i] * γ(ω, bath) / (ω^2 + γ2)
-        integrand_12 = (ω)->Δ(ω) * GL(sys.ω[i] - ω) * GH(ω)
-        integrand_21 = (ω)->Δ(ω) * GL(-sys.ω[i] - ω) * GH(ω)
+        Δ²(ω) = A + B * (ω^2 + sys.a[i]*bath.W^2)
+        integrand_12(ω) = Δ²(ω) * GL(sys.ω[i]-ω, bath, sys.a[i]) * GH(ω, bath, sys.a[i])
+        integrand_21(ω) = Δ²(ω) * GL(-sys.ω[i]-ω, bath, sys.a[i]) * GH(ω, bath, sys.a[i])
         push!(Γ10, integrate_1d(integrand_12, -Inf, Inf)[1])
         push!(Γ01, integrate_1d(integrand_21, -Inf, Inf)[1])
     end
     Γ10/2/pi, Γ01/2/pi
 end
 
-function integral_rate(sys, bath::HybridOhmicBath)
+function integral_ratet(sys, bath::HybridOhmicBath)
     Γ10 = []
     Γ01 = []
     for i in eachindex(sys.s)
         T_bar = sys.T[i] - (sys.d[i] + sys.c[i]) * bath.ϵ
-        integrand_12 = (x)->(sys.b[i] * correlation(x, bath) + abs2(T_bar)) * polaron_correlation(x, sys.a[i], bath) * exp(1.0im * sys.ω[i] * x)
-        integrand_21 = (x)->(sys.b[i] * correlation(x, bath) + abs2(T_bar)) * polaron_correlation(x, sys.a[i], bath) * exp(-1.0im * sys.ω[i] * x)
+        integrand_12 = (x)->(sys.b[i] * 4 * bath.W^2 + abs2(T_bar)) * polaron_correlation(x, sys.a[i], bath) * exp(1.0im * sys.ω[i] * x)
+        integrand_21 = (x)->(sys.b[i] * 4 * bath.W^2 + abs2(T_bar)) * polaron_correlation(x, sys.a[i], bath) * exp(-1.0im * sys.ω[i] * x)
         push!(Γ10, integrate_1d(integrand_12, -Inf, Inf)[1])
         push!(Γ01, integrate_1d(integrand_21, -Inf, Inf)[1])
     end

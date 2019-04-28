@@ -1,4 +1,4 @@
 ```@autodocs
-Modules = [QTool, QHamil, Bath]
+Modules = [Bath]
 Private = false
 ```

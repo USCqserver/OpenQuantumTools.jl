@@ -9,3 +9,10 @@ bath = OhmicBath(η,ωc,β)
 @test isapprox(γf(0.0), 2*pi*η/β, atol=1e-6)
 @test isapprox(-0.0025132734115775254, S(0.0,bath), atol=1e-6)
 @test isapprox(-0.0025132734115775254, Sf(0.0), atol=1e-6)
+
+η=0.25/8/pi
+W = 2
+fc = 4
+T = 10
+
+bath = HybridOhmic(W, η, fc, T)

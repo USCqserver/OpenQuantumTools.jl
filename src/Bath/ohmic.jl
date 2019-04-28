@@ -33,16 +33,13 @@ end
 """
     γ(w::Float64, params::OhmicBath)
 
-Calculate real part of Ohmic spectrum. The value between [-1000, 1000]*eps() is set to ``2πη/β``.
+Calculate Ohmic spectrum density, defined as a full Fourier transform on the bath correlation function.
 """
-function γ(w::Float64, params::OhmicBath)
-    if w > 1000 * eps()
-        return 2 * pi * params.η * w * exp(-w/params.ωc) / (1 - exp(-params.β*w))
-    elseif w < - 1000 * eps()
-        temp = exp(params.β * w)
-        return -2 * pi * params.η * w * exp(w/params.ωc) * temp / (1 - temp)
-    else
+function γ(ω::Float64, params::OhmicBath)
+    if isapprox(ω, 0.0, atol = 1e-9)
         return 2* pi* params.η / params.β
+    else
+        return 2 * pi * params.η * ω * exp(-ω/params.ωc) / (1 - exp(-params.β*ω))
     end
 end
 
@@ -55,6 +52,17 @@ function S(w::Float64, params::OhmicBath; atol=1e-7)
     f(x)= γ(x, params)
     res = cauchy_principal_value(f, w, atol=atol)
     -res[1]/2/pi
+end
+
+"""
+    correlation(τ, params::OhmicBath)
+
+Calculate the correlation function of Ohmic bath.
+"""
+function correlation(τ, params::OhmicBath)
+    x2 = 1 / params.β / params.ωc
+    x1 = 1.0im * τ / params.β
+    params.η * (trigamma(-x1+1+x2)+trigamma(x1+x2)) / params.β^2
 end
 
 """
@@ -80,15 +88,4 @@ function interpolate_spectral_density(ω_grid::AbstractRange{T}, params::OhmicBa
     s_list = [S(ω, params) for ω in ω_grid]
     s_itp = construct_interpolations(ω_grid, s_list)
     (ω)->γ(ω, params), s_itp
-end
-
-"""
-    correlation(τ, params::OhmicBath)
-
-Calculate the correlation function of Ohmic bath.
-"""
-function correlation(τ, params::OhmicBath)
-    x2 = 1 / params.β / params.ωc
-    x1 = 1.0im * τ / params.β
-    params.η * (trigamma(-x1+1+x2)+trigamma(x1+x2)) / params.β^2
 end
