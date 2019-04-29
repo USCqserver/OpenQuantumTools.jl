@@ -5,6 +5,11 @@ import SpecialFunctions:trigamma
 
 @reexport using LinearAlgebra
 
+include("QInterpolate/QInterpolate.jl")
+include("Integration/Integration.jl")
+@reexport using .QInterpolate
+@reexport using .Integration
+
 include("QTBase/QTBase.jl")
 @reexport using .QTBase
 include("LinearOp/LinearOp.jl")
@@ -12,7 +17,10 @@ include("LinearOp/LinearOp.jl")
 include("QSolver/QSolver.jl")
 @reexport using.QSolver
 
-include("Bath/Bath.jl")
+include("Bath/ohmic.jl")
+include("Bath/hybridohmic.jl")
+
+export quadgk
 
 export OhmicBath, Ohmic, γ, S, correlation, polaron_correlation, interpolate_spectral_density
 

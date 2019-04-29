@@ -39,7 +39,7 @@ function γ(ω::Float64, params::OhmicBath)
     if isapprox(ω, 0.0, atol = 1e-9)
         return 2* pi* params.η / params.β
     else
-        return 2 * pi * params.η * ω * exp(-ω/params.ωc) / (1 - exp(-params.β*ω))
+        return 2 * pi * params.η * ω * exp(-abs(ω)/params.ωc) / (1 - exp(-params.β*ω))
     end
 end
 

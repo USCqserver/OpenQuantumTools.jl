@@ -1,6 +1,5 @@
 module QTBase
 
-using Reexport
 import LinearAlgebra:kron, mul!, axpy!, I, ishermitian, Hermitian, eigmin, eigen, tr, eigen!
 import LinearAlgebra.BLAS:her!
 import SparseArrays:sparse, issparse, spzeros, SparseMatrixCSC
@@ -23,11 +22,5 @@ include("unit_util.jl")
 include("math_util.jl")
 include("matrix_util.jl")
 include("proj_util.jl")
-
-
-include("../QInterpolate/QInterpolate.jl")
-include("../Integration/Integration.jl")
-@reexport using .QInterpolate
-@reexport using .Integration
 
 end  # module QTBase
