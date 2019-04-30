@@ -31,7 +31,7 @@ function HybridOhmic(W, η, fc, T)
     HybridOhmicBath(W, ϵ, η, ωc, β)
 end
 
-function correlation(τ, bath::HybridOhmic, a=1)
+function correlation(τ, bath::HybridOhmicBath, a=1)
     W² = 4 * a * bath.W^2
     x2 = 1 / bath.β / bath.ωc
     x1 = 1.0im * τ / bath.β
