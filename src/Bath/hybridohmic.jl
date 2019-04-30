@@ -31,6 +31,13 @@ function HybridOhmic(W, η, fc, T)
     HybridOhmicBath(W, ϵ, η, ωc, β)
 end
 
+function correlation(τ, bath::HybridOhmic, a=1)
+    W² = 4 * a * bath.W^2
+    x2 = 1 / bath.β / bath.ωc
+    x1 = 1.0im * τ / bath.β
+    W² + 4 * bath.η * (trigamma(-x1+1+x2)+trigamma(x1+x2)) / bath.β^2
+end
+
 """
     polaron_correlation(τ, bath::HybridOhmicBath[, a=1])
 
@@ -52,7 +59,7 @@ end
 """
     ohmic_correlation(τ, bath::HybridOhmicBath[, a=1])
 
-Calculate Ohmic part correlation function of HybridOhmicBath 'bath' at time 'τ' with relative strength `a`. The effective strength `` a * η ``.
+Calculate the Ohmic part of polaron correlation function of HybridOhmicBath 'bath' at time 'τ' with relative strength `a`. The effective strength is `` a * η ``.
 """
 function ohmic_correlation(τ, bath::HybridOhmicBath, a=1)
     η = a * bath.η
@@ -79,6 +86,11 @@ function Base.show(io::IO, ::MIME"text/plain", m::HybridOhmicBath)
         "η (unitless): ", m.η, "\n", "ωc (GHz): ", m.ωc/pi/2, "\n", "T (mK): ", beta_2_temperature(m.β))
 end
 
+"""
+    GH(ω, bath::HybridOhmicBath[, a=1])
+
+High frequency noise spectrum of the HybridOhmicBath `bath` with relative strength `a`.
+"""
 function GH(ω, bath::HybridOhmicBath, a = 1)
     η = a * bath.η
     S0 = 8* pi* η / bath.β
@@ -90,6 +102,11 @@ function GH(ω, bath::HybridOhmicBath, a = 1)
     end
 end
 
+"""
+    GL(ω, bath::HybridOhmicBath[, a=1])
+
+Low frequency noise specturm of the HybridOhmicBath `bath` with relative strength `a`.
+"""
 function GL(ω, bath::HybridOhmicBath, a=1)
     W² = a * bath.W^2
     ϵ = a * bath.ϵ
@@ -113,11 +130,12 @@ function convolution_rate(sys, bath::HybridOhmicBath)
     Γ10/2/pi, Γ01/2/pi
 end
 
-function integral_ratet(sys, bath::HybridOhmicBath)
+function integral_rate(sys, bath::HybridOhmicBath)
     Γ10 = []
     Γ01 = []
+    ϵ = reorganization(bath)
     for i in eachindex(sys.s)
-        T_bar = sys.T[i] - (sys.d[i] + sys.c[i]) * bath.ϵ
+        T_bar = sys.T[i] - (sys.d[i] + sys.c[i]) * ϵ
         integrand_12 = (x)->(sys.b[i] * 4 * bath.W^2 + abs2(T_bar)) * polaron_correlation(x, sys.a[i], bath) * exp(1.0im * sys.ω[i] * x)
         integrand_21 = (x)->(sys.b[i] * 4 * bath.W^2 + abs2(T_bar)) * polaron_correlation(x, sys.a[i], bath) * exp(-1.0im * sys.ω[i] * x)
         push!(Γ10, integrate_1d(integrand_12, -Inf, Inf)[1])

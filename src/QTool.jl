@@ -20,8 +20,6 @@ include("QSolver/QSolver.jl")
 include("Bath/ohmic.jl")
 include("Bath/hybridohmic.jl")
 
-export quadgk
-
 export OhmicBath, Ohmic, γ, S, correlation, polaron_correlation, interpolate_spectral_density
 
 export HybridOhmicBath, HybridOhmic, convolution_rate, integral_rate, reorganization_energy, GL, GH, ohmic_correlation

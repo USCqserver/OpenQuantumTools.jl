@@ -31,11 +31,11 @@ function Base.show(io::IO, ::MIME"text/plain", m::OhmicBath)
 end
 
 """
-    γ(w::Float64, params::OhmicBath)
+    γ(ω, params::OhmicBath)
 
 Calculate Ohmic spectrum density, defined as a full Fourier transform on the bath correlation function.
 """
-function γ(ω::Float64, params::OhmicBath)
+function γ(ω, params::OhmicBath)
     if isapprox(ω, 0.0, atol = 1e-9)
         return 2* pi* params.η / params.β
     else
@@ -44,11 +44,11 @@ function γ(ω::Float64, params::OhmicBath)
 end
 
 """
-    S(w::Float64, params::OhmicBath; atol=1e-7)
+    S(w, params::OhmicBath; atol=1e-7)
 
 Calculate the Lamb shift of Ohmic spectrum. `atol` is the absolute tolerance for Cauchy principal value integral.
 """
-function S(w::Float64, params::OhmicBath; atol=1e-7)
+function S(w, params::OhmicBath; atol=1e-7)
     f(x)= γ(x, params)
     res = cauchy_principal_value(f, w, atol=atol)
     -res[1]/2/pi
@@ -80,11 +80,11 @@ function polaron_correlation(τ, params::OhmicBath)
 end
 
 """
-    interpolate_spectral_density(ω_grid, params::OhmicBath)
+    interpolate_spectral_density(ω_grid::AbstractRange{T}, params::OhmicBath) where T<:Number
 
 Calculate the Ohmic bath spectral density S on grid `ω_grid`, and construct interpolation objects for it. A separate function for γ is also returned without doing interpolation.
 """
-function interpolate_spectral_density(ω_grid::AbstractRange{T}, params::OhmicBath) where T<: Number
+function interpolate_spectral_density(ω_grid::AbstractRange{T}, params::OhmicBath) where T<:Number
     s_list = [S(ω, params) for ω in ω_grid]
     s_itp = construct_interpolations(ω_grid, s_list)
     (ω)->γ(ω, params), s_itp
