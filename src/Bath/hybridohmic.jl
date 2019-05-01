@@ -110,7 +110,7 @@ Low frequency noise specturm of the HybridOhmicBath `bath` with relative strengt
 function GL(ω, bath::HybridOhmicBath, a=1)
     W² = a * bath.W^2
     ϵ = a * bath.ϵ
-    sqrt(π/2/W) * exp(-(ω-4*ϵ)^2/8/W)
+    sqrt(π/2/W²) * exp(-(ω-4*ϵ)^2/8/W²)
 end
 
 function convolution_rate(sys, bath::HybridOhmicBath)
