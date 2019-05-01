@@ -116,7 +116,7 @@ end
 function convolution_rate(sys, bath::HybridOhmicBath)
     Γ10 = []
     Γ01 = []
-    ϵ = reorganization(bath)
+    ϵ = reorganization_energy(bath)
     for i in eachindex(sys.s)
         T_bar = sys.T[i] - sys.d[i] * ϵ
         A = abs2(T_bar - sys.ω[i] * sys.c[i] / sys.a[i])
@@ -133,7 +133,7 @@ end
 function integral_rate(sys, bath::HybridOhmicBath)
     Γ10 = []
     Γ01 = []
-    ϵ = reorganization(bath)
+    ϵ = reorganization_energy(bath)
     for i in eachindex(sys.s)
         T_bar = sys.T[i] - (sys.d[i] + sys.c[i]) * ϵ
         integrand_12 = (x)->(sys.b[i] * 4 * bath.W^2 + abs2(T_bar)) * polaron_correlation(x, sys.a[i], bath) * exp(1.0im * sys.ω[i] * x)
