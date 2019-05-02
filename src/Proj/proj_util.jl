@@ -1,3 +1,16 @@
+"""
+    LowLevelParams
+
+`LowLevelParams` object to hold a projected low level system.
+
+**Fields**
+- `s` -- unitless time grid.
+- `ev` -- energy values for different levels.
+- `dθ` -- geometric terms.
+- `op` -- projected system bath interaction operators
+- `ref` -- energy eigenstates at the final time
+- `lvl` -- number of levels being kept.
+"""
 struct LowLevelParams
     s::AbstractArray{Float64, 1}
     ev::Array{Array{Float64, 1}, 1}
@@ -144,7 +157,7 @@ function optimal_interaction_angle(low::LowLevelParams)
         -res
     end
 
-    opt_θ = []
+    opt_θ = Array{Float64, 1}()
     for op in low.op
         f = (x)->obj(x, op)
         opt = optimize(f, -π/2, π/2)
@@ -153,7 +166,8 @@ function optimal_interaction_angle(low::LowLevelParams)
     opt_θ
 end
 
-function _rotate_by_interaction(params::LowLevelParams, θ)
+function _rotate_by_interaction(sys::LowLevelParams)
+    θ = optimal_interaction_angle(sys)
     g = [1.0, 0]
     e = [0, 1.0]
     ω = []
@@ -162,8 +176,8 @@ function _rotate_by_interaction(params::LowLevelParams, θ)
     b = []
     c = []
     d = []
-    for i in eachindex(params.s)
-        H = [params.ev[i][1] -1.0im*params.dθ[i][1]; 1.0im*params.dθ[i][1] params.ev[i][2]]
+    for i in eachindex(sys.s)
+        H = Diagonal([sys.ev[i][1], sys.ev[i][2]])
         U = [-cos(θ[i]/2 - π/4) -cos(θ[i]/2 + π/4); cos(θ[i]/2 + π/4) -cos(θ[i]/2 - π/4)]
         Hr = U' * H * U
         push!(ω, real(Hr[1,1]-Hr[2,2]))
@@ -172,7 +186,7 @@ function _rotate_by_interaction(params::LowLevelParams, θ)
         bt = 0.0
         ct = 0.0
         dt = 0.0
-        for op in params.op[i]
+        for op in sys.op[i]
             or = U' * op * U
             at += (or[1,1] - or[2,2])^2
             bt += abs2(or[1,2])
@@ -184,7 +198,47 @@ function _rotate_by_interaction(params::LowLevelParams, θ)
         push!(c, ct)
         push!(d, dt)
     end
-    RotatedTwoLevelParams(params.s, ω, T, a, b, c, d, θ)
+    θ_itp = construct_interpolations(sys.s, θ, extrapolation="line")
+    θᴱ = gradient(θ_itp, sys.s) / 2
+    dθ = get_dθ(sys, 1, 2)
+    geo = dθ - θᴱ
+    RotatedTwoLevelParams(sys.s, ω, T-1.0im*geo, a, b, c, d, θ)
+end
+
+function _rotate_by_LZ(sys::LowLevelParams)
+    dθ_itp = construct_interpolations(sys.s, get_dθ(sys, 1, 2), extrapolation="line")
+    θᴸ = [quadgk(dθ_itp, 0, s)[1] for s in sys.s]
+    g = [1.0, 0]
+    e = [0, 1.0]
+    ω = []
+    T = []
+    a = []
+    b = []
+    c = []
+    d = []
+    for i in eachindex(sys.s)
+        H = Diagonal([sys.ev[i][1], sys.ev[i][2]])
+        U = [cos(θ[i]) -sin(θ[i]); sin(θ[i]) cos(θ[i])]
+        Hr = U' * H * U
+        push!(ω, real(Hr[1,1]-Hr[2,2]))
+        push!(T, Hr[1,2])
+        at = 0.0
+        bt = 0.0
+        ct = 0.0
+        dt = 0.0
+        for op in sys.op[i]
+            or = U' * op * U
+            at += (or[1,1] - or[2,2])^2
+            bt += abs2(or[1,2])
+            ct += or[1,2] * (or[1,1] - or[2,2])
+            dt +=  or[1,2] * (or[1,1] + or[2,2])
+        end
+        push!(a, at)
+        push!(b, bt)
+        push!(c, ct)
+        push!(d, dt)
+    end
+    RotatedTwoLevelParams(sys.s, ω, T, a, b, c, d, θ)
 end
 
 function _zero_rotate(sys::LowLevelParams)
@@ -221,10 +275,9 @@ function rotate_sys(sys::LowLevelParams; method=nothing)
     if method == nothing
         return _zero_rotate(sys)
     elseif method == "interaction"
-        θ = optimal_interaction_angle(sys)
-        return _rotate_by_interaction(sys, θ)
+        return _rotate_by_interaction(sys)
     elseif method == "LZ"
-        nothing
+        return _rotate_by_LZ(sys)
     else
         @warn "No specific method: " method
     end
