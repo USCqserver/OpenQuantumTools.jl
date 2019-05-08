@@ -1,7 +1,7 @@
 """
-    LowLevelParams
+    LowLevelSystem
 
-`LowLevelParams` object to hold a projected low level system.
+Object for a projected low level system. The projection is only valid for real Hamiltonians.
 
 **Fields**
 - `s` -- unitless time grid.
@@ -11,7 +11,7 @@
 - `ref` -- energy eigenstates at the final time
 - `lvl` -- number of levels being kept.
 """
-struct LowLevelParams
+struct LowLevelSystem
     s::AbstractArray{Float64, 1}
     ev::Array{Array{Float64, 1}, 1}
     dθ::Array{Array{Float64, 1}, 1}
@@ -20,10 +20,24 @@ struct LowLevelParams
     lvl::Int
 end
 
-struct RotatedTwoLevelParams
+"""
+    RotatedTwoLevelSystem
+
+Object for a rotated two level system.
+
+**Fields**
+- `s` -- unitless time grid.
+- `ω` -- ω₁₂.
+- `T` -- off diagonal element of the Hamiltonian.
+- `G` -- geometric term.
+- `a`, `b`, `c`, `d` -- projected system bath parameters
+- `θ` -- rotation angle
+"""
+struct RotatedTwoLevelSystem
     s::AbstractArray{Float64, 1}
     ω::Array{Float64, 1}
-    T::Array{ComplexF64, 1}
+    T::Array{Float64, 1}
+    G::Array{Float64, 1}
     a::Array{Float64, 1}
     b::Array{Float64, 1}
     c::Array{Float64, 1}
@@ -31,19 +45,25 @@ struct RotatedTwoLevelParams
     θ::Array{Float64, 1}
 end
 
-function get_dθ(params::LowLevelParams, i, j)
+"""
+    get_dθ(sys::LowLevelSystem[, i=1, j=2])
+
+Get the geometric terms between i, j energy levels from `LowLevelSystem`.
+"""
+function get_dθ(sys::LowLevelSystem, i=1, j=2)
     if j > i
-        idx = (2 * params.lvl - i ) * (i - 1) ÷ 2 + (j - i)
-        return [x[idx] for x in params.dθ]
-    elseif j<i
-        idx = (2 * params.lvl - j ) * (j - 1) ÷ 2 + (i - j)
-        return [-x[idx] for x in params.dθ]
+        idx = (2 * sys.lvl - i ) * (i - 1) ÷ 2 + (j - i)
+        return [x[idx] for x in sys.dθ]
+    elseif j < i
+        idx = (2 * sys.lvl - j ) * (j - 1) ÷ 2 + (i - j)
+        return [-x[idx] for x in sys.dθ]
     else
         error("No diagonal element for dθ.")
     end
 end
 
-function _push_dθ!(params::LowLevelParams, dH, w)
+
+function _push_dθ!(params::LowLevelSystem, dH, w)
     res = []
     for i in 1:params.lvl
         for j in 1+i:params.lvl
@@ -56,7 +76,7 @@ function _push_dθ!(params::LowLevelParams, dH, w)
     push!(params.dθ, res)
 end
 
-function _update_ref!(params::LowLevelParams, v)
+function _update_ref!(params::LowLevelSystem, v)
     for i in 1:params.lvl
         if v[:, i]' * params.ref[:, i] < 0
             params.ref[:, i] = -v[:, i]
@@ -85,17 +105,17 @@ function _init_lowlevel_params(s_axis, w, v, dH, interaction, lvl)
     opt = [v'*x*v for x in interaction]
     push!(op, opt)
     ref = v
-    LowLevelParams(s_axis, ev, dθ, op, ref, lvl)
+    LowLevelSystem(s_axis, ev, dθ, op, ref, lvl)
 end
 
 function empty_lowlevel_params(s_axis, ref)
     ev = Array{Float64, 1}()
     dθ = Array{Array{Float64, 1}, 1}()
     op = Array{Array{Array{Float64, 2},1},1}()
-    LowLevelParams(s_axis, ev, dθ, op, ref, size(ref, 2))
+    LowLevelSystem(s_axis, ev, dθ, op, ref, size(ref, 2))
 end
 
-function params_push!(params::LowLevelParams, w, v, dH, interaction)
+function params_push!(params::LowLevelSystem, w, v, dH, interaction)
     push!(params.ev, w)
     _update_ref!(params, v)
     _push_dθ!(params, dH, w)
@@ -113,12 +133,12 @@ function _init_proj_step(H::Array{T, 2}, dH, interaction, s_axis, lvl, tol) wher
     _init_lowlevel_params(s_axis, w[1:lvl], v[:, 1:lvl], dH, interaction, lvl)
 end
 
-function _proj_step!(params::LowLevelParams, H::SparseMatrixCSC{T, V}, dH, interaction, lvl, tol) where T<:Number where V<:Int
+function _proj_step!(params::LowLevelSystem, H::SparseMatrixCSC{T, V}, dH, interaction, lvl, tol) where T<:Number where V<:Int
     w, v = eigs(H, nev=lvl, which=:SR, tol=tol, v0=params.ref[:,1])
     params_push!(params, w, v, dH, interaction)
 end
 
-function _proj_step!(params::LowLevelParams, H::Array{T, 2}, dH, interaction, lvl, tol) where T<:Number
+function _proj_step!(params::LowLevelSystem, H::Array{T, 2}, dH, interaction, lvl, tol) where T<:Number
     w, v = eigen!(H)
     params_push!(params, w[1:lvl], v[:, 1:lvl], dH, interaction)
 end
@@ -140,7 +160,7 @@ function proj_low_lvl(hfun, dhfun, interaction, s_axis::AbstractArray{T, 1}; ref
     low_obj
 end
 
-function optimal_interaction_angle(low::LowLevelParams)
+function optimal_interaction_angle(low::LowLevelSystem)
     if low.lvl!=2
         error("Optimal rotation only works for the lowest 2 levels.")
     end
@@ -166,7 +186,7 @@ function optimal_interaction_angle(low::LowLevelParams)
     opt_θ
 end
 
-function _rotate_by_interaction(sys::LowLevelParams)
+function _rotate_by_interaction(sys::LowLevelSystem)
     θ = optimal_interaction_angle(sys)
     g = [1.0, 0]
     e = [0, 1.0]
@@ -201,12 +221,12 @@ function _rotate_by_interaction(sys::LowLevelParams)
     θ_itp = construct_interpolations(sys.s, θ, extrapolation="line")
     θᴱ = gradient(θ_itp, sys.s) / 2
     dθ = get_dθ(sys, 1, 2)
-    geo = dθ - θᴱ
-    RotatedTwoLevelParams(sys.s, ω, T-1.0im*geo, a, b, c, d, θ)
+    G = dθ - θᴱ
+    RotatedTwoLevelSystem(sys.s, ω, T, G, a, b, c, d, θ)
 end
 
-function _rotate_by_LZ(sys::LowLevelParams)
-    dθ_itp = construct_interpolations(sys.s, get_dθ(sys, 1, 2), extrapolation="line")
+function _rotate_by_LZ(sys::LowLevelSystem)
+    dθ_itp = construct_interpolations(sys.s, get_dθ(sys), extrapolation="line")
     θᴸ = [quadgk(dθ_itp, 0, s)[1] for s in sys.s]
     g = [1.0, 0]
     e = [0, 1.0]
@@ -218,7 +238,7 @@ function _rotate_by_LZ(sys::LowLevelParams)
     d = []
     for i in eachindex(sys.s)
         H = Diagonal([sys.ev[i][1], sys.ev[i][2]])
-        U = [cos(θ[i]) -sin(θ[i]); sin(θ[i]) cos(θ[i])]
+        U = [cos(θᴸ[i]) -sin(θᴸ[i]); sin(θᴸ[i]) cos(θᴸ[i])]
         Hr = U' * H * U
         push!(ω, real(Hr[1,1]-Hr[2,2]))
         push!(T, Hr[1,2])
@@ -238,21 +258,22 @@ function _rotate_by_LZ(sys::LowLevelParams)
         push!(c, ct)
         push!(d, dt)
     end
-    RotatedTwoLevelParams(sys.s, ω, T, a, b, c, d, θ)
+    G = zeros(length(sys.s))
+    RotatedTwoLevelSystem(sys.s, ω, T, G, a, b, c, d, θᴸ)
 end
 
-function _zero_rotate(sys::LowLevelParams)
+function _zero_rotate(sys::LowLevelSystem)
     g = [1.0, 0]
     e = [0, 1.0]
     ω = []
-    T = []
+    G = []
     a = []
     b = []
     c = []
     d = []
     for i in eachindex(sys.s)
         push!(ω, sys.ev[i][1]-sys.ev[i][2])
-        push!(T, -1.0im*sys.dθ[i][1])
+        push!(G, sys.dθ[i][1])
         at = 0.0
         bt = 0.0
         ct = 0.0
@@ -268,10 +289,11 @@ function _zero_rotate(sys::LowLevelParams)
         push!(c, ct)
         push!(d, dt)
     end
-    RotatedTwoLevelParams(sys.s, ω, T, a, b, c, d, zeros((0,)))
+    T = zeros(length(sys.s))
+    RotatedTwoLevelSystem(sys.s, ω, T, G, a, b, c, d, zeros((0,)))
 end
 
-function rotate_sys(sys::LowLevelParams; method=nothing)
+function rotate_sys(sys::LowLevelSystem; method=nothing)
     if method == nothing
         return _zero_rotate(sys)
     elseif method == "interaction"

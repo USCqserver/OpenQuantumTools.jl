@@ -20,9 +20,9 @@ include("LinearOp/LinearOp.jl")
 include("QSolver/QSolver.jl")
 @reexport using.QSolver
 
+include("Proj/proj_util.jl")
 include("Bath/ohmic.jl")
 include("Bath/hybridohmic.jl")
-include("Proj/proj_util.jl")
 
 export OhmicBath, Ohmic, γ, S, correlation, polaron_correlation, interpolate_spectral_density
 

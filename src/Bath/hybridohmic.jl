@@ -113,12 +113,12 @@ function GL(ω, bath::HybridOhmicBath, a=1)
     sqrt(π/2/W²) * exp(-(ω-4*ϵ)^2/8/W²)
 end
 
-function convolution_rate(sys, bath::HybridOhmicBath)
+function convolution_rate(tf, sys, bath::HybridOhmicBath)
     Γ10 = []
     Γ01 = []
     ϵ = reorganization_energy(bath)
     for i in eachindex(sys.s)
-        T_bar = sys.T[i] - sys.d[i] * ϵ
+        T_bar = sys.T[i] - 1.0im*sys.G[i] / tf - sys.d[i] * ϵ
         A = abs2(T_bar - sys.ω[i] * sys.c[i] / sys.a[i])
         B = (sys.a[i] * sys.b[i] - abs2(sys.c[i])) / sys.a[i]^2
         Δ²(ω) = A + B * (ω^2 + sys.a[i]*bath.W^2)
@@ -128,18 +128,4 @@ function convolution_rate(sys, bath::HybridOhmicBath)
         push!(Γ01, integrate_1d(integrand_21, -Inf, Inf)[1])
     end
     Γ10/2/pi, Γ01/2/pi
-end
-
-function integral_rate(sys, bath::HybridOhmicBath)
-    Γ10 = []
-    Γ01 = []
-    ϵ = reorganization_energy(bath)
-    for i in eachindex(sys.s)
-        T_bar = sys.T[i] - (sys.d[i] + sys.c[i]) * ϵ
-        integrand_12 = (x)->(sys.b[i] * 4 * bath.W^2 + abs2(T_bar)) * polaron_correlation(x, sys.a[i], bath) * exp(1.0im * sys.ω[i] * x)
-        integrand_21 = (x)->(sys.b[i] * 4 * bath.W^2 + abs2(T_bar)) * polaron_correlation(x, sys.a[i], bath) * exp(-1.0im * sys.ω[i] * x)
-        push!(Γ10, integrate_1d(integrand_12, -Inf, Inf)[1])
-        push!(Γ01, integrate_1d(integrand_21, -Inf, Inf)[1])
-    end
-    Γ10, Γ01
 end
