@@ -293,12 +293,22 @@ function _zero_rotate(sys::LowLevelSystem)
     RotatedTwoLevelSystem(sys.s, ω, T, G, a, b, c, d, zeros((0,)))
 end
 
-function rotate_sys(sys::LowLevelSystem; method=nothing)
-    if method == nothing
+"""
+    rotate_lowlevel_system(sys::LowLevelSystem; method=nothing)
+
+Rotate the projected 2 level system in adiabatic frame to a different rotating frame according to `method`.
+
+**method**
+- `"none"` (default) -- no ratation at all.
+- `"env"` -- rotate the system to maximize distinguishability of states with respect to system bath coupling.
+- `lz` -- rotate the system to minimize the Landau-Zener transistion.
+"""
+function rotate_lowlevel_system(sys::LowLevelSystem; method="none")
+    if method == "none"
         return _zero_rotate(sys)
-    elseif method == "interaction"
+    elseif method == "env"
         return _rotate_by_interaction(sys)
-    elseif method == "LZ"
+    elseif method == "lz"
         return _rotate_by_LZ(sys)
     else
         @warn "No specific method: " method
