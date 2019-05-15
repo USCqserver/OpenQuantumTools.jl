@@ -21,7 +21,7 @@ end
 """
     HybridOhmic(W, η, fc, T)
 
-Construct HybridOhmicBath object with parameters in physical units. W: MRT width (mK); η: interaction strength (unitless); fc: Ohmic cutoff frequency (GHz); T: temperature (mK).
+Construct HybridOhmicBath object with parameters in physical units. `W`: MRT width (mK); `η`: interaction strength (unitless); `fc`: Ohmic cutoff frequency (GHz); `T`: temperature (mK).
 """
 function HybridOhmic(W, η, fc, T)
     W = 2 * pi * temperature_2_freq(W)
@@ -39,7 +39,7 @@ function correlation(τ, bath::HybridOhmicBath, a=1)
 end
 
 """
-    polaron_correlation(τ, bath::HybridOhmicBath[, a=1])
+    polaron_correlation(τ, bath::HybridOhmicBath, a=1)
 
 Calculate polaron transformed correlation function of HybridOhmicBath 'bath' at time 'τ' with relative strength `a`. The effective strength will be `` a * W^2`` and `` a * η ``.
 """
@@ -57,7 +57,7 @@ function polaron_correlation(τ, bath::HybridOhmicBath, a=1)
 end
 
 """
-    ohmic_correlation(τ, bath::HybridOhmicBath[, a=1])
+    ohmic_correlation(τ, bath::HybridOhmicBath, a=1)
 
 Calculate the Ohmic part of polaron correlation function of HybridOhmicBath 'bath' at time 'τ' with relative strength `a`. The effective strength is `` a * η ``.
 """
@@ -87,7 +87,7 @@ function Base.show(io::IO, ::MIME"text/plain", m::HybridOhmicBath)
 end
 
 """
-    GH(ω, bath::HybridOhmicBath[, a=1])
+    GH(ω, bath::HybridOhmicBath, a=1)
 
 High frequency noise spectrum of the HybridOhmicBath `bath` with relative strength `a`.
 """
@@ -103,7 +103,7 @@ function GH(ω, bath::HybridOhmicBath, a = 1)
 end
 
 """
-    GL(ω, bath::HybridOhmicBath[, a=1])
+    GL(ω, bath::HybridOhmicBath, a=1)
 
 Low frequency noise specturm of the HybridOhmicBath `bath` with relative strength `a`.
 """

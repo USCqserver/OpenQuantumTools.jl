@@ -8,7 +8,7 @@ _k = 1.38064852
 """
     temperature_2_beta(T; unit=:ħ)
 
-Convert temperature from mK to unit*β
+Convert physical temperature `T` in mK to inverse temperature `β` in `unit`.
 """
 function temperature_2_beta(T; unit=:ħ)
     if unit == :ħ
@@ -23,16 +23,26 @@ end
 """
     temperature_2_freq(T)
 
-Convert temperature from mK to GHz(physical unit)
+Convert temperature from mK to GHz.
 """
 function temperature_2_freq(T)
     _k/_h/10*T
 end
 
+"""
+    beta_2_temperature(β)
+
+Convert inverse temperature `β` in ħ to physical temperature `T` in GHz.
+"""
 function beta_2_temperature(β)
     5*_h/_k/pi/β
 end
 
+"""
+    freq_2_temperature(freq)
+
+Convert frequency in GHz to temperature in mK.
+"""
 function freq_2_temperature(freq)
     10 * freq * _h / _k
 end
