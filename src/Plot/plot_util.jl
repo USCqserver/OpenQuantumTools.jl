@@ -15,7 +15,7 @@ macro publish(ex)
 end
 
 function config!(ex)
-    if ex.head == :call && (ex.args[1] == :plot || ex.args[1] == :plot!)
+    if ex.head == :call && ex.args[1] == :plot
         replace_config!(ex.args)
     else
         error("Expression is not a plot function.")
