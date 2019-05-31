@@ -20,6 +20,7 @@ include("LinearOp/LinearOp.jl")
 include("QSolver/QSolver.jl")
 @reexport using .QSolver
 
+include("Proj/proj_util.jl")
 include("Bath/ohmic.jl")
 include("Bath/hybridohmic.jl")
 include("Plot/plot_util.jl")
