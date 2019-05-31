@@ -301,6 +301,7 @@ function _composite_rotate(sys::LowLevelSystem, rotation_point)
     e = [0, 1.0]
     ω = []
     T = []
+    G = []
     a = []
     b = []
     c = []
