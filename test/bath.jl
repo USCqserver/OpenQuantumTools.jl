@@ -1,4 +1,4 @@
-using QTool, Test
+using QuantumAnnealingTools, Test
 
 η=1e-4
 ωc=8*pi

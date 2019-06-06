@@ -1,3 +1,9 @@
+function load_diff_eq()
+    @eval QuantumAnnealingTools begin
+        using DifferentialEquations:ODEProblem, solve, Tsit5, ODEFunction
+    end
+end
+
 """
     calculate_unitary(𝐇; rtol=1e-6, atol=1e-8)
 

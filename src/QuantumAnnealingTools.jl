@@ -1,4 +1,4 @@
-module QTool
+module QuantumAnnealingTools
 
 using Reexport
 import SpecialFunctions:trigamma
@@ -7,23 +7,20 @@ import Optim:optimize
 @reexport using LinearAlgebra
 @reexport using SparseArrays
 @reexport using Arpack
+@reexport using QInterpolations
+@reexport using QIntegrations
+@reexport using QTBase
 
-include("QInterpolate/QInterpolate.jl")
-include("Integration/Integration.jl")
-@reexport using .QInterpolate
-@reexport using .Integration
-
-include("QTBase/QTBase.jl")
-@reexport using .QTBase
-include("LinearOp/LinearOp.jl")
-@reexport using .LinearOp
-include("QSolver/QSolver.jl")
-@reexport using .QSolver
+include("QSolver/solvers.jl")
+include("QSolver/me_util.jl")
 
 include("Proj/proj_util.jl")
+include("Proj/rotation_util.jl")
+
 include("Bath/ohmic.jl")
 include("Bath/hybridohmic.jl")
-include("Plot/plot_util.jl")
+
+include("plot_util.jl")
 
 
 export OhmicBath, Ohmic, γ, S, correlation, polaron_correlation, interpolate_spectral_density
@@ -31,6 +28,10 @@ export OhmicBath, Ohmic, γ, S, correlation, polaron_correlation, interpolate_sp
 export HybridOhmicBath, HybridOhmic, convolution_rate, integral_rate, reorganization_energy, GL, GH, ohmic_correlation
 
 export  LowLevelSystem, RotatedTwoLevelSystem, proj_low_lvl, optimal_interaction_angle, get_dθ, rotate_lowlevel_system
+
+export load_diff_eq
+export calculate_unitary, check_unitary, solve_schrodinger, solve_von_neumann
+export adiabatic_me_update!, solve_adiabatic_me
 
 export @publish
 

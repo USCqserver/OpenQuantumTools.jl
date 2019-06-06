@@ -1,4 +1,4 @@
-using QTool, Test
+using QuantumAnnealingTools, Test
 
 load_diff_eq()
 hfun(t) = 5*σx

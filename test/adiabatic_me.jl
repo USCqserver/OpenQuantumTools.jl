@@ -1,4 +1,4 @@
-using QTool, Test
+using QuantumAnnealingTools, Test
 
 function gamma(x)
     if x==0

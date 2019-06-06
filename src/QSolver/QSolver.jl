@@ -1,7 +1,6 @@
 module QSolver
 
 import LinearAlgebra:mul!, Matrix, I, Diagonal, axpy!
-include("math_util.jl")
 include("me_util.jl")
 include("solvers.jl")
 
