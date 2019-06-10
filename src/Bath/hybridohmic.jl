@@ -31,6 +31,20 @@ function HybridOhmic(W, η, fc, T)
     HybridOhmicBath(W, ϵ, η, ωc, β)
 end
 
+"""
+    SH(ω, bath::HybridOhmicBath)
+
+Calculate the high frequency spectrum of HybridOhmicBath `bath` at frequency `ω`.
+"""
+function SH(ω, bath::HybridOhmicBath)
+    # comparing with γ for ohmic bath, this function has an additional factor of 4 in front of η because of polaron transformation.
+    if isapprox(ω, 0.0, atol = 1e-9)
+        return 8 * pi* bath.η / bath.β
+    else
+        return 8 * pi * bath.η * ω * exp(-abs(ω)/bath.ωc) / (1 - exp(-bath.β*ω))
+    end
+end
+
 function correlation(τ, bath::HybridOhmicBath, a=1)
     W² = 4 * a * bath.W^2
     x2 = 1 / bath.β / bath.ωc
@@ -111,6 +125,21 @@ function GL(ω, bath::HybridOhmicBath, a=1)
     W² = a * bath.W^2
     ϵ = a * bath.ϵ
     sqrt(π/2/W²) * exp(-(ω-4*ϵ)^2/8/W²)
+end
+
+"""
+    FWHM(a, bath::HybridOhmicBath)
+
+Calculate the full width at half maximum of both the low/high frequency spectrum function ``G_L(ω)`` and ``G_H(ω)``.
+"""
+function FWHM(a, bath::HybridOhmicBath)
+    Wh = 4 * π * a * bath.η / bath.β
+    Wl = 4 * sqrt(2 * log(2) * a) * bath.W
+    Wh, Wl
+end
+
+function delta_approx(a, bath::HybridOhmicBath)
+
 end
 
 function convolution_rate(tf, sys, bath::HybridOhmicBath)

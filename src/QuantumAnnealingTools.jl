@@ -25,7 +25,7 @@ include("plot_util.jl")
 
 export OhmicBath, Ohmic, γ, S, correlation, polaron_correlation, interpolate_spectral_density
 
-export HybridOhmicBath, HybridOhmic, convolution_rate, integral_rate, reorganization_energy, GL, GH, ohmic_correlation
+export HybridOhmicBath, HybridOhmic, convolution_rate, integral_rate, reorganization_energy, GL, GH, ohmic_correlation, FWHM, SH
 
 export  LowLevelSystem, RotatedTwoLevelSystem, proj_low_lvl, optimal_interaction_angle, get_dθ, rotate_lowlevel_system
 

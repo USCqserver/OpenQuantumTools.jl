@@ -65,17 +65,21 @@ end
 """
     proj_low_lvl(hfun, dhfun, interaction, s_axis::AbstractArray{T, 1}; ref=nothing, tol=1e-4, lvl=2) where T<:Number
 
-Project a multi-level quantum system to the lowest `lvl` levels. `hfun` and `dhfun` are the Hamiltonian and its derivative. `interaction` is a list of system bath interaction operators. `s_axis` is the grid for the computation. `ref` is the reference for the initial eigenstates. `tol` specify the error tolerance for eigendecomposition if sparse matrix is used.
+Project a multi-level quantum system to the lowest `lvl` levels. `hfun` and `dhfun` are the Hamiltonian and its derivative. `interaction` is a list of system bath interaction operators. `s_axis` is the grid for the computation. `ref` is the reference for the initial eigenstates. `tol` specify the error tolerance for eigen-decomposition if sparse matrix is used.
 """
 function proj_low_lvl(hfun, dhfun, interaction, s_axis::AbstractArray{T, 1}; ref=nothing, tol=1e-4, lvl=2) where T<:Number
     H = hfun(s_axis[1])
     dH = dhfun(s_axis[1])
+    ev = Array{Float64, 1}()
+    dθ = Array{Array{Float64, 1}, 1}()
+    op = Array{Array{Array{Float64, 2},1},1}()
     if ref==nothing
-        low_obj = _init_proj_step(H, dH, interaction, s_axis, lvl, tol)
+        low_obj = LowLevelSystem(s_axis, ev, dθ, op, zeros(size(H,1), lvl), lvl)
     else
-        low_obj = empty_lowlevel_params(s_axis, ref)
-        _proj_step!(low_obj, H, dH, interaction, lvl, tol)
+        low_obj = LowLevelSystem(s_axis, ev, dθ, op, ref, size(ref, 2))
     end
+    _proj_step!(low_obj, H, dH, interaction, lvl, tol)
+
     for s in s_axis[2:end]
         H = hfun(s)
         dH = dhfun(s)
@@ -84,7 +88,20 @@ function proj_low_lvl(hfun, dhfun, interaction, s_axis::AbstractArray{T, 1}; ref
     low_obj
 end
 
-function _push_dθ!(params::LowLevelSystem, dH, w)
+
+function params_push!(params::LowLevelSystem, w, v, dH, interaction)
+    push!(params.ev, w)
+
+    # update reference vectors
+    for i in 1:params.lvl
+        if v[:, i]' * params.ref[:, i] < 0
+            params.ref[:, i] = -v[:, i]
+        else
+            params.ref[:, i] = v[:, i]
+        end
+    end
+
+    # update dθ
     res = []
     for i in 1:params.lvl
         for j in 1+i:params.lvl
@@ -95,63 +112,10 @@ function _push_dθ!(params::LowLevelSystem, dH, w)
         end
     end
     push!(params.dθ, res)
-end
 
-function _update_ref!(params::LowLevelSystem, v)
-    for i in 1:params.lvl
-        if v[:, i]' * params.ref[:, i] < 0
-            params.ref[:, i] = -v[:, i]
-        else
-            params.ref[:, i] = v[:, i]
-        end
-    end
-end
-
-function _init_lowlevel_params(s_axis, w, v, dH, interaction, lvl)
-    l = length(s_axis)
-    ev = Array{Array{Float64, 1}, 1}()
-    push!(ev, w)
-    dθ = Array{Array{Float64, 1}, 1}()
-    dθt = []
-    for i in 1:lvl
-        for j in 1+i:lvl
-            vi = @view v[:, i]
-            vj = @view v[:, j]
-            t = vi' * dH * vj / (w[i] - w[j])
-            push!(dθt, t)
-        end
-    end
-    push!(dθ, dθt)
-    op = Array{Array{Array{Float64, 2},1},1}()
-    opt = [v'*x*v for x in interaction]
-    push!(op, opt)
-    ref = v
-    LowLevelSystem(s_axis, ev, dθ, op, ref, lvl)
-end
-
-function empty_lowlevel_params(s_axis, ref)
-    ev = Array{Float64, 1}()
-    dθ = Array{Array{Float64, 1}, 1}()
-    op = Array{Array{Array{Float64, 2},1},1}()
-    LowLevelSystem(s_axis, ev, dθ, op, ref, size(ref, 2))
-end
-
-function params_push!(params::LowLevelSystem, w, v, dH, interaction)
-    push!(params.ev, w)
-    _update_ref!(params, v)
-    _push_dθ!(params, dH, w)
+    # update projected interaction operators
     op = [params.ref'*x*params.ref for x in interaction]
     push!(params.op, op)
-end
-
-function _init_proj_step(H::SparseMatrixCSC{T, V}, dH, interaction, s_axis, lvl, tol) where T<:Number where V<:Int
-    w, v = eigs(H, nev=lvl, which=:SR, tol=tol)
-    _init_lowlevel_params(s_axis, w, v, dH, interaction, lvl)
-end
-
-function _init_proj_step(H::Array{T, 2}, dH, interaction, s_axis, lvl, tol) where T<:Number
-    w, v = eigen!(H)
-    _init_lowlevel_params(s_axis, w[1:lvl], v[:, 1:lvl], dH, interaction, lvl)
 end
 
 function _proj_step!(params::LowLevelSystem, H::SparseMatrixCSC{T, V}, dH, interaction, lvl, tol) where T<:Number where V<:Int

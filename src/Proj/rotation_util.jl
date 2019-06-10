@@ -3,6 +3,7 @@ function optimal_interaction_angle(low::LowLevelSystem)
         error("Optimal rotation only works for the lowest 2 levels.")
     end
 
+    # objection function for optimization
     function obj(θ, op)
         g = [1.0, 0]
         e = [0, 1.0]
