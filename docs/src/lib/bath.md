@@ -13,8 +13,6 @@ interpolate_spectral_density(ω_grid::AbstractRange{T}, params::OhmicBath) where
 ```@docs
 HybridOhmicBath
 HybridOhmic(W, η, fc, T)
-reorganization_energy(bath::HybridOhmicBath)
-ohmic_correlation(τ, bath::HybridOhmicBath, a=1)
 polaron_correlation(τ, bath::HybridOhmicBath, a=1)
 GH(ω, bath::HybridOhmicBath, a=1)
 GL(ω, bath::HybridOhmicBath, a=1)

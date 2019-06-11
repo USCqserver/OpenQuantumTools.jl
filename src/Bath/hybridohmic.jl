@@ -5,17 +5,29 @@ A hybrid noise model with both low and high frequency noise. The high frequency 
 
 **Fields**
 - `W` -- MRT width (2π GHz)
-- `ϵ` -- reorganization energy (2π GHz)
-- `η` -- strength.
-- `ωc` -- cutoff frequence.
-- `β` -- inverse temperature.
+- `ϵl` -- low spectrum reorganization energy (2π GHz)
+- `ϵ` -- total reorganization energy (2π GHz)
+- `η` -- strength of high frequency Ohmic bath
+- `ωc` -- cutoff frequence
+- `β` -- inverse temperature
+- `width_h` -- half width at half maximum for high frequency Ohmic bath
+- `width_l` -- half width at half maximu for low frequency slow bath
 """
 struct HybridOhmicBath
     W::Float64
+    ϵl::Float64
     ϵ::Float64
     η::Float64
     ωc::Float64
     β::Float64
+    width_h::Float64
+    width_l::Float64
+end
+
+function Base.show(io::IO, ::MIME"text/plain", m::HybridOhmicBath)
+    print(io, "Hybrid Ohmic bath instance:\n", "W (mK): ", freq_2_temperature(m.W/2/pi), "\n",
+        "ϵl (GHz): ", m.ϵl/2/pi ,"\n",
+        "η (unitless): ", m.η, "\n", "ωc (GHz): ", m.ωc/pi/2, "\n", "T (mK): ", beta_2_temperature(m.β), "\n", "ϵ (GHz): ", m.ϵ/pi/2)
 end
 
 """
@@ -26,23 +38,12 @@ Construct HybridOhmicBath object with parameters in physical units. `W`: MRT wid
 function HybridOhmic(W, η, fc, T)
     W = 2 * pi * temperature_2_freq(W)
     β = temperature_2_beta(T)
-    ϵ = W^2 * β / 2
     ωc = 2 * π * fc
-    HybridOhmicBath(W, ϵ, η, ωc, β)
-end
-
-"""
-    SH(ω, bath::HybridOhmicBath)
-
-Calculate the high frequency spectrum of HybridOhmicBath `bath` at frequency `ω`.
-"""
-function SH(ω, bath::HybridOhmicBath)
-    # comparing with γ for ohmic bath, this function has an additional factor of 4 in front of η because of polaron transformation.
-    if isapprox(ω, 0.0, atol = 1e-9)
-        return 8 * pi* bath.η / bath.β
-    else
-        return 8 * pi * bath.η * ω * exp(-abs(ω)/bath.ωc) / (1 - exp(-bath.β*ω))
-    end
+    ϵl = W^2 * β / 2
+    ϵ = ϵl + 4 * η * ωc
+    width_h = 4 * π * η / β
+    width_l = 2 * sqrt(2 * log(2)) * W
+    HybridOhmicBath(W, ϵl, ϵ, η, ωc, β, width_h, width_l)
 end
 
 function correlation(τ, bath::HybridOhmicBath, a=1)
@@ -59,45 +60,15 @@ Calculate polaron transformed correlation function of HybridOhmicBath 'bath' at 
 """
 function polaron_correlation(τ, bath::HybridOhmicBath, a=1)
     η = a * bath.η
-    ϵ = a * bath.ϵ
+    ϵ = a * bath.ϵl
     W² = a * bath.W^2
     ohmic_part = (1+1.0im*bath.ωc*τ)^(-4*η)
     if !isapprox(τ, 0, atol = 1e-9)
         x = π * τ / bath.β
         ohmic_part *= ( x / sinh(x) )^(4*η)
     end
-    slow_part = exp( - 2.0 * W² * τ^2 - 4.0im * τ * bath.ϵ)
+    slow_part = exp( - 2.0 * W² * τ^2 - 4.0im * τ * ϵ)
     ohmic_part * slow_part
-end
-
-"""
-    ohmic_correlation(τ, bath::HybridOhmicBath, a=1)
-
-Calculate the Ohmic part of polaron correlation function of HybridOhmicBath 'bath' at time 'τ' with relative strength `a`. The effective strength is `` a * η ``.
-"""
-function ohmic_correlation(τ, bath::HybridOhmicBath, a=1)
-    η = a * bath.η
-    res = (1+1.0im*bath.ωc*τ)^(-4*η)
-    if !isapprox(τ, 0, atol = 1e-9)
-        x = π * τ / bath.β
-        res *= ( x / sinh(x) )^(4*η)
-    end
-    res
-end
-
-"""
-    reorganization_energy(bath::HybridOhmicBath)
-
-Calculate the total reorganization energy of HybridOhmicBath `bath`: ``ϵ = ϵ_L + ϵ_H``.
-"""
-function reorganization_energy(bath::HybridOhmicBath)
-    bath.ϵ + 4 * bath.η * bath.ωc
-end
-
-function Base.show(io::IO, ::MIME"text/plain", m::HybridOhmicBath)
-    print(io, "Hybrid Ohmic bath instance:\n", "W (mK): ", freq_2_temperature(m.W/2/pi), "\n",
-        "ϵ (GHz): ", m.ϵ/2/pi ,"\n",
-        "η (unitless): ", m.η, "\n", "ωc (GHz): ", m.ωc/pi/2, "\n", "T (mK): ", beta_2_temperature(m.β))
 end
 
 """
@@ -128,24 +99,27 @@ function GL(ω, bath::HybridOhmicBath, a=1)
 end
 
 """
-    FWHM(a, bath::HybridOhmicBath)
+    half_width_half_maximum(a, bath::HybridOhmicBath)
 
-Calculate the full width at half maximum of both the low/high frequency spectrum function ``G_L(ω)`` and ``G_H(ω)``.
+Calculate the half width at half maximum of both the low/high frequency spectrum function ``G_L(ω)`` and ``G_H(ω)``.
 """
-function FWHM(a, bath::HybridOhmicBath)
-    Wh = 4 * π * a * bath.η / bath.β
-    Wl = 4 * sqrt(2 * log(2) * a) * bath.W
+function half_width_half_maximum(a, bath::HybridOhmicBath)
+    Wh = bath.width_h * a
+    Wl = bath.width_l * sqrt(a)
     Wh, Wl
 end
 
-function delta_approx(a, bath::HybridOhmicBath)
-
+function tunneling_Δ(ω, i, sys, tf, bath::HybridOhmicBath)
+    T_bar = sys.T[i] - 1.0im*sys.G[i] / tf - sys.d[i] * bath.ϵ
+    A = abs2(T_bar - sys.ω[i] * sys.c[i] / sys.a[i])
+    B = (sys.a[i] * sys.b[i] - abs2(sys.c[i])) / sys.a[i]^2
+    A + B * (ω^2 + sys.a[i]*bath.W^2)
 end
 
 function convolution_rate(tf, sys, bath::HybridOhmicBath)
     Γ10 = []
     Γ01 = []
-    ϵ = reorganization_energy(bath)
+    ϵ = bath.ϵ
     for i in eachindex(sys.s)
         T_bar = sys.T[i] - 1.0im*sys.G[i] / tf - sys.d[i] * ϵ
         A = abs2(T_bar - sys.ω[i] * sys.c[i] / sys.a[i])
