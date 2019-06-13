@@ -123,17 +123,31 @@ function tunneling_Δ(ω, i, sys, tf, bath::HybridOhmicBath)
     A + B * (ω^2 + sys.a[i]*bath.W^2)
 end
 
-function gaussian_delta(i, tf, sys, bath::HybridOhmicBath)
+"""
+    bloch_rate(i, tf, sys, bath::HybridOhmicBath)
+
+Calculate the relaxation rate of polaron transformed ME in the Bloch-Redfield limit.
+"""
+function bloch_rate(i, tf, sys, bath::HybridOhmicBath)
     ω = sys.ω[i] - sys.a[i] * bath.ϵl
     W² = bath.W^2
     ω² = ω^2
     a = sys.a[i]
     b = sys.b[i]
     c = sys.c[i]
-    T̃ = sys.T[i] - 1.0im * sys.G[i] / t_f - sys.d[i] * bath.ϵ
+    T̃ = sys.T[i] - 1.0im * sys.G[i] / tf - sys.d[i] * bath.ϵ
     SH = bath.η * ω * exp(-abs(ω)/bath.ωc) / (1 - exp(-bath.β*ω))
     temp1 = (a * (T̃^2 + b*W²) + b*ω² - 2*ω*T̃*c - abs2(c)*W²)
     temp1 * SH / (ω² + a^2*bath.η^2/bath.β^2/4)
+end
+
+function direct_integrate(i, tf, sys, bath::HybridOhmicBath)
+    T̃ = sys.T[i] - 1.0im * sys.G[i] / tf - sys.d[i] * bath.ϵ
+    A = abs2(T̃ - sys.ω[i] * sys.c[i] / sys.a[i])
+    B = (sys.a[i] * sys.b[i] - abs2(sys.c[i])) / sys.a[i]^2
+    Δ²(ω) = A + B * (ω^2 + sys.a[i]*bath.W^2)
+    low_width = bath.width_l * sqrt(a) * 2
+    high_width = bath.width_h * a * 2
 end
 
 function convolution_rate(tf, sys, bath::HybridOhmicBath)
