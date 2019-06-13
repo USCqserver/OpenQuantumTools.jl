@@ -25,9 +25,9 @@ struct HybridOhmicBath
 end
 
 function Base.show(io::IO, ::MIME"text/plain", m::HybridOhmicBath)
-    print(io, "Hybrid Ohmic bath instance:\n", "W (mK): ", freq_2_temperature(m.W/2/pi), "\n",
-        "ϵl (GHz): ", m.ϵl/2/pi ,"\n",
-        "η (unitless): ", m.η, "\n", "ωc (GHz): ", m.ωc/pi/2, "\n", "T (mK): ", beta_2_temperature(m.β), "\n", "ϵ (GHz): ", m.ϵ/pi/2)
+    print(io, "Hybrid Ohmic bath instance:\n", "W (mK): ", freq_2_temperature(m.W/4/pi), "\n",
+        "ϵl (GHz): ", m.ϵl/8/pi ,"\n",
+        "η (unitless): ", m.η/8/π, "\n", "ωc (GHz): ", m.ωc/pi/2, "\n", "T (mK): ", beta_2_temperature(m.β), "\n", "ϵ (GHz): ", m.ϵ/pi/8)
 end
 
 """
@@ -36,21 +36,18 @@ end
 Construct HybridOhmicBath object with parameters in physical units. `W`: MRT width (mK); `η`: interaction strength (unitless); `fc`: Ohmic cutoff frequency (GHz); `T`: temperature (mK).
 """
 function HybridOhmic(W, η, fc, T)
-    W = 2 * pi * temperature_2_freq(W)
+    # scaling of W comes from the definition of interaction term
+    W = 2 * 2 * pi * temperature_2_freq(W)
+    # scaling of η comes from the definition of interaction term and the ohmic spectrum
+    η = 4 * 2 * π * η
+
     β = temperature_2_beta(T)
     ωc = 2 * π * fc
     ϵl = W^2 * β / 2
-    ϵ = ϵl + 4 * η * ωc
-    width_h = 4 * π * η / β
-    width_l = 2 * sqrt(2 * log(2)) * W
+    ϵ = ϵl + η * ωc / 2 / π
+    width_h = η / β / 2
+    width_l = sqrt(2 * log(2)) * W
     HybridOhmicBath(W, ϵl, ϵ, η, ωc, β, width_h, width_l)
-end
-
-function correlation(τ, bath::HybridOhmicBath, a=1)
-    W² = 4 * a * bath.W^2
-    x2 = 1 / bath.β / bath.ωc
-    x1 = 1.0im * τ / bath.β
-    W² + 4 * bath.η * (trigamma(-x1+1+x2)+trigamma(x1+x2)) / bath.β^2
 end
 
 """
@@ -62,12 +59,12 @@ function polaron_correlation(τ, bath::HybridOhmicBath, a=1)
     η = a * bath.η
     ϵ = a * bath.ϵl
     W² = a * bath.W^2
-    ohmic_part = (1+1.0im*bath.ωc*τ)^(-4*η)
+    ohmic_part = (1+1.0im*bath.ωc*τ)^(-η)
     if !isapprox(τ, 0, atol = 1e-9)
         x = π * τ / bath.β
-        ohmic_part *= ( x / sinh(x) )^(4*η)
+        ohmic_part *= ( x / sinh(x) )^(η)
     end
-    slow_part = exp( - 2.0 * W² * τ^2 - 4.0im * τ * ϵ)
+    slow_part = exp( - W² * τ^2 - 1.0im * τ * ϵ)
     ohmic_part * slow_part
 end
 
@@ -78,12 +75,12 @@ High frequency noise spectrum of the HybridOhmicBath `bath` with relative streng
 """
 function GH(ω, bath::HybridOhmicBath, a = 1)
     η = a * bath.η
-    S0 = 8* pi* η / bath.β
+    S0 = η / bath.β
     if isapprox(ω, 0, atol=1e-8)
         return 4 / S0
     else
         γ² = (S0 / 2)^2
-        return 8 * pi * η * ω * exp(-abs(ω)/bath.ωc) / (1 - exp(-bath.β*ω)) / (ω^2 + γ²)
+        return η * ω * exp(-abs(ω)/bath.ωc) / (1 - exp(-bath.β*ω)) / (ω^2 + γ²)
     end
 end
 
@@ -94,8 +91,18 @@ Low frequency noise specturm of the HybridOhmicBath `bath` with relative strengt
 """
 function GL(ω, bath::HybridOhmicBath, a=1)
     W² = a * bath.W^2
-    ϵ = a * bath.ϵ
-    sqrt(π/2/W²) * exp(-(ω-4*ϵ)^2/8/W²)
+    ϵ = a * bath.ϵl
+    sqrt(2*π/W²) * exp(-(ω-ϵ)^2/2/W²)
+end
+
+function spectrum_info(bath::HybridOhmicBath, a = 1)
+    Dict(
+        "low_freq_center" => a * bath.ϵl,
+        "low_freq_height" => sqrt(2*π/a)/bath.W,
+        "low_freq_FWHM" => bath.width_l * sqrt(a) * 2,
+        "high_freq_height" => 4 * bath.β / a / bath.η,
+        "high_freq_FWHM" => bath.width_h * a * 2
+    )
 end
 
 """
@@ -114,6 +121,19 @@ function tunneling_Δ(ω, i, sys, tf, bath::HybridOhmicBath)
     A = abs2(T_bar - sys.ω[i] * sys.c[i] / sys.a[i])
     B = (sys.a[i] * sys.b[i] - abs2(sys.c[i])) / sys.a[i]^2
     A + B * (ω^2 + sys.a[i]*bath.W^2)
+end
+
+function gaussian_delta(i, tf, sys, bath::HybridOhmicBath)
+    ω = sys.ω[i] - sys.a[i] * bath.ϵl
+    W² = bath.W^2
+    ω² = ω^2
+    a = sys.a[i]
+    b = sys.b[i]
+    c = sys.c[i]
+    T̃ = sys.T[i] - 1.0im * sys.G[i] / t_f - sys.d[i] * bath.ϵ
+    SH = bath.η * ω * exp(-abs(ω)/bath.ωc) / (1 - exp(-bath.β*ω))
+    temp1 = (a * (T̃^2 + b*W²) + b*ω² - 2*ω*T̃*c - abs2(c)*W²)
+    temp1 * SH / (ω² + a^2*bath.η^2/bath.β^2/4)
 end
 
 function convolution_rate(tf, sys, bath::HybridOhmicBath)
