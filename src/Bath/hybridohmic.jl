@@ -143,19 +143,23 @@ Calculate the relaxation rate of polaron transformed ME by directly integrating 
 function direct_integrate(i, tf, sys, bath::HybridOhmicBath)
     # get the spectrum widths and centers
     # we use FWHM as a criteria
-    μ = sys.ω[i] -  sys.a[i] * bath.ϵl
+    μ₀₁ = sys.ω[i] -  sys.a[i] * bath.ϵl
+    μ₁₀ = -sys.ω[i] - sys.a[i] * bath.ϵl
     σ = sqrt(sys.a[i]) * bath.width_l
     γ = sys.a[i] * bath.width_h
-    integration_range = sort([μ - 3*σ, μ, μ + 3*σ, -3*γ, 3*γ, 4*γ])
+    integration_range_01 = sort([μ₀₁ - 3*σ, μ₀₁, μ₀₁ + 3*σ, -3*γ, 3*γ, 4*γ])
+    integration_range_10 = sort([μ₁₀ - 3*σ, μ₁₀, μ₁₀ + 3*σ, -3*γ, 3*γ, 4*γ])
     #
     T̃ = sys.T[i] - 1.0im * sys.G[i] / tf - sys.d[i] * bath.ϵ
-    A = abs2(T̃ - sys.ω[i] * sys.c[i] / sys.a[i])
+    A₀₁ = abs2(T̃ - sys.ω[i] * sys.c[i] / sys.a[i])
+    A₁₀ = abs2(T̃ + sys.ω[i] * sys.c[i] / sys.a[i])
     B = (sys.a[i] * sys.b[i] - abs2(sys.c[i])) / sys.a[i]^2
-    Δ²(ω) = A + B * (ω^2 + sys.a[i]*bath.W^2)
-    integrand_01(ω) = Δ²(ω) * GL(sys.ω[i]-ω, bath, sys.a[i]) * GH(ω, bath, sys.a[i])
-    integrand_10(ω) = Δ²(ω) * GL(-sys.ω[i]-ω, bath, sys.a[i]) * GH(ω, bath, sys.a[i])
-    Γ₁₀, err₁₀ = quadgk(integrand_01, integration_range..., rtol=1e-6, atol=1e-6)
-    Γ₀₁, err₀₁ = quadgk(integrand_10, integration_range..., rtol=1e-6, atol=1e-6)
+    Δ²₀₁(ω) = A₀₁ + B * (ω^2 + sys.a[i]*bath.W^2)
+    Δ²₁₀(ω) = A₁₀ + B * (ω^2 + sys.a[i]*bath.W^2)
+    integrand_01(ω) = Δ²₀₁(ω) * GL(sys.ω[i]-ω, bath, sys.a[i]) * GH(ω, bath, sys.a[i])
+    integrand_10(ω) = Δ²₁₀(ω) * GL(-sys.ω[i]-ω, bath, sys.a[i]) * GH(ω, bath, sys.a[i])
+    Γ₁₀, err₁₀ = quadgk(integrand_01, integration_range_01..., rtol=1e-6, atol=1e-6)
+    Γ₀₁, err₀₁ = quadgk(integrand_10, integration_range_10..., rtol=1e-6, atol=1e-6)
     (Γ₀₁/2/π, Γ₁₀/2/π), (err₁₀, err₀₁)
 end
 
