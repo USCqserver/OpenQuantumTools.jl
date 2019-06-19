@@ -15,7 +15,9 @@ macro publish(ex)
 end
 
 function config!(ex)
-    if ex.head == :call
+    if ex.head == :(=)
+        config!(ex.args[2])
+    elseif ex.head == :call
         replace_config!(ex.args)
     else
         error("Expression is not a function call.")
