@@ -51,15 +51,6 @@ function HybridOhmic(W, η, fc, T)
 end
 
 """
-    Sₕ(ω, bath::HybridOhmicBath)
-
-The corresponding Ohmic spectrum of `HybridOhmicBath`.
-"""
-function Sₕ(ω, bath::HybridOhmicBath)
-    isapprox(ω, 0, atol=1e-8) ? bath.η/bath.β : bath.η*ω*exp(-abs(ω)/bath.ωc)/(1 - exp(-bath.β*ω))
-end
-
-"""
     polaron_correlation(τ, bath::HybridOhmicBath, a=1)
 
 Calculate polaron transformed correlation function of HybridOhmicBath 'bath' at time 'τ' with relative strength `a`. The effective strength will be `` a * W^2`` and `` a * η ``.
@@ -163,46 +154,6 @@ function direct_integrate(i, tf, sys, bath::HybridOhmicBath)
     (Γ₀₁/2/π, Γ₁₀/2/π), (err₁₀, err₀₁)
 end
 
-function Γ10(i, tf, sys, bath::HybridOhmicBath)
-    if sys.a[i] < 1e-4
-        # small a and large frequency separation ω
-        low_center = sys.ω[i] - sys.a[i] * bath.ϵl
-        low_width = 2 * sqrt(sys.a[i]) * bath.width_l
-        high_width = 2 * sys.a[i] * bath.width_h
-        if abs(low_center) > low_width + high_width
-            # use bloch_redfield formula for rate calculation
-            res = bloch_rate(i, tf, sys, bath::HybridOhmicBath)
-        else
-            # directly calculate the integral
-            T̃ = sys.T[i] - 1.0im * sys.G[i] / tf - sys.d[i] * bath.ϵ
-            A = abs2(T̃ - sys.ω[i] * sys.c[i] / sys.a[i])
-            B = (sys.a[i] * sys.b[i] - abs2(sys.c[i])) / sys.a[i]^2
-            Δ²(ω) = A + B * (ω^2 + sys.a[i]*bath.W^2)
-            integrand(ω) = Δ²(ω) * GL(sys.ω[i]-ω, bath, sys.a[i]) * GH(ω, bath, sys.a[i])
-            quadgk(integrand, )
-        end
-    else
-        # directly calculate the integral
-    end
-end
-
-function convolution_rate(tf, sys, bath::HybridOhmicBath)
-    Γ10 = []
-    Γ01 = []
-    ϵ = bath.ϵ
-    for i in eachindex(sys.s)
-        T_bar = sys.T[i] - 1.0im*sys.G[i] / tf - sys.d[i] * ϵ
-        A = abs2(T_bar - sys.ω[i] * sys.c[i] / sys.a[i])
-        B = (sys.a[i] * sys.b[i] - abs2(sys.c[i])) / sys.a[i]^2
-        Δ²(ω) = A + B * (ω^2 + sys.a[i]*bath.W^2)
-        integrand_12(ω) = Δ²(ω) * GL(sys.ω[i]-ω, bath, sys.a[i]) * GH(ω, bath, sys.a[i])
-        integrand_21(ω) = Δ²(ω) * GL(-sys.ω[i]-ω, bath, sys.a[i]) * GH(ω, bath, sys.a[i])
-        push!(Γ10, integrate_1d(integrand_12, -Inf, Inf)[1])
-        push!(Γ01, integrate_1d(integrand_21, -Inf, Inf)[1])
-    end
-    Γ10/2/pi, Γ01/2/pi
-end
-
 function spectrum_info(bath::HybridOhmicBath, a = 1)
     Dict(
         "low_freq_center" => a * bath.ϵl,
@@ -222,4 +173,13 @@ function half_width_half_maximum(a, bath::HybridOhmicBath)
     Wh = bath.width_h * a
     Wl = bath.width_l * sqrt(a)
     Wh, Wl
+end
+
+"""
+    Sₕ(ω, bath::HybridOhmicBath)
+
+The corresponding Ohmic spectrum of `HybridOhmicBath`.
+"""
+function Sₕ(ω, bath::HybridOhmicBath)
+    isapprox(ω, 0, atol=1e-8) ? bath.η/bath.β : bath.η*ω*exp(-abs(ω)/bath.ωc)/(1 - exp(-bath.β*ω))
 end
