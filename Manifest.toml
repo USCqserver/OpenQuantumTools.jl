@@ -87,9 +87,9 @@ uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 
 [[DelayDiffEq]]
 deps = ["DataStructures", "DiffEqBase", "DiffEqDiffTools", "ForwardDiff", "MuladdMacro", "NLSolversBase", "OrdinaryDiffEq", "RecursiveArrayTools", "Reexport", "Roots"]
-git-tree-sha1 = "12bda48c7a4727841b38656f59c2135d48e49d81"
+git-tree-sha1 = "e708554b9d58f3a6d67093b0da5e1864e6bbcbfc"
 uuid = "bcd4f6db-9728-5f36-b5f7-82caef46ccdb"
-version = "5.3.0"
+version = "5.4.0"
 
 [[DelimitedFiles]]
 deps = ["Mmap"]

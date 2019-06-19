@@ -75,10 +75,13 @@ function proj_low_lvl(hfun, dhfun, interaction, s_axis::AbstractArray{T, 1}; ref
     op = Array{Array{Array{Float64, 2},1},1}()
     if ref==nothing
         low_obj = LowLevelSystem(s_axis, ev, dθ, op, zeros(size(H,1), lvl), lvl)
+        # v0 for eigs can not be a full zero vector, need to deal with separately
+        w, v = eigs(H, nev=lvl, which=:SR, tol=tol)
+        params_push!(low_obj, w, v, dH, interaction)
     else
         low_obj = LowLevelSystem(s_axis, ev, dθ, op, ref, size(ref, 2))
+        _proj_step!(low_obj, H, dH, interaction, lvl, tol)
     end
-    _proj_step!(low_obj, H, dH, interaction, lvl, tol)
 
     for s in s_axis[2:end]
         H = hfun(s)
@@ -88,6 +91,15 @@ function proj_low_lvl(hfun, dhfun, interaction, s_axis::AbstractArray{T, 1}; ref
     low_obj
 end
 
+function _proj_step!(params::LowLevelSystem, H::SparseMatrixCSC{T, V}, dH, interaction, lvl, tol) where T<:Number where V<:Int
+    w, v = eigs(H, nev=lvl, which=:SR, tol=tol, v0=params.ref[:,1])
+    params_push!(params, w, v, dH, interaction)
+end
+
+function _proj_step!(params::LowLevelSystem, H::Array{T, 2}, dH, interaction, lvl, tol) where T<:Number
+    w, v = eigen!(H)
+    params_push!(params, w[1:lvl], v[:, 1:lvl], dH, interaction)
+end
 
 function params_push!(params::LowLevelSystem, w, v, dH, interaction)
     push!(params.ev, w)
@@ -116,14 +128,4 @@ function params_push!(params::LowLevelSystem, w, v, dH, interaction)
     # update projected interaction operators
     op = [params.ref'*x*params.ref for x in interaction]
     push!(params.op, op)
-end
-
-function _proj_step!(params::LowLevelSystem, H::SparseMatrixCSC{T, V}, dH, interaction, lvl, tol) where T<:Number where V<:Int
-    w, v = eigs(H, nev=lvl, which=:SR, tol=tol, v0=params.ref[:,1])
-    params_push!(params, w, v, dH, interaction)
-end
-
-function _proj_step!(params::LowLevelSystem, H::Array{T, 2}, dH, interaction, lvl, tol) where T<:Number
-    w, v = eigen!(H)
-    params_push!(params, w[1:lvl], v[:, 1:lvl], dH, interaction)
 end
