@@ -190,7 +190,7 @@ function projected_bath_parameters(op_list)
     b = 0.0
     c = 0.0
     d = 0.0
-    for op in op_list[i]
+    for op in op_list
         a += (op[1,1] - op[2,2])^2
         b += abs2(op[1,2])
         c += op[1,2] * (op[1,1] - op[2,2])
