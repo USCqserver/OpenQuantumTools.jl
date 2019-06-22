@@ -69,11 +69,11 @@ function polaron_correlation(τ, bath::HybridOhmicBath, a=1)
 end
 
 """
-    GH(ω, bath::HybridOhmicBath, a=1)
+    Gₕ(ω, bath::HybridOhmicBath, a=1)
 
 High frequency noise spectrum of the HybridOhmicBath `bath` with relative strength `a`.
 """
-function GH(ω, bath::HybridOhmicBath, a = 1)
+function Gₕ(ω, bath::HybridOhmicBath, a = 1)
     η = a * bath.η
     S0 = η / bath.β
     if isapprox(ω, 0, atol=1e-8)
@@ -85,21 +85,14 @@ function GH(ω, bath::HybridOhmicBath, a = 1)
 end
 
 """
-    GL(ω, bath::HybridOhmicBath, a=1)
+    Gₗ(ω, bath::HybridOhmicBath, a=1)
 
 Low frequency noise specturm of the HybridOhmicBath `bath` with relative strength `a`.
 """
-function GL(ω, bath::HybridOhmicBath, a=1)
+function Gₗ(ω, bath::HybridOhmicBath, a=1)
     W² = a * bath.W^2
     ϵ = a * bath.ϵl
     sqrt(2*π/W²) * exp(-(ω-ϵ)^2/2/W²)
-end
-
-function tunneling_Δ(ω, i, sys, tf, bath::HybridOhmicBath)
-    T_bar = sys.T[i] - 1.0im*sys.G[i]/tf - sys.d[i]*bath.ϵ
-    A = abs2(T_bar - sys.ω[i]*sys.c[i]/sys.a[i])
-    B = (sys.a[i]*sys.b[i] - abs2(sys.c[i]))/sys.a[i]^2
-    A + B*(ω^2 + sys.a[i]*bath.W^2)
 end
 
 """
@@ -133,13 +126,13 @@ Calculate the relaxation rate of polaron transformed ME by directly integrating 
 """
 function direct_integrate(i, tf, sys, bath::HybridOhmicBath)
     # get the spectrum widths and centers
-    # we use FWHM as a criteria
+    # we use 3σ for Gaussian profile
     μ₀₁ = sys.ω[i] -  sys.a[i] * bath.ϵl
     μ₁₀ = -sys.ω[i] - sys.a[i] * bath.ϵl
     σ = sqrt(sys.a[i]) * bath.width_l
     γ = sys.a[i] * bath.width_h
-    integration_range_01 = sort([μ₀₁ - 3*σ, μ₀₁, μ₀₁ + 3*σ, -3*γ, 3*γ, 4*γ])
-    integration_range_10 = sort([μ₁₀ - 3*σ, μ₁₀, μ₁₀ + 3*σ, -3*γ, 3*γ, 4*γ])
+    integration_range_01 = sort([μ₀₁ - 3*σ, μ₀₁, μ₀₁ + 3*σ, -3*γ, 0, 3*γ, 2*σ, -2*σ])
+    integration_range_10 = sort([μ₁₀ - 3*σ, μ₁₀, μ₁₀ + 3*σ, -3*γ, 0, 3*γ, 2*σ, -2*σ])
     #
     T̃ = sys.T[i] - 1.0im * sys.G[i] / tf - sys.d[i] * bath.ϵ
     A₀₁ = abs2(T̃ - sys.ω[i] * sys.c[i] / sys.a[i])
@@ -147,11 +140,24 @@ function direct_integrate(i, tf, sys, bath::HybridOhmicBath)
     B = (sys.a[i] * sys.b[i] - abs2(sys.c[i])) / sys.a[i]^2
     Δ²₀₁(ω) = A₀₁ + B * (ω^2 + sys.a[i]*bath.W^2)
     Δ²₁₀(ω) = A₁₀ + B * (ω^2 + sys.a[i]*bath.W^2)
-    integrand_01(ω) = Δ²₀₁(ω) * GL(sys.ω[i]-ω, bath, sys.a[i]) * GH(ω, bath, sys.a[i])
-    integrand_10(ω) = Δ²₁₀(ω) * GL(-sys.ω[i]-ω, bath, sys.a[i]) * GH(ω, bath, sys.a[i])
+    integrand_01(ω) = Δ²₀₁(ω) * Gₗ(sys.ω[i]-ω, bath, sys.a[i]) * Gₕ(ω, bath, sys.a[i])
+    integrand_10(ω) = Δ²₁₀(ω) * Gₗ(-sys.ω[i]-ω, bath, sys.a[i]) * Gₕ(ω, bath, sys.a[i])
     Γ₁₀, err₁₀ = quadgk(integrand_01, integration_range_01..., rtol=1e-6, atol=1e-6)
     Γ₀₁, err₀₁ = quadgk(integrand_10, integration_range_10..., rtol=1e-6, atol=1e-6)
     (Γ₀₁/2/π, Γ₁₀/2/π), (err₁₀, err₀₁)
+end
+
+function integration_range(i, integrand_01, integrand_10, sys, bath)
+    μ₀₁ = sys.ω[i] -  sys.a[i] * bath.ϵl
+    μ₁₀ = -sys.ω[i] - sys.a[i] * bath.ϵl
+    σ = sqrt(sys.a[i]) * bath.width_l
+    γ = sys.a[i] * bath.width_h
+    integration_range_01 = sort([μ₀₁ - 3*σ, μ₀₁, μ₀₁ + 3*σ, -3*γ, 0, 3*γ, 4*γ])
+    integration_range_10 = sort([μ₁₀ - 3*σ, μ₁₀, μ₁₀ + 3*σ, -3*γ, 0, 3*γ, 4*γ])
+    # range for 01 term
+    integrand_01(μ₀₁)
+    # range for 10 term
+    integrand_10()
 end
 
 function spectrum_info(bath::HybridOhmicBath, a = 1)
