@@ -1,3 +1,17 @@
+macro unitary_landau_zener(θ)
+    return quote
+        local val = $(esc(θ))
+        [cos(val) -sin(val); sin(val) cos(val)]
+    end
+end
+
+macro unitary_interaction(θ)
+    return quote
+        local val = $(esc(θ))
+        [-cos(val/2 - π/4) -cos(val/2 + π/4); cos(val/2 + π/4) -cos(val/2 - π/4)]
+    end
+end
+
 """
     rotate_lowlevel_system(sys::LowLevelSystem; method=nothing)
 
@@ -34,21 +48,11 @@ function _rotate_by_interaction(sys::LowLevelSystem)
     d = []
     for i in eachindex(sys.s)
         H = Diagonal([sys.ev[i][1], sys.ev[i][2]])
-        U = [-cos(θ[i]/2 - π/4) -cos(θ[i]/2 + π/4); cos(θ[i]/2 + π/4) -cos(θ[i]/2 - π/4)]
+        U = @unitary_interaction(θ[i])
         Hr = U' * H * U
         push!(ω, real(Hr[1,1]-Hr[2,2]))
         push!(T, Hr[1,2])
-        at = 0.0
-        bt = 0.0
-        ct = 0.0
-        dt = 0.0
-        for op in sys.op[i]
-            or = U' * op * U
-            at += (or[1,1] - or[2,2])^2
-            bt += abs2(or[1,2])
-            ct += or[1,2] * (or[1,1] - or[2,2])
-            dt +=  or[1,2] * (or[1,1] + or[2,2])
-        end
+        at, bt, ct, dt = projected_bath_parameters(U, sys.op[i])
         push!(a, at)
         push!(b, bt)
         push!(c, ct)
@@ -89,7 +93,7 @@ function optimal_interaction_angle(low::LowLevelSystem)
 end
 
 function _rotate_by_LZ(sys::LowLevelSystem)
-    dθ_itp = construct_interpolations(sys.s, get_dθ(sys), extrapolation="line")
+    dθ_itp = construct_interpolations(sys.s, -get_dθ(sys), extrapolation="line")
     θᴸ = [quadgk(dθ_itp, 0, s)[1] for s in sys.s]
     g = [1.0, 0]
     e = [0, 1.0]
@@ -101,21 +105,11 @@ function _rotate_by_LZ(sys::LowLevelSystem)
     d = []
     for i in eachindex(sys.s)
         H = Diagonal([sys.ev[i][1], sys.ev[i][2]])
-        U = [cos(θᴸ[i]) -sin(θᴸ[i]); sin(θᴸ[i]) cos(θᴸ[i])]
+        U = @unitary_landau_zener(θᴸ[i])
         Hr = U' * H * U
         push!(ω, real(Hr[1,1]-Hr[2,2]))
         push!(T, Hr[1,2])
-        at = 0.0
-        bt = 0.0
-        ct = 0.0
-        dt = 0.0
-        for op in sys.op[i]
-            or = U' * op * U
-            at += (or[1,1] - or[2,2])^2
-            bt += abs2(or[1,2])
-            ct += or[1,2] * (or[1,1] - or[2,2])
-            dt +=  or[1,2] * (or[1,1] + or[2,2])
-        end
+        at, bt, ct, dt = projected_bath_parameters(U, sys.op[i])
         push!(a, at)
         push!(b, bt)
         push!(c, ct)
@@ -137,16 +131,7 @@ function _zero_rotate(sys::LowLevelSystem)
     for i in eachindex(sys.s)
         push!(ω, sys.ev[i][1]-sys.ev[i][2])
         push!(G, sys.dθ[i][1])
-        at = 0.0
-        bt = 0.0
-        ct = 0.0
-        dt = 0.0
-        for op in sys.op[i]
-            at += (op[1,1] - op[2,2])^2
-            bt += abs2(op[1,2])
-            ct += op[1,2] * (op[1,1] - op[2,2])
-            dt +=  op[1,2] * (op[1,1] + op[2,2])
-        end
+        at, bt, ct, dt = projected_bath_parameters(sys.op[i])
         push!(a, at)
         push!(b, bt)
         push!(c, ct)
@@ -157,7 +142,7 @@ function _zero_rotate(sys::LowLevelSystem)
 end
 
 function _composite_rotate(sys::LowLevelSystem, rotation_point)
-    dθ_itp = construct_interpolations(sys.s[rotation_point:end], get_dθ(sys)[rotation_point:end], extrapolation="line")
+    dθ_itp = construct_interpolations(sys.s[rotation_point:end], -get_dθ(sys)[rotation_point:end], extrapolation="line")
     θᴸ_2 = [quadgk(dθ_itp, sys.s[rotation_point], s)[1] for s in sys.s[rotation_point:end]]
     θᴸ_1 = zeros(rotation_point-1)
     θᴸ = vcat(θᴸ_1, θᴸ_2)
@@ -175,16 +160,7 @@ function _composite_rotate(sys::LowLevelSystem, rotation_point)
         push!(ω, sys.ev[i][1]-sys.ev[i][2])
         push!(G, sys.dθ[i][1])
         push!(T, 0.0)
-        at = 0.0
-        bt = 0.0
-        ct = 0.0
-        dt = 0.0
-        for op in sys.op[i]
-            at += (op[1,1] - op[2,2])^2
-            bt += abs2(op[1,2])
-            ct += op[1,2] * (op[1,1] - op[2,2])
-            dt +=  op[1,2] * (op[1,1] + op[2,2])
-        end
+        at, bt, ct, dt = projected_bath_parameters(sys.op[i])
         push!(a, at)
         push!(b, bt)
         push!(c, ct)
@@ -193,26 +169,46 @@ function _composite_rotate(sys::LowLevelSystem, rotation_point)
     # === second half ===
     for i in rotation_point:length(sys.s)
         H = Diagonal([sys.ev[i][1], sys.ev[i][2]])
-        U = [cos(θᴸ[i]) -sin(θᴸ[i]); sin(θᴸ[i]) cos(θᴸ[i])]
+        U = @unitary_landau_zener(θᴸ[i])
         Hr = U' * H * U
         push!(ω, real(Hr[1,1]-Hr[2,2]))
         push!(T, Hr[1,2])
         push!(G, 0.0)
-        at = 0.0
-        bt = 0.0
-        ct = 0.0
-        dt = 0.0
-        for op in sys.op[i]
-            or = U' * op * U
-            at += (or[1,1] - or[2,2])^2
-            bt += abs2(or[1,2])
-            ct += or[1,2] * (or[1,1] - or[2,2])
-            dt +=  or[1,2] * (or[1,1] + or[2,2])
-        end
+        at, bt, ct, dt = projected_bath_parameters(U, sys.op[i])
         push!(a, at)
         push!(b, bt)
         push!(c, ct)
         push!(d, dt)
     end
     RotatedTwoLevelSystem(sys.s, ω, T, G, a, b, c, d, θᴸ)
+end
+
+
+function projected_bath_parameters(U, op_list)
+    a = 0.0
+    b = 0.0
+    c = 0.0
+    d = 0.0
+    for op in op_list
+        or = U' * op * U
+        a += (or[1,1] - or[2,2])^2
+        b += abs2(or[1,2])
+        c += or[1,2] * (or[1,1] - or[2,2])
+        d +=  or[1,2] * (or[1,1] + or[2,2])
+    end
+    a, b, c, d
+end
+
+function projected_bath_parameters(op_list)
+    a = 0.0
+    b = 0.0
+    c = 0.0
+    d = 0.0
+    for op in op_list[i]
+        a += (op[1,1] - op[2,2])^2
+        b += abs2(op[1,2])
+        c += op[1,2] * (op[1,1] - op[2,2])
+        d +=  op[1,2] * (op[1,1] + op[2,2])
+    end
+    a, b, c, d
 end

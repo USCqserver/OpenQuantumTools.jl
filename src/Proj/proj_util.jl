@@ -76,7 +76,13 @@ function proj_low_lvl(hfun, dhfun, interaction, s_axis::AbstractArray{T, 1}; ref
     if ref==nothing
         low_obj = LowLevelSystem(s_axis, ev, dθ, op, zeros(size(H,1), lvl), lvl)
         # v0 for eigs can not be a full zero vector, need to deal with separately
-        w, v = eigs(H, nev=lvl, which=:SR, tol=tol)
+        if issparse(H)
+            w, v = eigs(H, nev=lvl, which=:SR, tol=tol)
+        else
+            w, v = eigen!(H)
+            w = w[1:lvl]
+            v = v[:, 1:lvl]
+        end
         params_push!(low_obj, w, v, dH, interaction)
     else
         low_obj = LowLevelSystem(s_axis, ev, dθ, op, ref, size(ref, 2))
