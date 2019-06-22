@@ -1,17 +1,3 @@
-macro unitary_landau_zener(θ)
-    return quote
-        local val = $(esc(θ))
-        [cos(val) -sin(val); sin(val) cos(val)]
-    end
-end
-
-macro unitary_interaction(θ)
-    return quote
-        local val = $(esc(θ))
-        [-cos(val/2 - π/4) -cos(val/2 + π/4); cos(val/2 + π/4) -cos(val/2 - π/4)]
-    end
-end
-
 """
     rotate_lowlevel_system(sys::LowLevelSystem; method=nothing)
 
@@ -48,7 +34,7 @@ function _rotate_by_interaction(sys::LowLevelSystem)
     d = []
     for i in eachindex(sys.s)
         H = Diagonal([sys.ev[i][1], sys.ev[i][2]])
-        U = @unitary_interaction(θ[i])
+        U = unitary_interaction(θ[i])
         Hr = U' * H * U
         push!(ω, real(Hr[1,1]-Hr[2,2]))
         push!(T, Hr[1,2])
@@ -105,7 +91,7 @@ function _rotate_by_LZ(sys::LowLevelSystem)
     d = []
     for i in eachindex(sys.s)
         H = Diagonal([sys.ev[i][1], sys.ev[i][2]])
-        U = @unitary_landau_zener(θᴸ[i])
+        U = unitary_landau_zener(θᴸ[i])
         Hr = U' * H * U
         push!(ω, real(Hr[1,1]-Hr[2,2]))
         push!(T, Hr[1,2])
@@ -169,7 +155,7 @@ function _composite_rotate(sys::LowLevelSystem, rotation_point)
     # === second half ===
     for i in rotation_point:length(sys.s)
         H = Diagonal([sys.ev[i][1], sys.ev[i][2]])
-        U = @unitary_landau_zener(θᴸ[i])
+        U = unitary_landau_zener(θᴸ[i])
         Hr = U' * H * U
         push!(ω, real(Hr[1,1]-Hr[2,2]))
         push!(T, Hr[1,2])
@@ -211,4 +197,18 @@ function projected_bath_parameters(op_list)
         d +=  op[1,2] * (op[1,1] + op[2,2])
     end
     a, b, c, d
+end
+
+function unitary_landau_zener(θ)
+    return quote
+        local val = $(esc(θ))
+        [cos(val) -sin(val); sin(val) cos(val)]
+    end
+end
+
+function unitary_interaction(θ)
+    return quote
+        local val = $(esc(θ))
+        [-cos(val/2 - π/4) -cos(val/2 + π/4); cos(val/2 + π/4) -cos(val/2 - π/4)]
+    end
 end
