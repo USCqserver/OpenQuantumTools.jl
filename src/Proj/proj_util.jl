@@ -132,6 +132,7 @@ function params_push!(params::LowLevelSystem, w, v, dH, interaction)
     push!(params.dθ, res)
 
     # update projected interaction operators
-    op = [params.ref'*x*params.ref for x in interaction]
+    # parenthsis ensure sparse matrix multiplication is performed first
+    op = [params.ref'*(x*params.ref) for x in interaction]
     push!(params.op, op)
 end
