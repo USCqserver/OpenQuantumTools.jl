@@ -50,8 +50,16 @@ Calculate the Lamb shift of Ohmic spectrum. `atol` is the absolute tolerance for
 """
 function S(w, params::OhmicBath; atol=1e-7)
     f(x)= γ(x, params)
-    res = cauchy_principal_value(f, w, atol=atol)
-    -res[1]/2/pi
+    g(x) = f(x) / (x - w)
+    cpv, cperr = cpvagk(f, w, w-1.0, w+1.0)
+    negv, negerr = quadgk(g, -Inf, w-1.0)
+    posv, poserr = quadgk(g, w+1.0, Inf)
+    v = cpv + negv + posv
+    err = cperr + negerr + poserr
+    if (err > atol) || (isnan(err))
+        @warn "Absolute error of integration is larger than the tolerance."
+    end
+    -v/2/pi
 end
 
 """

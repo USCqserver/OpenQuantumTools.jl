@@ -3,12 +3,12 @@ module QuantumAnnealingTools
 using Reexport
 import SpecialFunctions:trigamma
 import Optim:optimize
+import QuadGK:quadgk
 
 @reexport using LinearAlgebra
 @reexport using SparseArrays
 @reexport using Arpack
 @reexport using QInterpolations
-@reexport using QIntegrations
 @reexport using QTBase
 
 include("QSolver/solvers.jl")
