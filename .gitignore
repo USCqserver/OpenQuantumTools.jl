@@ -115,4 +115,4 @@ dev_draft/
 dev_archive/
 
 docs/build/
-docs/Manifest.toml
+docs/src/Manifest.toml
