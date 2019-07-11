@@ -1,6 +1,6 @@
 # HOME
 
-*This is a quantum toolbox for Julia programming language.*
+*This is a quantum annealing toolbox for Julia programming language.*
 
 This package has the following features
 
@@ -23,8 +23,37 @@ true
 ```
 Additionally, a sparse version of Pauli matrices are defined in ```spσx``` et al. They can be used to construct Hamiltonian in the form of sparse matrix.
 ### Construction of Multi-Qubits Matrices
-Multi-qubits matrices can be construct with two different methods.
-
+The package provides various utility functions to construct multi-qubits matrices. For all the functions listed below, keyword argument `sp` can be set to generate sparse matrices.
+1. The standard driver Hamiltonian in quantum annealing can be constructed with [`standard_driver`](@ref)
+```julia-repl
+julia> standard_driver(2) == σx⊗σi + σi⊗σx
+true
+```
+and for sparse matrices
+```julia-repl
+julia> standard_driver(2, sp=true) == spσx⊗spσi + spσi⊗spσx
+true
+```
+2. A multi-qubits matrix can be constructed from its string representation using [`q_translate`](@ref) function.
+```julia-repl
+julia> q_translate("ZZ+0.5ZI-XZ")
+4×4 Array{Complex{Float64},2}:
+  1.5+0.0im   0.0+0.0im  -1.0+0.0im   0.0+0.0im
+  0.0+0.0im  -0.5+0.0im   0.0+0.0im   1.0+0.0im
+ -1.0+0.0im   0.0+0.0im  -1.5+0.0im  -0.0+0.0im
+  0.0+0.0im   1.0+0.0im  -0.0+0.0im   0.5+0.0im
+```
+3. Collective operators(same Pauli operator acting on each individual qubit) can be constructed with [`collective_operator`](@ref)
+```julia-repl
+julia> collective_operator("z", 3) ≈ σz⊗σi⊗σi + σi⊗σz⊗σi + σi⊗σi⊗σz
+true
+```
+4. Single clause in mult-qubits Hamiltonian can be constructed by
+```julia-repl
+julia> single_clause(["z","z"], [2,3], -2, 4) == -2σi⊗σz⊗σz⊗σi
+true
+```
+### Hamiltonians
 ### Adiabatic Master Equation
 
 
