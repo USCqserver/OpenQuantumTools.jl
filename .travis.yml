@@ -17,7 +17,11 @@ jobs:
       julia: 1.0
       os: linux
       script:
-        - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
-                                               Pkg.instantiate()'
-        - julia --project=docs/ docs/make.jl
+        - julia --project=docs/ -e 'using Pkg;
+                                    Pkg.develop(PackageSpec(url=\"https://github.com/USCqserver/QTBase.jl\"));
+                                    Pkg.develop(PackageSpec(path=pwd()));
+                                    Pkg.instantiate()'
+       - julia --project=docs/ docs/make.jl
       after_success: skip
+
+julia --project=docs/ -e "using Pkg;  ; Pkg.instantiate()"
