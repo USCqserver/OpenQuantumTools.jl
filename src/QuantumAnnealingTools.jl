@@ -28,8 +28,7 @@ export HybridOhmicBath, HybridOhmic, convolution_rate, Gₗ, Gₕ, half_width_ha
 
 export  LowLevelSystem, RotatedTwoLevelSystem, proj_low_lvl, optimal_interaction_angle, get_dθ, rotate_lowlevel_system, @unitary_landau_zener, @unitary_interaction
 
-export load_diff_eq
-export solve_schrodinger, solve_von_neumann
+export solve_von_neumann
 export adiabatic_me_update!, solve_adiabatic_me
 
 export @publish

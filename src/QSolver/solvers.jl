@@ -1,23 +1,3 @@
-function load_diff_eq()
-    @eval QuantumAnnealingTools begin
-        using DifferentialEquations:ODEProblem, solve, Tsit5, ODEFunction
-    end
-end
-
-function solve_schrodinger(𝐇, u0; kwargs...)
-    function f(du, u, p, t)
-        hmat = -1.0im * 𝐇(t)
-        mul!(du, hmat, u)
-    end
-    function f_jac(J, u, p, t)
-        hmat = 𝐇(t)
-        mul!(J, -1.0im, hmat)
-    end
-    ff =ODEFunction(f; jac=f_jac)
-    prob = ODEProblem(ff, u0, (0.0, 1.0))
-    sol = solve(prob, Tsit5(); kwargs...)
-end
-
 function solve_von_neumann(𝐇, u0; kwargs...)
     function f(du, u, p ,t)
         hmat = -1.0im * 𝐇(t)

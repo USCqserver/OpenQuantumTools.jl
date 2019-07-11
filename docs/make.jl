@@ -9,5 +9,9 @@ makedocs(sitename="QuantumAnnealingTools",
             "Bath" => "lib/bath.md"
         ]
     ],
-    format = Documenter.HTML(prettyurls = false)
+    format = Documenter.HTML(prettyurls = !("local" in ARGS))
+)
+
+deploydocs(
+    repo = "github.com/USCqserver/QuantumAnnealingTools.jl.git",
 )
