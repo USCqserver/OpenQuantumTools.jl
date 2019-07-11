@@ -115,4 +115,5 @@ dev_draft/
 dev_archive/
 
 docs/build/
+docs/Project.toml
 docs/Manifest.toml
