@@ -98,7 +98,17 @@ function interpolate_spectral_density(ω_grid::AbstractRange{T}, params::OhmicBa
     (ω)->γ(ω, params), s_itp
 end
 
-function generate_redfield_operator(coupling, unitary, tf, bath::OhmicBath)
+function create_redfield(coupling, unitary, tf, bath::OhmicBath)
     cfun(s) = correlation(s*tf, bath)
     RedfieldOperator(coupling, unitary, cfun)
+end
+
+function create_davies(coupling, bath::OhmicBath; ω_range = nothing)
+    if ω_range == nothing
+        γ(ω) = γ(ω, bath)
+        S(ω) = S(ω, bath)
+    else
+        γ, S = interpolate_spectral_density(ω_range, bath)
+    end
+    DaviesGenerator(coupling, γ, S)
 end

@@ -239,7 +239,7 @@ uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [[QTBase]]
 deps = ["Arpack", "DiffEqBase", "DocStringExtensions", "Interpolations", "LinearAlgebra", "QuadGK", "SparseArrays"]
-git-tree-sha1 = "00a82ad54e38184cdd72506df3cb6a9234378730"
+git-tree-sha1 = "1695ad6de1eb0b5b5165c60407f84e914f22bb47"
 repo-rev = "master"
 repo-url = "https://github.com/USCqserver/QTBase.jl"
 uuid = "5dd19120-8766-11e9-1ef9-27094038a7db"

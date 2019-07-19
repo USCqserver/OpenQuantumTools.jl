@@ -1,13 +1,3 @@
-function solve_von_neumann(𝐇, u0; kwargs...)
-    function f(du, u, p ,t)
-        hmat = -1.0im * 𝐇(t)
-        mul!(du, hmat, u)
-        axpy!(-1.0, u*hmat, du)
-    end
-    prob = ODEProblem(f, u0, (0.0,1.0))
-    sol = solve(prob,Tsit5(); kwargs...)
-end
-
 function adiabatic_frame_ame(hfun, u0, inter_op, γf, sf; rtol=1e-6, atol=1e-6)
     function f(du, u, p, t)
         hmat = -1.0im * hfun(t)
