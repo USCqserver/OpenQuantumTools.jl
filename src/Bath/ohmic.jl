@@ -97,3 +97,8 @@ function interpolate_spectral_density(ω_grid::AbstractRange{T}, params::OhmicBa
     s_itp = construct_interpolations(ω_grid, s_list)
     (ω)->γ(ω, params), s_itp
 end
+
+function generate_redfield_operator(coupling, unitary, tf, bath::OhmicBath)
+    cfun(s) = correlation(s*tf, bath)
+    RedfieldOperator(coupling, unitary, cfun)
+end
