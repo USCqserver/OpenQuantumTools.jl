@@ -41,6 +41,23 @@ function solve_redfield(A::Annealing, tf::Real, unitary; kwargs...)
     solve(prob; alg_hints = [:nonstiff], tstops=A.tstops, kwargs...)
 end
 
+function solve_davies(A::Annealing, tf::Real; kwargs...)
+    if ndims(A.u0) == 1
+        u0 = A.u0*A.u0'
+    else
+        u0 = A.u0
+    end
+    if haskey(kwargs, :ω_hint)
+        ωr = kwargs[:ω_hint]
+    else
+        ωr = nothing
+    end
+    opensys = create_davies(A.coupling, A.bath; ω_range = ωr)
+    p = AnnealingParams(A.H, float(tf); opensys=opensys)
+    prob = ODEProblem(von_neumann_open_ode, u0, A.sspan, p)
+    solve(prob; alg_hints = [:nonstiff], tstops=A.tstops, kwargs...)
+end
+
 function mul_ode(du, u, p, t)
     mul!(du, p.H(t), u)
     lmul!(-1.0im * p.tf, du)
@@ -79,23 +96,4 @@ end
 #     end
 #     prob = ODEProblem(f, u0, (0.0, 1.0), tf)
 #     sol = solve(prob, Tsit5(), reltol=rtol, abstol=atol, save_everystep=false)
-# end
-
-# function solve_adiabatic_me(hfun, u0, tf, inter_op, γf, sf; rtol=1e-6, atol=1e-6)
-#     function f(du, u, p ,t)
-#         hmat = hfun(t)
-#         w,v = eigen!(Hermitian(hmat))
-#         ρ = v' * u * v
-#         H = Diagonal(w)
-#         dρ = -1.0im * p * (H * ρ - ρ * H)
-#         ω_ba = repeat(w, 1, length(w))
-#         ω_ba = transpose(ω_ba) - ω_ba
-#         γm = p*γf.(ω_ba)
-#         sm = p*sf.(ω_ba)
-#         A = v' * inter_op * v
-#         adiabatic_me_update!(dρ, ρ, A, γm, sm)
-#         mul!(du, v, dρ*v')
-#     end
-#     prob = ODEProblem(f, u0, (0.0,1.0), tf)
-#     sol = solve(prob, Tsit5(), reltol=rtol, abstol=atol)
 # end
