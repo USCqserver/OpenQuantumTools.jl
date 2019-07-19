@@ -100,7 +100,7 @@ end
 
 function create_redfield(coupling, unitary, tf, bath::OhmicBath)
     cfun(s) = correlation(s*tf, bath)
-    RedfieldOperator(coupling, unitary, cfun)
+    Redfield(coupling, unitary, cfun)
 end
 
 function create_davies(coupling, bath::OhmicBath; ω_range = nothing)
@@ -110,5 +110,5 @@ function create_davies(coupling, bath::OhmicBath; ω_range = nothing)
     else
         γ, S = interpolate_spectral_density(ω_range, bath)
     end
-    DaviesGenerator(coupling, γ, S)
+    Davies(coupling, γ, S)
 end
