@@ -58,6 +58,33 @@ function solve_davies(A::Annealing, tf::Real; kwargs...)
     solve(prob; alg_hints = [:nonstiff], tstops=A.tstops, kwargs...)
 end
 
+
+function solve_davies(A::Annealing, tf::Vector{T}, para_alg = EnsembleSerial(); kwargs...) where T<:Number
+    if ndims(A.u0) == 1
+        u0 = A.u0*A.u0'
+    else
+        u0 = A.u0
+    end
+    if haskey(kwargs, :ω_hint)
+        ωr = kwargs[:ω_hint]
+    else
+        ωr = nothing
+    end
+    opensys = create_davies(A.coupling, A.bath; ω_range = ωr)
+    trajectories = length(tf)
+    tf_arr = float.(tf)
+    p = AnnealingParams(A.H, float(tf[1]); opensys=opensys)
+    prob = ODEProblem(von_neumann_open_ode, u0, A.sspan, p)
+    function prob_func(prob, i, repeat)
+        prob.p.tf = tf_arr[i]
+        prob.p.H = p_copy(prob.p.H)
+        prob
+    end
+    ensemble_prob = EnsembleProblem(prob, prob_func=prob_func)
+    solve(ensemble_prob, para_alg; alg_hints = [:nonstiff], tstops=A.tstops, trajectories=trajectories, kwargs...)
+end
+
+
 function mul_ode(du, u, p, t)
     mul!(du, p.H(t), u)
     lmul!(-1.0im * p.tf, du)

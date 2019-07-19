@@ -5,7 +5,7 @@ import SpecialFunctions:trigamma
 import Optim:optimize
 import QuadGK:quadgk
 import Arpack:eigs
-import DiffEqBase:DEDataVector, DEDataMatrix, DEDataArray, ODEProblem, ODEFunction, DiscreteCallback, u_modified!, full_cache, solve
+import DiffEqBase:DEDataVector, DEDataMatrix, DEDataArray, ODEProblem, ODEFunction, DiscreteCallback, u_modified!, full_cache, solve, EnsembleSerial, EnsembleProblem
 
 @reexport using LinearAlgebra
 @reexport using SparseArrays
