@@ -1,6 +1,8 @@
 module QuantumAnnealingTools
 
 using Reexport
+using RecipesBase
+
 import SpecialFunctions:trigamma
 import Optim:optimize
 import QuadGK:quadgk
@@ -10,6 +12,7 @@ import DiffEqBase:DEDataVector, DEDataMatrix, DEDataArray, ODEProblem, ODEFuncti
 @reexport using LinearAlgebra
 @reexport using SparseArrays
 @reexport using QTBase
+@reexport using LaTeXStrings
 
 include("Proj/proj_util.jl")
 include("Proj/rotation_util.jl")
@@ -20,7 +23,9 @@ include("Bath/hybridohmic.jl")
 include("QSolver/solvers.jl")
 
 
-include("plot_util.jl")
+include("plot_util/high_dpi.jl")
+include("plot_util/hamiltonian_plot.jl")
+
 
 
 export OhmicBath, Ohmic, γ, S, correlation, polaron_correlation, interpolate_spectral_density
