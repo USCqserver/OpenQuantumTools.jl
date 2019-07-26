@@ -7,13 +7,14 @@ import SpecialFunctions:trigamma
 import Optim:optimize
 import QuadGK:quadgk
 import Arpack:eigs
-import DiffEqBase:DEDataVector, DEDataMatrix, DEDataArray, ODEProblem, ODEFunction, DiscreteCallback, u_modified!, full_cache, solve, EnsembleSerial, EnsembleProblem
+import DiffEqBase:DEDataVector, DEDataMatrix, DEDataArray, ODEProblem, ODEFunction, DiscreteCallback, u_modified!, full_cache, solve, EnsembleSerial, EnsembleProblem, ODESolution
 
 @reexport using LinearAlgebra
 @reexport using SparseArrays
 @reexport using QTBase
 @reexport using LaTeXStrings
 
+include("math_util.jl")
 include("Proj/proj_util.jl")
 include("Proj/rotation_util.jl")
 
@@ -25,6 +26,7 @@ include("QSolver/solvers.jl")
 
 include("plot_util/high_dpi.jl")
 include("plot_util/hamiltonian_plot.jl")
+include("plot_util/ode_sol.jl")
 
 
 
@@ -36,6 +38,6 @@ export solve_unitary, solve_schrodinger, solve_von_neumann, solve_redfield, solv
 
 export  LowLevelSystem, RotatedTwoLevelSystem, proj_low_lvl, optimal_interaction_angle, get_dθ, rotate_lowlevel_system, @unitary_landau_zener, @unitary_interaction
 
-export @publish
+export @publish, minimum_gap
 
 end # end module

@@ -5,7 +5,7 @@
         push!(y, w)
     end
     y = hcat(y...)' /2/π
-    lab = ["E_$x" for x in 0:lvl]
+    lab = ["E_$x" for x in (0:(lvl-1))']
     lab = [latexstring(x) for x in lab]
     label --> lab
     ylabel --> "GHz"
