@@ -3,6 +3,10 @@ using Documenter, QuantumAnnealingTools
 makedocs(sitename="QuantumAnnealingTools",
     pages = Any[
         "Home" => "index.md",
+        "Tutorials" => Any[
+            "Math Symbol" => "tutorials/math_symbol.md",
+            "Hamiltonian" => "tutorials/hamiltonians.md"
+        ],
         "Library" => Any[
             "Base" => "lib/QTBase.md",
             "Projection" => "lib/Proj.md",
