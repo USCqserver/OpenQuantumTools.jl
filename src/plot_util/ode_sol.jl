@@ -32,7 +32,7 @@ end
     elseif ndims(sol.u[1]) == 2
         for (i, t) in enumerate(sol.t)
             _, v = eigen_decomp(H, t; level=lvl)
-            push!(y, diag(v' * sol.u[i] * v))
+            push!(y, real.(diag(v' * sol.u[i] * v)))
         end
     else
         throw(ArgumentError("Solution needs to be state vector or density matrix."))
