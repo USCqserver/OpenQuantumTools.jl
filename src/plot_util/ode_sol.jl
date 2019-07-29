@@ -8,7 +8,7 @@
     elseif ndims(sol.u[1]) == 2
         for x in s
             _, v = eigen_decomp(H, x; level=lvl)
-            push!(y, diag(v' * sol(x) * v))
+            push!(y, real.(diag(v' * sol(x) * v)))
         end
     else
         throw(ArgumentError("Solution needs to be state vector or density matrix."))
@@ -58,7 +58,7 @@ end
         for x in s
             _, v = eigen_decomp(H, x; level=maximum(lvl))
             v = v[:, lvl]
-            push!(y, diag(v' * sol(x) * v))
+            push!(y, real.(diag(v' * sol(x) * v)))
         end
     else
         throw(ArgumentError("Solution needs to be state vector or density matrix."))
