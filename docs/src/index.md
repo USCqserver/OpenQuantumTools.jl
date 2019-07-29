@@ -10,7 +10,7 @@ QuantumAnnealingTools.jl.
 ```@contents
 Pages = [
     "tutorials/math_symbol.md",
-    "tutorials/hamiltonian.md",
+    "tutorials/hamiltonians.md",
     ]
 Depth = 1
 ```
