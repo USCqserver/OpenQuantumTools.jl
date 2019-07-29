@@ -112,3 +112,8 @@ function create_davies(coupling, bath::OhmicBath; ω_range = nothing)
     end
     Davies(coupling, γ, S)
 end
+
+function info_freq(bath::OhmicBath)
+    println("ωc (GHz): ", bath.ωc/pi/2)
+    println("T (GHz): ", temperature_2_freq(beta_2_temperature(bath.β)))
+end

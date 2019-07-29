@@ -27,12 +27,16 @@ include("QSolver/solvers.jl")
 include("plot_util/high_dpi.jl")
 include("plot_util/hamiltonian_plot.jl")
 include("plot_util/ode_sol.jl")
+include("plot_util/bath_plot.jl")
+
 
 
 
 export OhmicBath, Ohmic, γ, S, correlation, polaron_correlation, interpolate_spectral_density
 
 export HybridOhmicBath, HybridOhmic, convolution_rate, Gₗ, Gₕ, half_width_half_maximum, bloch_rate, direct_integrate, spectrum_info, Sₕ
+
+export info_freq
 
 export solve_unitary, solve_schrodinger, solve_von_neumann, solve_redfield, solve_davies
 
