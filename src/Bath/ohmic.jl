@@ -105,12 +105,12 @@ end
 
 function create_davies(coupling, bath::OhmicBath; ω_range = nothing)
     if ω_range == nothing
-        γ(ω) = γ(ω, bath)
-        S(ω) = S(ω, bath)
+        γ_loc(ω) = γ(ω, bath)
+        S_loc(ω) = S(ω, bath)
     else
-        γ, S = interpolate_spectral_density(ω_range, bath)
+        γ_loc, S_loc = interpolate_spectral_density(ω_range, bath)
     end
-    Davies(coupling, γ, S)
+    Davies(coupling, γ_loc, S_loc)
 end
 
 function info_freq(bath::OhmicBath)

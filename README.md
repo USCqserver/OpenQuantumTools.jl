@@ -17,4 +17,7 @@ Pkg.add(PackageSpec(url="https://github.com/USCqserver/QuantumAnnealingTools.jl"
 More information about `Julia`'s package manager can be found at [Pkg.jl](https://julialang.github.io/Pkg.jl/v1/).
 
 ## ODE Solvers
-This package relies on [DifferentialEquations.jl](http://docs.juliadiffeq.org/latest/) to solve any ODEs. For the master equation solvers to work correctly, `DifferentialEquations` needs to be loaded. However, if ME solvers are not needed in your project, this package can still be loaded separately for other functionalities. 
+This package relies on [DifferentialEquations.jl](http://docs.juliadiffeq.org/latest/) to solve any ODEs. For the master equation solvers to work correctly, `DifferentialEquations` needs to be loaded. However, if ME solvers are not needed in your project, this package can still be loaded separately for other functionalities.
+
+## Additional Examples
+More examples can be found in the [example folder](./example).
