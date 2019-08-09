@@ -98,20 +98,12 @@ function interpolate_spectral_density(ω_grid::AbstractRange{T}, params::OhmicBa
     (ω)->γ(ω, params), s_itp
 end
 
+
 function create_redfield(coupling, unitary, tf, bath::OhmicBath)
     cfun(s) = correlation(s*tf, bath)
     Redfield(coupling, unitary, cfun)
 end
 
-function create_davies(coupling, bath::OhmicBath; ω_range = nothing)
-    if ω_range == nothing
-        γ_loc(ω) = γ(ω, bath)
-        S_loc(ω) = S(ω, bath)
-    else
-        γ_loc, S_loc = interpolate_spectral_density(ω_range, bath)
-    end
-    Davies(coupling, γ_loc, S_loc)
-end
 
 function info_freq(bath::OhmicBath)
     println("ωc (GHz): ", bath.ωc/pi/2)

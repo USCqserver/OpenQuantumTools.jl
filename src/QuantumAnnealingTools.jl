@@ -22,6 +22,9 @@ include("Bath/ohmic.jl")
 include("Bath/hybridohmic.jl")
 
 include("QSolver/solvers.jl")
+include("QSolver/schrodinger_solver.jl")
+
+include("QSolver/ame_solvers.jl")
 
 
 include("plot_util/high_dpi.jl")
