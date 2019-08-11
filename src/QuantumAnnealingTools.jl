@@ -21,6 +21,7 @@ include("Proj/rotation_util.jl")
 include("Bath/ohmic.jl")
 include("Bath/hybridohmic.jl")
 
+include("QSolver/util.jl")
 include("QSolver/solvers.jl")
 include("QSolver/schrodinger_solver.jl")
 
