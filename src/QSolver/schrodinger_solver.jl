@@ -4,7 +4,7 @@ function solve_schrodinger(A::Annealing, tf::Real; span_unit = false, kwargs...)
     end
     u0 = prepare_u0(A.u0, A.control)
     tf = prepare_tf(tf, span_unit)
-    jp = zeros(eltype(u0), length(u0), length(u0))
+    jp = prepare_jacobian_prototype(A.H)
     p = AnnealingParams(A.H, tf; control = A.control)
     # tstops
     tstops = A.tstops
@@ -36,7 +36,7 @@ function solve_schrodinger(
     end
     u0 = prepare_u0(A.u0, A.control)
     t0 = prepare_tf(1.0, span_unit)
-    jp = zeros(eltype(u0), length(u0), length(u0))
+    jp = prepare_jacobian_prototype(A.H)
     p = AnnealingParams(A.H, t0; control = A.control)
     # trajectories numbers
     trajectories = length(tf)

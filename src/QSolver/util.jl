@@ -73,6 +73,15 @@ function prepare_tf(tf, span_unit)
 end
 
 
+function prepare_jacobian_prototype(H)
+    if typeof(H) <: AdiabaticFrameHamiltonian
+        zeros(typeof(H).parameters[1], H.size)
+    else
+        similar(H.u_cache)
+    end
+end
+
+
 function scaling_time(tf::UnitTime, tspan, tstops)
     (tf * tspan[1], tf * tspan[2]), tf * tstops
 end
