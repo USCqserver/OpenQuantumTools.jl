@@ -24,7 +24,6 @@ include("Bath/hybridohmic.jl")
 include("QSolver/util.jl")
 include("QSolver/solvers.jl")
 include("QSolver/schrodinger_solver.jl")
-
 include("QSolver/ame_solvers.jl")
 
 
@@ -43,6 +42,8 @@ export HybridOhmicBath, HybridOhmic, convolution_rate, Gₗ, Gₕ, half_width_ha
 export info_freq
 
 export solve_unitary, solve_schrodinger, solve_von_neumann, solve_redfield, solve_davies
+
+export PausingControl, single_pausing
 
 export  LowLevelSystem, RotatedTwoLevelSystem, proj_low_lvl, optimal_interaction_angle, get_dθ, rotate_lowlevel_system, @unitary_landau_zener, @unitary_interaction
 
