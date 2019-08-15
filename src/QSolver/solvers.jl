@@ -1,14 +1,3 @@
-function solve_von_neumann(A::Annealing, tf::Real; kwargs...)
-    if ndims(A.u0) == 1
-        u0 = A.u0*A.u0'
-    else
-        u0 = A.u0
-    end
-    p = AnnealingParams(A.H, float(tf))
-    prob = ODEProblem(von_neumann_ode, u0, A.sspan, p)
-    solve(prob; alg_hints = [:nonstiff], tstops=A.tstops, kwargs...)
-end
-
 function solve_redfield(A::Annealing, tf::Real, unitary; kwargs...)
     if ndims(A.u0) == 1
         u0 = A.u0*A.u0'
