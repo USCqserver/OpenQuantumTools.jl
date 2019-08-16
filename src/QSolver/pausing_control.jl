@@ -95,6 +95,18 @@ function (h::AdiabaticFrameHamiltonian)(
 end
 
 
+function (h::AdiabaticFrameHamiltonian)(
+    u::Union{DEPausingVec, DEPausingMat},
+    a_scale::Real,
+    g_scale::Real,
+    s::Real
+)
+    ω = 2.0 * π * a_scale * h.diagonal(s)
+    G = 2.0 * π * g_scale * u.pause * h.geometric(s)
+    ω + G
+end
+
+
 function single_pausing(sp, sd)
     function res(s)
         if s <= sp

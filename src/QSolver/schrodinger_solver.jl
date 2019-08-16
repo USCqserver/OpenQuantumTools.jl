@@ -6,8 +6,6 @@ function solve_schrodinger(A::Annealing, tf::Real; span_unit = false, kwargs...)
     tf = prepare_tf(tf, span_unit)
     jp = sch_jacobian_prototype(A.H)
     p = AnnealingParams(A.H, tf; control = A.control)
-    # tstops
-    tstops = A.tstops
     if typeof(A.control) <: PausingControl
         ff = ODEFunction(
             sch_control_f;
@@ -19,7 +17,7 @@ function solve_schrodinger(A::Annealing, tf::Real; span_unit = false, kwargs...)
     else
         ff = ODEFunction(sch_f; jac = sch_jac, jac_prototype = jp)
     end
-    tspan, tstops = scaling_time(tf, A.sspan, tstops)
+    tspan, tstops = scaling_time(tf, A.sspan, A.tstops)
     prob = ODEProblem{true}(ff, u0, tspan, p)
     solve(prob; alg_hints = [:nonstiff], tstops = tstops, kwargs...)
 end

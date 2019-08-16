@@ -109,3 +109,14 @@ function info_freq(bath::OhmicBath)
     println("ωc (GHz): ", bath.ωc/pi/2)
     println("T (GHz): ", temperature_2_freq(beta_2_temperature(bath.β)))
 end
+
+
+function davies_spectrum(bath::OhmicBath; ω_range=nothing)
+    if ω_range == nothing
+        γ_loc(ω) = γ(ω, bath)
+        S_loc(ω) = S(ω, bath)
+    else
+        γ_loc, S_loc = interpolate_spectral_density(2π*ω_range, bath)
+    end
+    γ_loc, S_loc
+end
