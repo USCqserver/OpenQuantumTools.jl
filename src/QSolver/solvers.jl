@@ -1,23 +1,3 @@
-function solve_unitary(A::Annealing, tf::Real; kwargs...)
-    u0 = Matrix{ComplexF64}(I, size(A.H(0.0)))
-    p = AnnealingParams(A.H, float(tf))
-    ff = ODEFunction(mul_ode; jac = mul_jac)
-    prob = ODEProblem(ff, u0, A.sspan, p)
-    # currently stiff algorithm does not support complex type
-    solve(prob; alg_hints = [:nonstiff], tstops=A.tstops, kwargs...)
-end
-
-function solve_von_neumann(A::Annealing, tf::Real; kwargs...)
-    if ndims(A.u0) == 1
-        u0 = A.u0*A.u0'
-    else
-        u0 = A.u0
-    end
-    p = AnnealingParams(A.H, float(tf))
-    prob = ODEProblem(von_neumann_ode, u0, A.sspan, p)
-    solve(prob; alg_hints = [:nonstiff], tstops=A.tstops, kwargs...)
-end
-
 function solve_redfield(A::Annealing, tf::Real, unitary; kwargs...)
     if ndims(A.u0) == 1
         u0 = A.u0*A.u0'

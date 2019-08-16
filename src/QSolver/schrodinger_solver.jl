@@ -4,22 +4,20 @@ function solve_schrodinger(A::Annealing, tf::Real; span_unit = false, kwargs...)
     end
     u0 = prepare_u0(A.u0, A.control)
     tf = prepare_tf(tf, span_unit)
-    jp = zeros(eltype(u0), length(u0), length(u0))
+    jp = sch_jacobian_prototype(A.H)
     p = AnnealingParams(A.H, tf; control = A.control)
-    # tstops
-    tstops = A.tstops
     if typeof(A.control) <: PausingControl
         ff = ODEFunction(
             sch_control_f;
             jac = sch_control_jac, jac_prototype = jp
         )
         cb = DiscreteCallback(pause_condition, pause_affect!)
-        kwargs = Dict{Symbol, Any}(kwargs)
+        kwargs = Dict{Symbol,Any}(kwargs)
         kwargs[:callback] = cb
     else
         ff = ODEFunction(sch_f; jac = sch_jac, jac_prototype = jp)
     end
-    tspan, tstops = scaling_time(tf, A.sspan, tstops)
+    tspan, tstops = scaling_time(tf, A.sspan, A.tstops)
     prob = ODEProblem{true}(ff, u0, tspan, p)
     solve(prob; alg_hints = [:nonstiff], tstops = tstops, kwargs...)
 end
@@ -36,7 +34,7 @@ function solve_schrodinger(
     end
     u0 = prepare_u0(A.u0, A.control)
     t0 = prepare_tf(1.0, span_unit)
-    jp = zeros(eltype(u0), length(u0), length(u0))
+    jp = sch_jacobian_prototype(A.H)
     p = AnnealingParams(A.H, t0; control = A.control)
     # trajectories numbers
     trajectories = length(tf)
@@ -48,7 +46,7 @@ function solve_schrodinger(
             jac = sch_control_jac, jac_prototype = jp
         )
         cb = DiscreteCallback(pause_condition, pause_affect!)
-        kwargs = Dict{Symbol, Any}(kwargs)
+        kwargs = Dict{Symbol,Any}(kwargs)
         kwargs[:callback] = cb
     else
         ff = ODEFunction(sch_f; jac = sch_jac, jac_prototype = jp)
@@ -92,6 +90,7 @@ function sch_jac(J, u, p, t)
     mul!(J, -1.0im, hmat)
 end
 
+
 function sch_control_f(
     du::DEDataVector,
     u::DEDataVector,
@@ -100,6 +99,7 @@ function sch_control_f(
 )
     p.H(du, u, p, t)
 end
+
 
 function sch_control_jac(
     J,
