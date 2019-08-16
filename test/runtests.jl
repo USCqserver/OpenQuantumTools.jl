@@ -8,9 +8,9 @@ using SafeTestsets
     @time @safetestset "Projection" begin
         include("proj.jl")
     end
-    @time @safetestset "QSolver Utilities" begin
-        include("QSolvers/utils.jl")
-    end
+    #@time @safetestset "QSolver Utilities" begin
+    #    include("QSolvers/utils.jl")
+    #end
     @time @safetestset "Adiabatic Frame Hamiltonian Pausing" begin
         include("QSolvers/adiabatic_hamil_pausing.jl")
     end

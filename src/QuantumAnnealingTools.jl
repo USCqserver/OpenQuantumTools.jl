@@ -22,10 +22,11 @@ include("Bath/ohmic.jl")
 include("Bath/hybridohmic.jl")
 
 include("QSolver/util.jl")
+include("QSolver/pausing_control.jl")
 include("QSolver/solvers.jl")
 include("QSolver/schrodinger_solver.jl")
 include("QSolver/unitary_solver.jl")
-
+include("QSolver/von_neumann_solver.jl")
 include("QSolver/ame_solvers.jl")
 
 
