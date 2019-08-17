@@ -43,3 +43,33 @@ function (D::AMEDiffEqOperator{true,T})(du, u, p, t) where T <: PausingControl
     ω_ba = ω_matrix(D.H)
     D.Davies(du, u, ω_ba, p.tf, t)
 end
+
+
+function solve_af_rwa(
+    A::Annealing,
+    tf::Real;
+    span_unit = false, ω_hint = nothing, lvl = nothing, kwargs...
+    )
+    if !(typeof(A.H) <: AdiabaticFrameHamiltonian)
+        throw(ArgumentError("Adiabatic Frame RWA equation currently only works for adiabatic frame Hamiltonian."))
+    end
+    if ndims(A.u0) == 1
+        u0 = A.u0 * A.u0'
+    else
+        u0 = A.u0
+    end
+    u0 = prepare_u0(u0, A.control)
+    tf = prepare_tf(tf, span_unit)
+    #
+    davies = create_davies(A.coupling, A.bath; ω_range = ω_hint)
+    f = AFRWADiffEqOperator(A.H, davies; lvl = lvl, control = A.control)
+    p = LightAnnealingParams(tf; control = A.control)
+    if typeof(A.control) <: PausingControl
+        cb = DiscreteCallback(pause_condition, pause_affect!)
+        kwargs = Dict{Symbol,Any}(kwargs)
+        kwargs[:callback] = cb
+    end
+    tspan, tstops = scaling_time(tf, A.sspan, A.tstops)
+    prob = ODEProblem(f, u0, tspan, p)
+    solve(prob; alg_hints = [:nonstiff], tstops = tstops, kwargs...)
+end

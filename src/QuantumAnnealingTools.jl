@@ -23,11 +23,11 @@ include("Bath/hybridohmic.jl")
 
 include("QSolver/util.jl")
 include("QSolver/pausing_control.jl")
-include("QSolver/solvers.jl")
 include("QSolver/schrodinger_solver.jl")
 include("QSolver/unitary_solver.jl")
 include("QSolver/von_neumann_solver.jl")
-include("QSolver/ame_solvers.jl")
+include("QSolver/ame_solver.jl")
+include("QSolver/redfield_solver.jl")
 
 
 include("plot_util/high_dpi.jl")
@@ -44,7 +44,7 @@ export HybridOhmicBath, HybridOhmic, convolution_rate, Gₗ, Gₕ, half_width_ha
 
 export info_freq
 
-export solve_unitary, solve_schrodinger, solve_von_neumann, solve_redfield, solve_ame
+export solve_unitary, solve_schrodinger, solve_von_neumann, solve_redfield, solve_ame, solve_af_rwa
 
 export PausingControl, single_pausing
 
