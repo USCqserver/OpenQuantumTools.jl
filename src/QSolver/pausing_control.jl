@@ -115,7 +115,7 @@ function single_pausing(sp, sd)
         elseif sp < s <= sp + sd
             sp
         elseif sp + sd < s
-            s - sp
+            s - sd
         end
     end
     PausingControl([sp, sp + sd], res)
