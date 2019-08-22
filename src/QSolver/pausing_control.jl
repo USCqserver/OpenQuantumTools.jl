@@ -1,6 +1,7 @@
 struct PausingControl <: AbstractAnnealingControl
     tstops
     annealing_parameter
+    PausingControl(t, a) = new(sort(t), a)
 end
 
 
@@ -135,4 +136,27 @@ function pause_affect!(integrator)
         c.pause = 1 - c.pause
     end
     u_modified!(integrator, false)
+end
+
+
+struct AdjustedTimeDependentCoupling
+    coupling::TimeDependentCoupling
+    annealing_parameter
+end
+
+
+function (c::AdjustedTimeDependentCoupling)(t)
+    s = c.annealing_parameter(t)
+    c.coupling(s)
+end
+
+
+function attach_annealing_param(p::PausingControl, c::TimeDependentCouplings)
+    res = [attach_annealing_param(p, x) for x in c.coupling]
+    TimeDependentCouplings(res...)
+end
+
+
+function attach_annealing_param(p::PausingControl, c::TimeDependentCoupling)
+    AdjustedTimeDependentCoupling(c, p.annealing_parameter)
 end
