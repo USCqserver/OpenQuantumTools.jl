@@ -135,6 +135,6 @@ function solve_af_rwa(
         kwargs[:callback] = cb
     end
     tspan, tstops = scaling_time(tf, A.sspan, A.tstops)
-    prob = ODEProblem(f, u0, tspan, p)
+    prob = ODEProblem{true}(f, u0, tspan, p)
     solve(prob; alg_hints = [:nonstiff], tstops = tstops, kwargs...)
 end

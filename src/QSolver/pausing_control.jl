@@ -160,3 +160,24 @@ end
 function attach_annealing_param(p::PausingControl, c::TimeDependentCoupling)
     AdjustedTimeDependentCoupling(c, p.annealing_parameter)
 end
+
+
+function (D::AFRWADiffEqOperator{S})(du, u, p, t) where S<:PausingControl
+    s, a_scale, g_scale = p.control(p.tf, t)
+    w, v = ω_matrix_RWA(D.H, u, p.tf, s, D.lvl)
+    ρ = v' * u.x * v
+    H = Diagonal(w)
+    cache = -1.0im * a_scale * (H * ρ - ρ * H)
+    ω_ba = repeat(w, 1, length(w))
+    ω_ba = transpose(ω_ba) - ω_ba
+    D.Davies(cache, ρ, ω_ba, v, p.tf, s)
+    mul!(du, v, cache * v')
+end
+
+
+function ω_matrix_RWA(H::AdiabaticFrameHamiltonian, u::DEPausingMat, tf, s, lvl)
+    ω = 2π * H.diagonal(s)
+    off = 2π * u.pause * H.geometric(s) / tf
+    ω + off
+    eigen!(Hermitian(ω+off), 1:lvl)
+end
