@@ -5,6 +5,13 @@ struct PausingControl <: AbstractAnnealingControl
 end
 
 
+function prepare_callback(kw_dict, control::PausingControl)
+    cb = DiscreteCallback(pause_condition, pause_affect!)
+    res = Dict{Symbol,Any}(kw_dict)
+    res[:callback] = cb
+end
+
+
 function (p::PausingControl)(tf::Real, t::Real)
     s = p.annealing_parameter(t)
     s, tf, 1.0

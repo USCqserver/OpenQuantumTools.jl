@@ -57,3 +57,8 @@ function sch_jacobian_prototype(H)
         similar(H.u_cache)
     end
 end
+
+
+function prepare_callback(kw_dict, control)
+    kw_dict
+end

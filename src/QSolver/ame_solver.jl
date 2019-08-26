@@ -138,3 +138,65 @@ function solve_af_rwa(
     prob = ODEProblem{true}(f, u0, tspan, p)
     solve(prob; alg_hints = [:nonstiff], tstops = tstops, kwargs...)
 end
+
+
+function solve_af_rwa(
+    A::Annealing,
+    tf::Vector{T},
+    alg,
+    para_alg = EnsembleSerial();
+    output_func = (sol, i) -> (sol, false),
+    span_unit = false,
+    ω_hint = nothing,
+    lvl = nothing,
+    kwargs...
+) where T <: Real
+    if !(typeof(A.H) <: AdiabaticFrameHamiltonian)
+        throw(ArgumentError("Adiabatic Frame RWA equation currently only works for adiabatic frame Hamiltonian."))
+    end
+    if ndims(A.u0) == 1
+        u0 = A.u0 * A.u0'
+    else
+        u0 = A.u0
+    end
+    u0 = prepare_u0(u0, A.control)
+    t0 = prepare_tf(1.0, span_unit)
+    davies = create_davies(A.coupling, A.bath; ω_range = ω_hint)
+    f = AFRWADiffEqOperator(A.H, davies; lvl = lvl, control = A.control)
+    p = LightAnnealingParams(t0; control = A.control)
+    # trajectories numbers
+    trajectories = length(tf)
+    tf_arr = float.(tf)
+    # resolve control
+    if typeof(A.control) <: PausingControl
+        cb = DiscreteCallback(pause_condition, pause_affect!)
+        kwargs = Dict{Symbol,Any}(kwargs)
+        kwargs[:callback] = cb
+    end
+    #
+    if span_unit == true
+        tstops = hyper_tstops(tf_arr, A.tstops)
+        prob_func = (prob, i, repeat) -> begin
+            tspan = (prob.tspan[1] * tf_arr[i], prob.tspan[2] * tf_arr[i])
+            p = set_tf(prob.p, tf_arr[i])
+            ODEProblem{true}(prob.f, prob.u0, tspan, p)
+        end
+    else
+        tstops = A.tstops
+        prob_func = (prob, i, repeat) -> begin
+            p = set_tf(prob.p, tf_arr[i])
+            ODEProblem{true}(prob.f, prob.u0, prob.tspan, p)
+        end
+    end
+    prob = ODEProblem{true}(f, u0, A.sspan, p)
+    ensemble_prob = EnsembleProblem(
+        prob;
+        prob_func = prob_func, output_func = output_func
+    )
+    solve(
+        ensemble_prob,
+        alg,
+        para_alg;
+        trajectories = trajectories, tstops = tstops, kwargs...
+    )
+end
