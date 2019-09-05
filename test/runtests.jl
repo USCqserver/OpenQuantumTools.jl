@@ -5,9 +5,6 @@ using SafeTestsets
     @time @safetestset "Bath" begin
         include("bath.jl")
     end
-    @time @safetestset "Projection" begin
-        include("proj.jl")
-    end
     @time @safetestset "Adiabatic Frame Hamiltonian Pausing" begin
         include("QSolvers/adiabatic_hamil_pausing.jl")
     end

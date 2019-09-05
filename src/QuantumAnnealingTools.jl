@@ -1,5 +1,6 @@
 module QuantumAnnealingTools
 
+using DocStringExtensions
 using Reexport
 using RecipesBase
 
@@ -15,8 +16,8 @@ import DiffEqBase:DEDataVector, DEDataMatrix, DEDataArray, ODEProblem, ODEFuncti
 @reexport using LaTeXStrings
 
 include("math_util.jl")
-include("Proj/proj_util.jl")
-include("Proj/rotation_util.jl")
+#include("Proj/proj_util.jl")
+#include("Proj/rotation_util.jl")
 
 include("Bath/ohmic.jl")
 include("Bath/hybridohmic.jl")
@@ -40,7 +41,7 @@ include("plot_util/bath_plot.jl")
 
 export OhmicBath, Ohmic, γ, S, correlation, polaron_correlation, interpolate_spectral_density
 
-export HybridOhmicBath, HybridOhmic, convolution_rate, Gₗ, Gₕ, half_width_half_maximum, bloch_rate, direct_integrate, spectrum_info, Sₕ
+export HybridOhmicBath, HybridOhmic, convolution_rate, Gₗ, Gₕ, half_width_half_maximum, bloch_rate, direct_integrate, spectrum_info, Sₕ, MRT_Γ
 
 export info_freq
 
@@ -48,7 +49,7 @@ export solve_unitary, solve_schrodinger, solve_von_neumann, solve_redfield, solv
 
 export PausingControl, single_pausing
 
-export  LowLevelSystem, RotatedTwoLevelSystem, proj_low_lvl, optimal_interaction_angle, get_dθ, rotate_lowlevel_system, @unitary_landau_zener, @unitary_interaction
+#export  LowLevelSystem, RotatedTwoLevelSystem, proj_low_lvl, optimal_interaction_angle, get_dθ, rotate_lowlevel_system, @unitary_landau_zener, @unitary_interaction
 
 export @publish, minimum_gap
 

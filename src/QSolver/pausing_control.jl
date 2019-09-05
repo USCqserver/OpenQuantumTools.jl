@@ -1,23 +1,34 @@
+"""
+$(TYPEDEF)
+Pausing controller for annealing with adiabatic frame Hamiltonians.
+# Fields
+$(FIELDS)
+"""
 struct PausingControl <: AbstractAnnealingControl
+    """Denotes times that the timestepping algorithm must step to. They should be where the pausing is turned on/off"""
     tstops
+    """An function to convert the unitless time to annealing parameter s"""
     annealing_parameter
     PausingControl(t, a) = new(sort(t), a)
 end
 
 
-function prepare_callback(kw_dict, control::PausingControl)
-    cb = DiscreteCallback(pause_condition, pause_affect!)
-    res = Dict{Symbol,Any}(kw_dict)
-    res[:callback] = cb
-end
+"""
+    function (p::PausingControl)(tf::Real, t::Real)
 
-
+Generate annealing parameter ``s``, scaling of adiabatic part and scaling of geometric part based on the type of `tf`. If `tf` is `Real`, the adiabatic part is scaled by `tf`.
+"""
 function (p::PausingControl)(tf::Real, t::Real)
     s = p.annealing_parameter(t)
     s, tf, 1.0
 end
 
 
+"""
+    function (p::PausingControl)(tf::UnitTime, t::Real)
+
+If `tf` is UnitTime object, the geometric part is scaled by `1/tf`.
+"""
 function (p::PausingControl)(tf::UnitTime, t::Real)
     s = p.annealing_parameter(t / tf)
     s, 1.0, 1 / tf
@@ -37,13 +48,13 @@ function QTBase.adjust_tstops(p::PausingControl, tstops)
     starts = pstop[1:2:end]
     ends = pstop[2:2:end]
     cum_inter = cumsum(ends .- starts)
-    res = Array{eltype(tstops), 1}()
+    res = Array{eltype(tstops),1}()
     for t in tstops
-        idx = findlast((x)->x<t, starts)
+        idx = findlast((x) -> x < t, starts)
         if idx == nothing
             push!(res, t)
         else
-            push!(res, t+cum_inter[idx])
+            push!(res, t + cum_inter[idx])
         end
     end
     append!(res, p.tstops)
@@ -73,7 +84,7 @@ function (h::AdiabaticFrameHamiltonian)(
     ω = h.diagonal(s)
     du.x .= -2.0im * π * adiabatic_scale * ω * u.x
     G = h.geometric(s)
-    du.x .+= -2.0im * π * geometric_scale * u.pause * G * u.x
+    du.x .+= -1.0im * geometric_scale * u.pause * G * u.x
 end
 
 
@@ -87,30 +98,30 @@ function (h::AdiabaticFrameHamiltonian)(
     ω = h.diagonal(s)
     du.x .= -2.0im * π * adiabatic_scale * (ω * u.x - u.x * ω)
     G = h.geometric(s)
-    du.x .+= -2.0im * π * geometric_scale * u.pause * (G * u.x - u.x * G)
+    du.x .+= -1.0im * geometric_scale * u.pause * (G * u.x - u.x * G)
 end
 
 
 function (h::AdiabaticFrameHamiltonian)(
-    u::Union{DEPausingVec, DEPausingMat},
+    u::Union{DEPausingVec,DEPausingMat},
     p::AbstractAnnealingParams,
     t::Real
 )
     s, adiabatic_scale, geometric_scale = p.control(p.tf, t)
     ω = 2.0 * π * adiabatic_scale * h.diagonal(s)
-    G = 2.0 * π * geometric_scale * u.pause * h.geometric(s)
+    G = geometric_scale * u.pause * h.geometric(s)
     ω + G
 end
 
 
 function (h::AdiabaticFrameHamiltonian)(
-    u::Union{DEPausingVec, DEPausingMat},
+    u::Union{DEPausingVec,DEPausingMat},
     a_scale::Real,
     g_scale::Real,
     s::Real
 )
     ω = 2.0 * π * a_scale * h.diagonal(s)
-    G = 2.0 * π * g_scale * u.pause * h.geometric(s)
+    G = g_scale * u.pause * h.geometric(s)
     ω + G
 end
 
@@ -146,6 +157,13 @@ function pause_affect!(integrator)
 end
 
 
+function prepare_callback(kw_dict, control::PausingControl)
+    cb = DiscreteCallback(pause_condition, pause_affect!)
+    res = Dict{Symbol,Any}(kw_dict)
+    res[:callback] = cb
+end
+
+
 struct AdjustedTimeDependentCoupling
     coupling::TimeDependentCoupling
     annealing_parameter
@@ -169,7 +187,7 @@ function attach_annealing_param(p::PausingControl, c::TimeDependentCoupling)
 end
 
 
-function (D::AFRWADiffEqOperator{S})(du, u, p, t) where S<:PausingControl
+function (D::AFRWADiffEqOperator{S})(du, u, p, t) where S <: PausingControl
     s, a_scale, g_scale = p.control(p.tf, t)
     w, v = ω_matrix_RWA(D.H, u, p.tf, s, D.lvl)
     ρ = v' * u.x * v
@@ -186,5 +204,5 @@ function ω_matrix_RWA(H::AdiabaticFrameHamiltonian, u::DEPausingMat, tf, s, lvl
     ω = 2π * H.diagonal(s)
     off = 2π * u.pause * H.geometric(s) / tf
     ω + off
-    eigen!(Hermitian(ω+off), 1:lvl)
+    eigen!(Hermitian(ω + off), 1:lvl)
 end
