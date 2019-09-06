@@ -1,26 +1,26 @@
 """
-    HybridOhmicBath
+$(TYPEDEF)
 
 A hybrid noise model with both low and high frequency noise. The high frequency noise is characterized by Ohmic bath and the low frequence noise is characterized by the MRT width `W`.
 
-**Fields**
-- `W` -- MRT width (2π GHz)
-- `ϵl` -- low spectrum reorganization energy (2π GHz)
-- `ϵ` -- total reorganization energy (2π GHz)
-- `η` -- strength of high frequency Ohmic bath
-- `ωc` -- cutoff frequence
-- `β` -- inverse temperature
-- `width_h` -- half width at half maximum for high frequency Ohmic bath
-- `width_l` -- half width at half maximu for low frequency slow bath
+$(FIELDS)
 """
 struct HybridOhmicBath
+    """MRT width (2π GHz)"""
     W::Float64
+    """low spectrum reorganization energy (2π GHz)"""
     ϵl::Float64
+    """total reorganization energy (2π GHz)"""
     ϵ::Float64
+    """strength of high frequency Ohmic bath"""
     η::Float64
+    """cutoff frequency"""
     ωc::Float64
+    """inverse temperature"""
     β::Float64
+    """half width at half maximum for high frequency Ohmic bath"""
     width_h::Float64
+    """half width at half maximum for low frequency bath"""
     width_l::Float64
 end
 
@@ -69,10 +69,14 @@ end
 
 
 function MRT_Γ(ϵ, Δ, bath::HybridOhmicBath)
-    integrand(τ) = p_correlation(τ, ϵ, bath)
-    res, err = quadgk(integrand, -Inf, Inf, rtol=1e-8, atol=1e-8)
-    Δ^2 * res, Δ^2 * err
+    Gl(ω) = Gₗ(ω, bath)
+    Gh(ω) = Gₕ(ω, bath)
+    integrand(ω) = Gl(ϵ-ω)*Gh(ω)
+    a, b = sort([0.0, ϵ])
+    res, err = quadgk(integrand, -Inf, a, b, Inf)
+    Δ^2*res/8/π, Δ^2*err/8/π
 end
+
 
 function p_correlation(τ, ϵ, bath)
     η = bath.η / 2 / π
@@ -106,6 +110,7 @@ function polaron_correlation(τ, bath::HybridOhmicBath, a = 1)
     ohmic_part * slow_part
 end
 
+
 """
     Gₕ(ω, bath::HybridOhmicBath, a=1)
 
@@ -123,6 +128,7 @@ function Gₕ(ω, bath::HybridOhmicBath, a = 1)
     end
 end
 
+
 """
     Gₗ(ω, bath::HybridOhmicBath, a=1)
 
@@ -133,6 +139,7 @@ function Gₗ(ω, bath::HybridOhmicBath, a = 1)
     ϵ = a * bath.ϵl
     sqrt(2 * π / W²) * exp(-(ω - ϵ)^2 / 2 / W²)
 end
+
 
 """
     bloch_rate(i, tf, sys, bath::HybridOhmicBath)
