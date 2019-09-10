@@ -54,3 +54,37 @@ function SA_Δ²(t_idx, tf, TG, C, bath::HybridOhmicBath, i = 1, j =2)
     B = (a * b - abs2(c)) / a^2
     A + B * (ω^2 + a * bath.W^2)
 end
+
+
+function SA_redfield(t_idx, tf, TG, C, bath::HybridOhmicBath, i = 1, j =2)
+    ω = 2π * (TG.ω[t_idx, j] - TG.ω[t_idx, i])
+    a = C.a[t_idx, j, i]
+    b = C.b[t_idx, j, i]
+    c = C.c[t_idx, j, i]
+    d = C.d[t_idx, j, i]
+    T = TG.T[t_idx, j, i]
+    G = TG.G[t_idx, j, i]
+
+    T̃ = T - 1.0im * G / tf - d * bath.ϵ
+    A = abs2(T̃ - ω * c / a)
+    B = (a * b - abs2(c)) / a^2
+    Δ² = A + B * (ω^2 + a * bath.W^2)
+    Δ² * Gₕ(ω, bath, a)
+end
+
+
+function SA_marcus(t_idx, tf, TG, C, bath::HybridOhmicBath, i = 1, j =2)
+    ω = 2π * (TG.ω[t_idx, j] - TG.ω[t_idx, i])
+    a = C.a[t_idx, j, i]
+    b = C.b[t_idx, j, i]
+    c = C.c[t_idx, j, i]
+    d = C.d[t_idx, j, i]
+    T = TG.T[t_idx, j, i]
+    G = TG.G[t_idx, j, i]
+
+    T̃ = T - 1.0im * G / tf - d * bath.ϵ
+    A = abs2(T̃ - ω * c / a)
+    B = (b - abs2(c) / a) * bath.W^2
+    Δ² = A + B
+    Δ² * Gₗ(ω, bath, a)
+end

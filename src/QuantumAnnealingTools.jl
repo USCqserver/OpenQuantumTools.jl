@@ -52,7 +52,7 @@ export solve_unitary, solve_schrodinger, solve_von_neumann, solve_redfield, solv
 
 export PausingControl, single_pausing
 
-export SA_Δ²
+export SA_Δ², SA_redfield, SA_marcus
 
 #export  LowLevelSystem, RotatedTwoLevelSystem, proj_low_lvl, optimal_interaction_angle, get_dθ, rotate_lowlevel_system, @unitary_landau_zener, @unitary_interaction
 
