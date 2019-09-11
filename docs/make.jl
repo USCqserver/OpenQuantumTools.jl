@@ -6,11 +6,11 @@ makedocs(sitename="QuantumAnnealingTools",
         "Tutorials" => Any[
             "Math Symbol" => "tutorials/math_symbol.md",
             "Hamiltonian" => "tutorials/hamiltonians.md",
+            "Coupling" => "tutorials/couplings.md",
             "Annealing" => "tutorials/annealing.md"
         ],
         "Library" => Any[
             "Base" => "lib/QTBase.md",
-            #"Projection" => "lib/Proj.md",
             "Bath" => "lib/bath.md"
         ]
     ],

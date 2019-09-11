@@ -142,32 +142,6 @@ end
 
 
 """
-    bloch_rate(i, tf, sys, bath::HybridOhmicBath)
-
-Calculate the relaxation rate of polaron transformed ME in the Bloch-Redfield limit.
-"""
-function bloch_rate(i, tf, sys, bath::HybridOhmicBath)
-    ω₀₁ = sys.ω[i] - sys.a[i] * bath.ϵl
-    ω₁₀ = -sys.ω[i] - sys.a[i] * bath.ϵl
-    W² = bath.W^2
-    ω²₀₁ = ω₀₁^2
-    ω²₁₀ = ω₁₀^2
-    a = sys.a[i]
-    b = sys.b[i]
-    c = sys.c[i]
-    T̃ = sys.T[i] - 1.0im * sys.G[i] / tf - sys.d[i] * bath.ϵ
-    S₀₁ = Sₕ(ω₀₁, bath)
-    S₁₀ = Sₕ(ω₁₀, bath)
-    temp = (a * (abs2(T̃) + b * W²) + b * ω²₀₁ - 2 * ω₀₁ * real(T̃) * c -
-            abs2(c) * W²)
-    Γ₁₀ = temp * S₀₁ / (ω²₀₁ + a^2 * bath.η^2 / bath.β^2 / 4)
-    temp = (a * (abs2(T̃) + b * W²) + b * ω²₁₀ - 2 * ω₁₀ * real(T̃) * c -
-            abs2(c) * W²)
-    Γ₀₁ = temp * S₁₀ / (ω²₁₀ + a^2 * bath.η^2 / bath.β^2 / 4)
-    Γ₀₁, Γ₁₀
-end
-
-"""
     direct_integrate(i, tf, sys, bath::HybridOhmicBath)
 
 Calculate the relaxation rate of polaron transformed ME by directly integrating the convolution formula.

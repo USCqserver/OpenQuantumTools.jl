@@ -82,7 +82,7 @@ function SA_marcus(t_idx, tf, TG, C, bath::HybridOhmicBath, i = 1, j =2)
     T = TG.T[t_idx, j, i]
     G = TG.G[t_idx, j, i]
 
-    T̃ = T - 1.0im * G / tf - d * bath.ϵ
+    T̃ = T - 1.0im * G / tf - d * bath.ϵl
     A = abs2(T̃ - ω * c / a)
     B = (b - abs2(c) / a) * bath.W^2
     Δ² = A + B
