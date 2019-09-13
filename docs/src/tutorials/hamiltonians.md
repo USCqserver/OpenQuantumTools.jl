@@ -14,7 +14,7 @@ builds an time dependent ``H = f_1(t)M_1 + f_2(t)M_2 + … + f_n(t)M_n``. The `T
 ```julia-repl
 julia> H = DenseHamiltonian([(s)->1-s, (s)->s], [σx, σz])
 ```
-The `DenseHamiltonian` constructor creates a standard single qubit annealing Hamiltonian of the form ``H(s)=(1-s)σ_x+sσ_z``, whose default unit is ``GHz`` (``h=1``). internally, this package always uses the unit system of ``ħ=1``. So any object created with default unit will be scaled by ``2π``. You can set the unit to ``ħ=1`` by using the keyword argument `unit`
+The `DenseHamiltonian` constructor creates a standard single qubit annealing Hamiltonian of the form ``H(s)=(1-s)σ_x+sσ_z``, whose default unit is GHz (``h=1``). Internally, this package always uses the unit system of ``ħ=1``. So any object created with default unit will be scaled by ``2π``. You can set the unit to ``ħ=1`` by using the keyword argument `unit`
 ```julia-repl
 julia> H_ħ  = DenseHamiltonian([(s)->1-s, (s)->s], [σx, σz]; unit=:ħ)
 ```
@@ -25,7 +25,7 @@ julia> evaluate(H, 0.5)
   0.5+0.0im  -0.5+0.0im
  -0.5+0.0im  -0.5+0.0im
 ```
-It always returns the Hamiltonian value in ``GHz`` (``h=1``).
+It always returns the Hamiltonian value in GHz (``h=1``).
 Calling `H` directly like a `Function` will produce the raw numerical value
 ```julia-repl
 julia> H(0.5) == 2π*(σx + σz)/2

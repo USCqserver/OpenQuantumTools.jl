@@ -10,7 +10,7 @@ For example, the following code block construct a standard single qubit annealin
 ``` julia
 H = DenseHamiltonian([(s)->1-s, (s)->s], -[σx, σz]/2)
 u0 = PauliVec[1][1]
-coupling = [σz]
+coupling = ConstantCouplings(["Z"])
 bath = Ohmic(1e-4, 4, 16)
 annealing = Annealing(H, u0; coupling=coupling, bath=bath)
 ```

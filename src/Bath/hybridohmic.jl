@@ -78,20 +78,6 @@ function MRT_Γ(ϵ, Δ, bath::HybridOhmicBath)
 end
 
 
-function p_correlation(τ, ϵ, bath)
-    η = bath.η / 2 / π
-    ϵl = bath.ϵl
-    W² = bath.W^2
-    ohmic_part = (1 + 1.0im * bath.ωc * τ)^(-η)
-    if !isapprox(τ, 0, atol = 1e-9)
-        x = π * τ / bath.β
-        ohmic_part *= (x / sinh(x))^(η)
-    end
-    slow_part = exp(-W² * τ^2 / 2 - 1.0im * τ * (ϵl-ϵ))
-    ohmic_part * slow_part
-end
-
-
 """
     polaron_correlation(τ, bath::HybridOhmicBath, a=1)
 
@@ -199,34 +185,6 @@ function direct_integrate(i, tf, sys, bath::HybridOhmicBath)
     (Γ₀₁ / 2 / π, Γ₁₀ / 2 / π), (err₁₀, err₀₁)
 end
 
-function integration_range(i, integrand_01, integrand_10, sys, bath)
-    μ₀₁ = sys.ω[i] - sys.a[i] * bath.ϵl
-    μ₁₀ = -sys.ω[i] - sys.a[i] * bath.ϵl
-    σ = sqrt(sys.a[i]) * bath.width_l
-    γ = sys.a[i] * bath.width_h
-    integration_range_01 = sort([
-        μ₀₁ - 3 * σ,
-        μ₀₁,
-        μ₀₁ + 3 * σ,
-        -3 * γ,
-        0,
-        3 * γ,
-        4 * γ
-    ])
-    integration_range_10 = sort([
-        μ₁₀ - 3 * σ,
-        μ₁₀,
-        μ₁₀ + 3 * σ,
-        -3 * γ,
-        0,
-        3 * γ,
-        4 * γ
-    ])
-    # range for 01 term
-    integrand_01(μ₀₁)
-    # range for 10 term
-    integrand_10()
-end
 
 function spectrum_info(bath::HybridOhmicBath, a = 1)
     Dict(
@@ -238,6 +196,7 @@ function spectrum_info(bath::HybridOhmicBath, a = 1)
     )
 end
 
+
 """
     half_width_half_maximum(a, bath::HybridOhmicBath)
 
@@ -248,6 +207,7 @@ function half_width_half_maximum(a, bath::HybridOhmicBath)
     Wl = bath.width_l * sqrt(a)
     Wh, Wl
 end
+
 
 """
     Sₕ(ω, bath::HybridOhmicBath)
