@@ -11,6 +11,7 @@ QuantumAnnealingTools.jl.
 Pages = [
     "tutorials/math_symbol.md",
     "tutorials/hamiltonians.md",
+    "tutorials/couplings.md",
     "tutorials/annealing.md"
     ]
 Depth = 1
