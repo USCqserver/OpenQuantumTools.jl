@@ -68,6 +68,11 @@ function HybridOhmic(W, η, fc, T)
 end
 
 
+"""
+    function MRT_Γ(ϵ, Δ, bath::HybridOhmicBath)
+
+Calculate the MRT (relaxation) rate ``Γ_{01}`` in MRT experiment. The formula used by this function assumes small `Δ`.
+"""
 function MRT_Γ(ϵ, Δ, bath::HybridOhmicBath)
     Gl(ω) = Gₗ(ω, bath)
     Gh(ω) = Gₕ(ω, bath)

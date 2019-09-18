@@ -7,6 +7,7 @@ makedocs(sitename="QuantumAnnealingTools",
             "Math Symbol" => "tutorials/math_symbol.md",
             "Hamiltonian" => "tutorials/hamiltonians.md",
             "Coupling" => "tutorials/couplings.md",
+            "Bath" => "tutorials/bath.md",
             "Annealing" => "tutorials/annealing.md"
         ],
         "Library" => Any[
