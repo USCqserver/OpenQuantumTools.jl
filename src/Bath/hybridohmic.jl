@@ -127,65 +127,6 @@ function Gₗ(ω, bath::HybridOhmicBath, a = 1)
 end
 
 
-"""
-    direct_integrate(i, tf, sys, bath::HybridOhmicBath)
-
-Calculate the relaxation rate of polaron transformed ME by directly integrating the convolution formula.
-"""
-function direct_integrate(i, tf, sys, bath::HybridOhmicBath)
-    # get the spectrum widths and centers
-    # we use 3σ for Gaussian profile
-    μ₀₁ = sys.ω[i] - sys.a[i] * bath.ϵl
-    μ₁₀ = -sys.ω[i] - sys.a[i] * bath.ϵl
-    σ = sqrt(sys.a[i]) * bath.width_l
-    γ = sys.a[i] * bath.width_h
-    integration_range_01 = sort([
-        μ₀₁ - 3 * σ,
-        μ₀₁,
-        μ₀₁ + 3 * σ,
-        -3 * γ,
-        0,
-        3 * γ,
-        2 * σ,
-        -2 * σ
-    ])
-    integration_range_10 = sort([
-        μ₁₀ - 3 * σ,
-        μ₁₀,
-        μ₁₀ + 3 * σ,
-        -3 * γ,
-        0,
-        3 * γ,
-        2 * σ,
-        -2 * σ
-    ])
-    #
-    T̃ = sys.T[i] - 1.0im * sys.G[i] / tf - sys.d[i] * bath.ϵ
-    A₀₁ = abs2(T̃ - sys.ω[i] * sys.c[i] / sys.a[i])
-    A₁₀ = abs2(T̃ + sys.ω[i] * sys.c[i] / sys.a[i])
-    B = (sys.a[i] * sys.b[i] - abs2(sys.c[i])) / sys.a[i]^2
-    Δ²₀₁(ω) = A₀₁ + B * (ω^2 + sys.a[i] * bath.W^2)
-    Δ²₁₀(ω) = A₁₀ + B * (ω^2 + sys.a[i] * bath.W^2)
-    integrand_01(ω) =
-        Δ²₀₁(ω) * Gₗ(sys.ω[i] - ω, bath, sys.a[i]) * Gₕ(ω, bath, sys.a[i])
-    integrand_10(ω) =
-        Δ²₁₀(ω) * Gₗ(-sys.ω[i] - ω, bath, sys.a[i]) * Gₕ(ω, bath, sys.a[i])
-    Γ₁₀, err₁₀ = quadgk(
-        integrand_01,
-        integration_range_01...,
-        rtol = 1e-6,
-        atol = 1e-6
-    )
-    Γ₀₁, err₀₁ = quadgk(
-        integrand_10,
-        integration_range_10...,
-        rtol = 1e-6,
-        atol = 1e-6
-    )
-    (Γ₀₁ / 2 / π, Γ₁₀ / 2 / π), (err₁₀, err₀₁)
-end
-
-
 function spectrum_info(bath::HybridOhmicBath, a = 1)
     Dict(
         "low_freq_center" => a * bath.ϵl,

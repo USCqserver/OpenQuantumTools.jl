@@ -1,10 +1,9 @@
 # Couplings
-
-The system bath coupling has the general form of
+We start with a general form of system bath interaction Hamiltonian
 ```math
   H_{SB} = \sum_\alpha S_\alpha\otimes B_\alpha
 ```
-We define the set of $\{S_\alpha\}_\alpha$ whose corresponding $\{B_α\}_\alpha$ are independent and identical(IID) as `AbstractCouplings` objects. Mathematically, every element in the same `AbstractCouplings` object shares the same bath correlation function. (For operators which couple to the same bath, they can be added together.) Two concrete types of `AbstractCouplings` are implemented -- [`ConstantCouplings`](@ref) and [`TimeDependentCouplings`](@ref). The former represents time-independent operators. For example, the following codes
+and define the set of $\{S_\alpha\}_\alpha$ whose corresponding $\{B_α\}_\alpha$ are independent and identical(IID) as `AbstractCouplings` objects. Mathematically, every element in the same `AbstractCouplings` object shares the same bath correlation function. (For operators which couple to the same bath, they can be added together.) Two concrete types of `AbstractCouplings` are implemented -- [`ConstantCouplings`](@ref) and [`TimeDependentCouplings`](@ref). The former represents time-independent operators. For example, the following codes
 ```julia-repl
 julia> coupling = ConstantCouplings(["ZI", "IZ"])
 ```

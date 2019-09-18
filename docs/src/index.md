@@ -12,6 +12,7 @@ Pages = [
     "tutorials/math_symbol.md",
     "tutorials/hamiltonians.md",
     "tutorials/couplings.md",
+    "tutorials/bath.md",
     "tutorials/annealing.md"
     ]
 Depth = 1
