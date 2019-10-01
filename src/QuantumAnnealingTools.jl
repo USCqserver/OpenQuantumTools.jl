@@ -16,11 +16,10 @@ import DiffEqBase:DEDataVector, DEDataMatrix, DEDataArray, ODEProblem, ODEFuncti
 @reexport using LaTeXStrings
 
 include("math_util.jl")
-#include("Proj/proj_util.jl")
-#include("Proj/rotation_util.jl")
 
 include("Bath/ohmic.jl")
 include("Bath/hybridohmic.jl")
+include("Bath/util.jl")
 
 include("QSolver/util.jl")
 include("QSolver/pausing_control.jl")
@@ -46,15 +45,13 @@ export OhmicBath, Ohmic, γ, S, correlation, polaron_correlation, interpolate_sp
 
 export HybridOhmicBath, HybridOhmic, convolution_rate, Gₗ, Gₕ, half_width_half_maximum, bloch_rate, direct_integrate, spectrum_info, Sₕ, MRT_Γ
 
-export info_freq
+export info_freq, τ_SB, τ_B
 
 export solve_unitary, solve_schrodinger, solve_von_neumann, solve_redfield, solve_ame, solve_af_rwa
 
 export PausingControl, single_pausing
 
 export SA_Δ², SA_redfield, SA_marcus, SA_Γ
-
-#export  LowLevelSystem, RotatedTwoLevelSystem, proj_low_lvl, optimal_interaction_angle, get_dθ, rotate_lowlevel_system, @unitary_landau_zener, @unitary_interaction
 
 export @publish, minimum_gap
 

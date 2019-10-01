@@ -26,8 +26,18 @@ function Ohmic(η, fc, T)
 end
 
 function Base.show(io::IO, ::MIME"text/plain", m::OhmicBath)
-    print(io, "Ohmic bath instance:\n", "η (unitless): ", m.η, "\n", "ωc (GHz): ", m.ωc/pi/2,
-        "\n", "T (mK): ", beta_2_temperature(m.β))
+    print(
+        io,
+        "Ohmic bath instance:\n",
+        "η (unitless): ",
+        m.η,
+        "\n",
+        "ωc (GHz): ",
+        m.ωc / pi / 2,
+        "\n",
+        "T (mK): ",
+        beta_2_temperature(m.β),
+    )
 end
 
 """
@@ -37,9 +47,10 @@ Calculate Ohmic spectrum density, defined as a full Fourier transform on the bat
 """
 function γ(ω, params::OhmicBath)
     if isapprox(ω, 0.0, atol = 1e-9)
-        return 2* pi* params.η / params.β
+        return 2 * pi * params.η / params.β
     else
-        return 2 * pi * params.η * ω * exp(-abs(ω)/params.ωc) / (1 - exp(-params.β*ω))
+        return 2 * pi * params.η * ω * exp(-abs(ω) / params.ωc) /
+               (1 - exp(-params.β * ω))
     end
 end
 
@@ -48,18 +59,18 @@ end
 
 Calculate the Lamb shift of Ohmic spectrum. `atol` is the absolute tolerance for Cauchy principal value integral.
 """
-function S(w, params::OhmicBath; atol=1e-7)
-    f(x)= γ(x, params)
+function S(w, params::OhmicBath; atol = 1e-7)
+    f(x) = γ(x, params)
     g(x) = f(x) / (x - w)
-    cpv, cperr = cpvagk(f, w, w-1.0, w+1.0)
-    negv, negerr = quadgk(g, -Inf, w-1.0)
-    posv, poserr = quadgk(g, w+1.0, Inf)
+    cpv, cperr = cpvagk(f, w, w - 1.0, w + 1.0)
+    negv, negerr = quadgk(g, -Inf, w - 1.0)
+    posv, poserr = quadgk(g, w + 1.0, Inf)
     v = cpv + negv + posv
     err = cperr + negerr + poserr
     if (err > atol) || (isnan(err))
         @warn "Absolute error of integration is larger than the tolerance."
     end
-    -v/2/pi
+    -v / 2 / pi
 end
 
 """
@@ -70,19 +81,19 @@ Calculate the correlation function of Ohmic bath.
 function correlation(τ, params::OhmicBath)
     x2 = 1 / params.β / params.ωc
     x1 = 1.0im * τ / params.β
-    params.η * (trigamma(-x1+1+x2)+trigamma(x1+x2)) / params.β^2
+    params.η * (trigamma(-x1 + 1 + x2) + trigamma(x1 + x2)) / params.β^2
 end
 
 """
-    polaron_correlation(τ, params::OhmicBath)
+    polaron_correlation(τ, a, params::OhmicBath)
 
-Calculate the polaron transformed correlation function of Ohmic bath.
+Calculate the polaron transformed correlation function of Ohmic bath. `a` is the effective system bath coupling strength. It is the Hamming distance of two energy levels with respect to the system bath coupling operator.
 """
-function polaron_correlation(τ, params::OhmicBath)
-    res = (1+1.0im*params.ωc*τ)^(-4*params.η)
+function polaron_correlation(τ, a, params::OhmicBath)
+    res = (1 + 1.0im * params.ωc * τ)^(-a * params.η)
     if !isapprox(τ, 0, atol = 1e-9)
         x = π * τ / params.β
-        res *= ( x / sinh(x) )^(4 * params.η)
+        res *= (x / sinh(x))^(a * params.η)
     end
     res
 end
@@ -92,15 +103,18 @@ end
 
 Calculate the Ohmic bath spectral density S on grid `ω_grid`, and construct interpolation objects for it. A separate function for γ is also returned without doing interpolation.
 """
-function interpolate_spectral_density(ω_grid::AbstractRange{T}, params::OhmicBath) where T<:Number
+function interpolate_spectral_density(
+    ω_grid::AbstractRange{T},
+    params::OhmicBath,
+) where {T<:Number}
     s_list = [S(ω, params) for ω in ω_grid]
     s_itp = construct_interpolations(ω_grid, s_list)
-    (ω)->γ(ω, params), s_itp
+    (ω) -> γ(ω, params), s_itp
 end
 
 
 function create_redfield(coupling, unitary, tf::Real, bath::OhmicBath)
-    cfun(s) = correlation(s*tf, bath)
+    cfun(s) = correlation(s * tf, bath)
     Redfield(coupling, unitary, cfun)
 end
 
@@ -112,17 +126,17 @@ end
 
 
 function info_freq(bath::OhmicBath)
-    println("ωc (GHz): ", bath.ωc/pi/2)
+    println("ωc (GHz): ", bath.ωc / pi / 2)
     println("T (GHz): ", temperature_2_freq(beta_2_temperature(bath.β)))
 end
 
 
-function davies_spectrum(bath::OhmicBath; ω_range=nothing)
+function davies_spectrum(bath::OhmicBath; ω_range = nothing)
     if ω_range == nothing
         γ_loc(ω) = γ(ω, bath)
         S_loc(ω) = S(ω, bath)
     else
-        γ_loc, S_loc = interpolate_spectral_density(2π*ω_range, bath)
+        γ_loc, S_loc = interpolate_spectral_density(2π * ω_range, bath)
     end
     γ_loc, S_loc
 end
