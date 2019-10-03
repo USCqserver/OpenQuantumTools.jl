@@ -4,16 +4,13 @@
 This is a Julia toolbox for simulating the dynamics of different quantum annealing protocols. The package is still under heavy development and changes in the interface(s) are more than likely to happen. Detailed documentation can be found [here](https://uscqserver.github.io/QuantumAnnealingTools.jl/dev/). Any pull requests are welcome.
 
 ## Install
-Currently the package is unregistered and depends on another unregistered package [QTBase.jl](https://github.com/USCqserver/QTBase.jl). Because current `Julia` package manager does not resolve dependencies on unregister packages, `QTBase` needs to be installed first by running
-
-```
+Currently this package and its core component package [QTBase.jl](https://github.com/USCqserver/QTBase.jl) are both unregistered. To install, you need to manually run the following command inside the Julia REPL:
+```julia
 using Pkg
-Pkg.add(PackageSpec(url="https://github.com/USCqserver/QTBase.jl"))
+Pkg.add(PackageSpec(url="https://github.com/USCqserver/QTBase.jl", rev="master"))
+Pkg.add(PackageSpec(url="https://github.com/USCqserver/QuantumAnnealingTools.jl", rev="master"))
 ```
-from the Julia REPL. After this, `QuantumAnnealingTools` can be added to by running
-```
-Pkg.add(PackageSpec(url="https://github.com/USCqserver/QuantumAnnealingTools.jl"))
-```
+It will install the packages directly from their github repos.
 More information about `Julia`'s package manager can be found at [Pkg.jl](https://julialang.github.io/Pkg.jl/v1/).
 
 ## ODE Solvers
