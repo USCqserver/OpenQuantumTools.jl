@@ -11,6 +11,9 @@ using SafeTestsets
     @time @safetestset "Pausing adjusted couplings" begin
         include("QSolvers/pausing_coupling.jl")
     end
+    @time @safetestset "Solver utilies" begin
+        include("QSolvers/solver_util.jl")
+    end
 #@time @safetestset "QSolver" begin include("qsolver.jl") end
 
 end

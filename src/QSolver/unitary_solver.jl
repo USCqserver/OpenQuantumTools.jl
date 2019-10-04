@@ -1,7 +1,7 @@
 function solve_unitary(A::Annealing, tf::Real; span_unit = false, kwargs...)
     tstops = A.tstops
     u0 = Matrix{ComplexF64}(I, A.H.size)
-    u0 = prepare_u0(u0, A.control)
+    u0 = prepare_u0(u0, type=:m, control = A.control)
     tf = prepare_tf(tf, span_unit)
     #jp = vectorized_jacobian_prototype(A.H)
     p = AnnealingParams(A.H, tf; control = A.control)

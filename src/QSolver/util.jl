@@ -1,13 +1,19 @@
-function prepare_u0(raw_u0, control)
+"""
+    function prepare_u0(raw_u0; type =:v, control=nothing)
+
+Prepare initial state in proper type and dimension for ODE solvers. `type` specifies the dimension of the initial state: `:v` is 1-D state vector and `:m` is 2-D density matrix. `control` should be any `AbstractAnnealingControl` object.
+"""
+function prepare_u0(raw_u0; type =:v, control=nothing)
     res = complex(raw_u0)
-    if typeof(control) <: PausingControl
-        if ndims(raw_u0) == 1
-            res = DEPausingVec(raw_u0, 1)
-        elseif ndims(raw_u0) == 2
-            res = DEPausingMat(raw_u0, 1)
-        else
-            throw(ArgumentError("u0 can either be a vector or matrix."))
-        end
+    if type == :v && ndims(res) != 1
+        throw(ArgumentError("Cannot convert density matrix to state vector."))
+    elseif type ==:m && ndims(res) == 1
+        res = res*res'
+    elseif ndims(res) < 1 || ndims(res) > 2
+        throw(ArgumentError("u0 can either be a vector or matrix."))
+    end
+    if control != nothing
+        res = adjust_u0(res, control)
     end
     res
 end

@@ -1,10 +1,10 @@
+"""
+    function solve_redfield(A::Annealing, tf::Real, unitary; span_unit = false, kwargs...)
+
+Solve the time dependent Redfield equation for `Annealing` defined by `A` with total annealing time `tf`. The third argument is the precalculated unitary of close system evolution. It needs to be a callable object which returns the value of unitary at given time. `span_unit` is a boolean flag which, when set to true, informs the solver to work with time in physical unit.
+"""
 function solve_redfield(A::Annealing, tf::Real, unitary; span_unit = false, kwargs...)
-    if ndims(A.u0) == 1
-        u0 = A.u0 * A.u0'
-    else
-        u0 = A.u0
-    end
-    u0 = prepare_u0(u0, A.control)
+    u0 = prepare_u0(A.u0, type=:m, control=A.control)
     tf = prepare_tf(tf, span_unit)
     coupling = A.coupling
     ff = redfield_f
@@ -22,10 +22,12 @@ function solve_redfield(A::Annealing, tf::Real, unitary; span_unit = false, kwar
     solve(prob; alg_hints = [:nonstiff], tstops=tstops, kwargs...)
 end
 
+
 function redfield_f(du, u, p, t)
     p.H(du, u, p.tf, t)
     p.opensys(du, u, p.tf, t)
 end
+
 
 function redfield_control_f(du, u, p, t)
     p.H(du, u, p, t)

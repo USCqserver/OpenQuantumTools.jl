@@ -17,4 +17,4 @@ More information about `Julia`'s package manager can be found at [Pkg.jl](https:
 This package relies on [DifferentialEquations.jl](http://docs.juliadiffeq.org/latest/) to solve any ODEs. For the master equation solvers to work correctly, `DifferentialEquations` needs to be loaded. However, if ME solvers are not needed in your project, this package can still be loaded separately for other functionalities.
 
 ## Additional Examples
-More examples can be found in the [example folder](./example).
+More examples can be found in the [example folder](./example). Those notebooks can be conveniently opened online with [nbviewer](https://nbviewer.jupyter.org/).
