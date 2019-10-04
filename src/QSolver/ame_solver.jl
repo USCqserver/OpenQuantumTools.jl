@@ -14,12 +14,7 @@ function solve_ame(
     tf::Real;
     span_unit = false, ω_hint = nothing, lvl = nothing, kwargs...
 )
-    if ndims(A.u0) == 1
-        u0 = A.u0 * A.u0'
-    else
-        u0 = A.u0
-    end
-    u0 = prepare_u0(u0, A.control)
+    u0 = prepare_u0(A.u0, type=:m, control=A.control)
     tf = prepare_tf(tf, span_unit)
     #
     davies = create_davies(A.coupling, A.bath; ω_range = ω_hint)
@@ -47,12 +42,7 @@ function solve_ame(
     lvl = nothing,
     kwargs...
 ) where T <: Real
-    if ndims(A.u0) == 1
-        u0 = A.u0 * A.u0'
-    else
-        u0 = A.u0
-    end
-    u0 = prepare_u0(u0, A.control)
+    u0 = prepare_u0(A.u0, type=:m, control=A.control)
     t0 = prepare_tf(1.0, span_unit)
     davies = create_davies(A.coupling, A.bath; ω_range = ω_hint)
     f = AMEDiffEqOperator(A.H, davies; lvl = lvl, control = A.control)
@@ -118,12 +108,7 @@ function solve_af_rwa(
     if !(typeof(A.H) <: AdiabaticFrameHamiltonian)
         throw(ArgumentError("Adiabatic Frame RWA equation currently only works for adiabatic frame Hamiltonian."))
     end
-    if ndims(A.u0) == 1
-        u0 = A.u0 * A.u0'
-    else
-        u0 = A.u0
-    end
-    u0 = prepare_u0(u0, A.control)
+    u0 = prepare_u0(A.u0, type=:m, control=A.control)
     tf = prepare_tf(tf, span_unit)
     #
     davies = create_davies(A.coupling, A.bath; ω_range = ω_hint)
@@ -154,12 +139,7 @@ function solve_af_rwa(
     if !(typeof(A.H) <: AdiabaticFrameHamiltonian)
         throw(ArgumentError("Adiabatic Frame RWA equation currently only works for adiabatic frame Hamiltonian."))
     end
-    if ndims(A.u0) == 1
-        u0 = A.u0 * A.u0'
-    else
-        u0 = A.u0
-    end
-    u0 = prepare_u0(u0, A.control)
+    u0 = prepare_u0(A.u0, type=:m, control=A.control)
     t0 = prepare_tf(1.0, span_unit)
     davies = create_davies(A.coupling, A.bath; ω_range = ω_hint)
     f = AFRWADiffEqOperator(A.H, davies; lvl = lvl, control = A.control)

@@ -35,6 +35,52 @@ function (p::PausingControl)(tf::UnitTime, t::Real)
 end
 
 
+"""
+    function adjust_u0(u0, p)
+
+Convert the state vector/density matrix to the corresponding DEDataArray depending on the type of control `p`.
+"""
+function adjust_u0(u0, p::PausingControl)
+    if ndims(u0) == 1
+        DEPausingVec(u0, 1)
+    elseif ndims(u0) == 2
+        DEPausingMat(u0, 1)
+    else
+        throw(ArgumentError("u0 can either be a vector or matrix."))
+    end
+end
+
+
+"""
+$(TYPEDEF)
+DEDataVector type used for pausing control.
+
+# Fields
+$(FIELDS)
+"""
+mutable struct DEPausingVec{T} <: DEDataVector{T}
+    """The state vector"""
+    x::Array{T,1}
+    """Flag for whether pause is turned on"""
+    pause::Int
+end
+
+
+"""
+$(TYPEDEF)
+DEDataMatrix type used for pausing control.
+
+# Fields
+$(FIELDS)
+"""
+mutable struct DEPausingMat{T} <: DEDataMatrix{T}
+    """The density matrix"""
+    x::Array{T,2}
+    """Flag for whether pause is turned on"""
+    pause::Int
+end
+
+
 function QTBase.adjust_sspan(p::PausingControl, sspan)
     starts = p.tstops[1:2:end]
     ends = p.tstops[2:2:end]
@@ -59,18 +105,6 @@ function QTBase.adjust_tstops(p::PausingControl, tstops)
     end
     append!(res, p.tstops)
     unique(sort(res))
-end
-
-
-mutable struct DEPausingVec{T} <: DEDataVector{T}
-    x::Array{T,1}
-    pause::Int
-end
-
-
-mutable struct DEPausingMat{T} <: DEDataMatrix{T}
-    x::Array{T,2}
-    pause::Int
 end
 
 

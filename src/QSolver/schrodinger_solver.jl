@@ -1,8 +1,5 @@
 function solve_schrodinger(A::Annealing, tf::Real; span_unit = false, kwargs...)
-    if ndims(A.u0) != 1
-        throw(DomainError("Initial state must be given as a state vector."))
-    end
-    u0 = prepare_u0(A.u0, A.control)
+    u0 = prepare_u0(A.u0, type=:v, control=A.control)
     tf = prepare_tf(tf, span_unit)
     jp = sch_jacobian_prototype(A.H)
     p = AnnealingParams(A.H, tf; control = A.control)
@@ -22,6 +19,7 @@ function solve_schrodinger(A::Annealing, tf::Real; span_unit = false, kwargs...)
     solve(prob; alg_hints = [:nonstiff], tstops = tstops, kwargs...)
 end
 
+
 function solve_schrodinger(
     A::Annealing,
     tf::Vector{T},
@@ -29,10 +27,7 @@ function solve_schrodinger(
     para_alg = EnsembleSerial();
     output_func = (sol, i) -> (sol, false), span_unit = false, kwargs...
 ) where T <: Real
-    if ndims(A.u0) != 1
-        throw(DomainError("Initial state must be given as a state vector."))
-    end
-    u0 = prepare_u0(A.u0, A.control)
+    u0 = prepare_u0(A.u0, type=:v, control=A.control)
     t0 = prepare_tf(1.0, span_unit)
     jp = sch_jacobian_prototype(A.H)
     p = AnnealingParams(A.H, t0; control = A.control)
