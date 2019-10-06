@@ -94,3 +94,10 @@ function SA_Γ(t_idx, tf, TG, C, bath::HybridOhmicBath, i = 1, j = 2)
     res, err = quadgk(integrand, integration_range..., rtol = 1e-7, atol = 1e-7)
     res/2/π, err/2/π
 end
+
+
+function SA_τ(t_idx, tf, TG, C, bath::HybridOhmicBath, i = 1, j = 2)
+    ω = 2π * (TG.ω[t_idx, j] - TG.ω[t_idx, i])
+    a = C.a[t_idx, j, i]
+    1 / max(abs(ω), sqrt(a)*bath.W)
+end

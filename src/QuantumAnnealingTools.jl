@@ -51,7 +51,7 @@ export solve_unitary, solve_schrodinger, solve_von_neumann, solve_redfield, solv
 
 export PausingControl, single_pausing
 
-export SA_Δ², SA_redfield, SA_marcus, SA_Γ
+export SA_Δ², SA_redfield, SA_marcus, SA_Γ, SA_τ
 
 export @publish, minimum_gap
 
