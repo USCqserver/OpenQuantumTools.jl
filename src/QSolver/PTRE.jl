@@ -101,3 +101,48 @@ function SA_τ(t_idx, tf, TG, C, bath::HybridOhmicBath, i = 1, j = 2)
     a = C.a[t_idx, j, i]
     1 / max(abs(ω), sqrt(a)*bath.W)
 end
+
+
+function SA_ΓMatrix(tf, TG, C, bath::HybridOhmicBath)
+    t_dim, lvl = size(TG.ω)
+    Γ_data = Array{Float64, 3}(undef, lvl-1, lvl, t_dim)
+    for j = 1:lvl
+        for i = 1:(j-1)
+            for t_idx = 1:t_dim
+                Γ_data[i, j, t_idx] = SA_Γ(t_idx, tf, TG, C, bath, i, j)[1]
+            end
+        end
+        for i = j:(lvl-1)
+            for t_idx = 1:t_dim
+                Γ_data[i, j, t_idx] = SA_Γ(t_idx, tf, TG, C, bath, i+1, j)[1]
+            end
+        end
+    end
+    ΓMatrix(range(0,1,length=t_dim), Γ_data)
+end
+
+
+"""
+    function solve_SA(TG, C, bath::HybridOhmicBath, u0, tf; kwargs...)
+
+Solve Smirnov-Amin ME. Currently this function is experimental. It does not have the same interface as the other solvers.
+"""
+function solve_SA(TG, C, bath::HybridOhmicBath, u0, tf; kwargs...)
+    Γ = SA_ΓMatrix(tf, TG, C, bath::HybridOhmicBath)
+    prob = ODEProblem{true}(Γ, u0, (0.0, 1.0), tf)
+    solve(prob; alg_hints = [:nonstiff], kwargs...)
+end
+
+
+function SA_lz_rotate(sol, θ_itp, lvl; s = nothing)
+    if s == nothing
+        s = sol.t
+    end
+    y = Matrix{Float64}(undef, length(s), length(lvl))
+    for (i, v) in enumerate(s)
+        U = QTBase.@unitary_landau_zener(θ_itp(v))
+        ρ = U*diagm(sol(v))*U'
+        y[i, :] = diag(ρ)[lvl]
+    end
+    y
+end
