@@ -9,10 +9,28 @@
 )
 
 
+"""
+    function solve_ame(
+        A::Annealing,
+        tf::Real;
+        span_unit = false, ω_hint = nothing, lvl = nothing, kwargs...
+    )
+
+Solve the adiabatic master equation for `Annealing` defined by `A` with total annealing time `tf`.
+
+...
+# Arguments
+- `A::Annealing`: the Annealing object.
+- `tf::Real`: the total annealing time.
+- `span_unit::Bool=false`: flag variable which, when set to true, informs the solver to work with time in physical unit.
+- `ω_hint=[]` : grid for precalculating the lambshift; skip the precalculation if empty.
+- `lvl::Int = size(A.H, 1)` : number of levels to keep.
+...
+"""
 function solve_ame(
     A::Annealing,
     tf::Real;
-    span_unit = false, ω_hint = nothing, lvl = nothing, kwargs...
+    span_unit::Bool = false, ω_hint = nothing, lvl::Int = size(A.H, 1), kwargs...
 )
     u0 = prepare_u0(A.u0, type=:m, control=A.control)
     tf = prepare_tf(tf, span_unit)
