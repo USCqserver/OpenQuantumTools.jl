@@ -78,9 +78,9 @@ uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 
 [[DiffEqBase]]
 deps = ["ArrayInterface", "Compat", "DiffEqDiffTools", "Distributed", "DocStringExtensions", "FunctionWrappers", "IterativeSolvers", "IteratorInterfaceExtensions", "LinearAlgebra", "MuladdMacro", "Parameters", "Printf", "RecipesBase", "RecursiveArrayTools", "RecursiveFactorization", "Requires", "Roots", "SparseArrays", "StaticArrays", "Statistics", "SuiteSparse", "TableTraits", "TreeViews"]
-git-tree-sha1 = "8bbda5bbf07f0620b7796124231e10bf22e45be7"
+git-tree-sha1 = "a7ab2f4c083745d6ab0825180365cc1e424ec03e"
 uuid = "2b5f629d-d688-5b77-993f-72d75c75574e"
-version = "6.3.6"
+version = "6.4.1"
 
 [[DiffEqDiffTools]]
 deps = ["ArrayInterface", "LinearAlgebra", "Requires", "SparseArrays", "StaticArrays"]
@@ -250,7 +250,7 @@ uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [[QTBase]]
 deps = ["Arpack", "DocStringExtensions", "Interpolations", "LinearAlgebra", "QuadGK", "SparseArrays"]
-git-tree-sha1 = "2b52c85c2e0d78040b2adcc1a8429c937fa49465"
+git-tree-sha1 = "70d3f9367049d34572dad64f295e60061b86b4ac"
 repo-rev = "master"
 repo-url = "https://github.com/USCqserver/QTBase.jl"
 uuid = "5dd19120-8766-11e9-1ef9-27094038a7db"
