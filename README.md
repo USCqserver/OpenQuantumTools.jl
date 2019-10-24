@@ -10,11 +10,19 @@ using Pkg
 Pkg.add(PackageSpec(url="https://github.com/USCqserver/QTBase.jl", rev="master"))
 Pkg.add(PackageSpec(url="https://github.com/USCqserver/QuantumAnnealingTools.jl", rev="master"))
 ```
-It will install the packages directly from their github repos.
+It will install the packages directly from their github repos. This can also be done in Julia's [Pkg REPL](https://julialang.github.io/Pkg.jl/v1/getting-started/):
+```julia-REPL
+(1.2) pkg> add https://github.com/USCqserver/QTBase.jl
+(1.2) pkg> add https://github.com/USCqserver/QuantumAnnealingTools.jl
+```
 More information about `Julia`'s package manager can be found at [Pkg.jl](https://julialang.github.io/Pkg.jl/v1/).
 
-## ODE Solvers
-This package relies on [DifferentialEquations.jl](http://docs.juliadiffeq.org/latest/) to solve any ODEs. For the master equation solvers to work correctly, `DifferentialEquations` needs to be loaded. However, if ME solvers are not needed in your project, this package can still be loaded separately for other functionalities.
+## Useful Packages
+It is recommended to install the following external packages:  
+### [Plots.jl](https://github.com/JuliaPlots/Plots.jl)
+Plots is a visualization interface and toolset for Julia. `QuantumAnnealingTools.jl` provides several plotting functionality by recipes to `Plots.jl`.
+### [DifferentialEquations.jl](http://docs.juliadiffeq.org/latest/)
+Even though `QuantumAnnealingTools.jl` can function without `DifferentialEquations.jl`, it needs to be loaded in order for the master equation solvers to work properly. For [low dependency usage](http://docs.juliadiffeq.org/stable/features/low_dep.html#Low-Dependency-Usage-1), replacing `DifferentialEquations` by [OrdinaryDiffEq.jl](https://github.com/JuliaDiffEq/OrdinaryDiffEq.jl) will also work.
 
 ## Additional Examples
 More examples can be found in the [example folder](./example). Those notebooks can be conveniently opened online with [nbviewer](https://nbviewer.jupyter.org/).
