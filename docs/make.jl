@@ -8,7 +8,7 @@ makedocs(sitename="QuantumAnnealingTools",
             "Hamiltonian" => "tutorials/hamiltonians.md",
             "Coupling" => "tutorials/couplings.md",
             "Bath" => "tutorials/bath.md",
-            "Annealing" => "tutorials/annealing.md"
+            "Annealing" => "tutorials/annealing.md",
             "Solver" => "tutorials/solver.md"
         ],
         "Library" => Any[
