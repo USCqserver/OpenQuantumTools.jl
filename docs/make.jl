@@ -9,7 +9,7 @@ makedocs(sitename="QuantumAnnealingTools",
             "Coupling" => "tutorials/couplings.md",
             "Bath" => "tutorials/bath.md",
             "Annealing" => "tutorials/annealing.md"
-            "AME" => "tutorials/ame.md"
+            "Solver" => "tutorials/solver.md"
         ],
         "Library" => Any[
             "Base" => "lib/QTBase.md",

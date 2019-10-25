@@ -41,6 +41,34 @@ function solve_ame(
 end
 
 
+"""
+    function solve_ame(
+        A::Annealing,
+        tf::Vector{T},
+        alg,
+        para_alg = EnsembleSerial();
+        output_func = (sol, i) -> (sol, false),
+        span_unit::Bool = false,
+        ω_hint = [],
+        lvl::Int = size(A.H, 1),
+        kwargs...,
+    ) where {T<:Real}
+
+Solve the adiabatic master equation for `Annealing` defined by `A` with different total annealing time `tf` in parallel.
+
+...
+# Arguments
+- `A::Annealing`: the Annealing object.
+- `tf::Vector{T<:Real}`: the total annealing times.
+- `alg`: solver algorithm
+- `para_alg=EnsembleSerial()`: ensemble algorithm.
+- `output_func=(sol, i)->(sol, false)`: The function determines what is saved from the solution to the output array. Defaults to saving the solution itself. The output is (out,rerun) where out is the output and rerun is a boolean which designates whether to rerun.
+- `span_unit::Bool=false`: flag variable which, when set to true, informs the solver to work with time in physical unit.
+- `ω_hint=[]` : grid for precalculating the lambshift; skip the precalculation if empty.
+- `lvl::Int = size(A.H, 1)` : number of levels to keep.
+- `kwargs` : other keyword arguments supported by DifferentialEquations.jl
+...
+"""
 function solve_ame(
     A::Annealing,
     tf::Vector{T},
