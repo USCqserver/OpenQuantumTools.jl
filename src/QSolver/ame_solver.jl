@@ -2,7 +2,7 @@
     function solve_ame(
         A::Annealing,
         tf::Real;
-        span_unit = false, ω_hint = nothing, lvl = nothing, kwargs...
+        span_unit::Bool = false, ω_hint = [], lvl = size(A.H, 1), kwargs...,
     )
 
 Solve the adiabatic master equation for `Annealing` defined by `A` with total annealing time `tf`.
