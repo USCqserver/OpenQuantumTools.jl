@@ -131,8 +131,8 @@ function info_freq(bath::OhmicBath)
 end
 
 
-function davies_spectrum(bath::OhmicBath; ω_range = nothing)
-    if ω_range == nothing
+function davies_spectrum(bath::OhmicBath, ω_range = [])
+    if isempty(ω_range)
         γ_loc(ω) = γ(ω, bath)
         S_loc(ω) = S(ω, bath)
     else

@@ -1,23 +1,33 @@
-@deprecate solve_davies(
-    A::Annealing,
-    tf::Real;
-    span_unit = false, ω_hint = nothing, lvl = nothing, kwargs...
-) solve_ame(
-    A::Annealing,
-    tf::Real;
-    span_unit = false, ω_hint = nothing, lvl = nothing, kwargs...
-)
+"""
+    function solve_ame(
+        A::Annealing,
+        tf::Real;
+        span_unit::Bool = false, ω_hint = [], lvl = size(A.H, 1), kwargs...,
+    )
 
+Solve the adiabatic master equation for `Annealing` defined by `A` with total annealing time `tf`.
 
+...
+# Arguments
+- `A::Annealing`: the Annealing object.
+- `tf::Real`: the total annealing time.
+- `span_unit::Bool=false`: flag variable which, when set to true, informs the solver to work with time in physical unit.
+- `ω_hint=[]` : grid for precalculating the lambshift; skip the precalculation if empty.
+- `lvl::Int = size(A.H, 1)` : number of levels to keep.
+- `kwargs` : other keyword arguments supported by DifferentialEquations.jl
+...
+"""
 function solve_ame(
     A::Annealing,
     tf::Real;
-    span_unit = false, ω_hint = nothing, lvl = nothing, kwargs...
+    span_unit::Bool = false,
+    ω_hint = [],
+    lvl::Int = size(A.H, 1),
+    kwargs...,
 )
-    u0 = prepare_u0(A.u0, type=:m, control=A.control)
+    u0 = prepare_u0(A.u0, type = :m, control = A.control)
     tf = prepare_tf(tf, span_unit)
-    #
-    davies = create_davies(A.coupling, A.bath; ω_range = ω_hint)
+    davies = create_davies(A.coupling, A.bath, ω_hint)
     f = AMEDiffEqOperator(A.H, davies; lvl = lvl, control = A.control)
     p = LightAnnealingParams(tf; control = A.control)
     if typeof(A.control) <: PausingControl
@@ -31,20 +41,48 @@ function solve_ame(
 end
 
 
+"""
+    function solve_ame(
+        A::Annealing,
+        tf::Vector{T},
+        alg,
+        para_alg = EnsembleSerial();
+        output_func = (sol, i) -> (sol, false),
+        span_unit::Bool = false,
+        ω_hint = [],
+        lvl::Int = size(A.H, 1),
+        kwargs...,
+    ) where {T<:Real}
+
+Solve the adiabatic master equation for `Annealing` defined by `A` with different total annealing time `tf` in parallel.
+
+...
+# Arguments
+- `A::Annealing`: the Annealing object.
+- `tf::Vector{T<:Real}`: the total annealing times.
+- `alg`: solver algorithm
+- `para_alg=EnsembleSerial()`: ensemble algorithm.
+- `output_func=(sol, i)->(sol, false)`: The function determines what is saved from the solution to the output array. Defaults to saving the solution itself. The output is (out,rerun) where out is the output and rerun is a boolean which designates whether to rerun.
+- `span_unit::Bool=false`: flag variable which, when set to true, informs the solver to work with time in physical unit.
+- `ω_hint=[]` : grid for precalculating the lambshift; skip the precalculation if empty.
+- `lvl::Int = size(A.H, 1)` : number of levels to keep.
+- `kwargs` : other keyword arguments supported by DifferentialEquations.jl
+...
+"""
 function solve_ame(
     A::Annealing,
     tf::Vector{T},
     alg,
     para_alg = EnsembleSerial();
     output_func = (sol, i) -> (sol, false),
-    span_unit = false,
-    ω_hint = nothing,
-    lvl = nothing,
-    kwargs...
-) where T <: Real
-    u0 = prepare_u0(A.u0, type=:m, control=A.control)
+    span_unit::Bool = false,
+    ω_hint = [],
+    lvl::Int = size(A.H, 1),
+    kwargs...,
+) where {T<:Real}
+    u0 = prepare_u0(A.u0, type = :m, control = A.control)
     t0 = prepare_tf(1.0, span_unit)
-    davies = create_davies(A.coupling, A.bath; ω_range = ω_hint)
+    davies = create_davies(A.coupling, A.bath, ω_hint)
     f = AMEDiffEqOperator(A.H, davies; lvl = lvl, control = A.control)
     p = LightAnnealingParams(t0; control = A.control)
     # trajectories numbers
@@ -72,26 +110,12 @@ function solve_ame(
         end
     end
     prob = ODEProblem{true}(f, u0, A.sspan, p)
-    ensemble_prob = EnsembleProblem(
-        prob;
-        prob_func = prob_func, output_func = output_func
-    )
-    solve(
-        ensemble_prob,
-        alg,
-        para_alg;
-        trajectories = trajectories, tstops = tstops, kwargs...
-    )
+    ensemble_prob = EnsembleProblem(prob; prob_func = prob_func, output_func = output_func)
+    solve(ensemble_prob, alg, para_alg; trajectories = trajectories, tstops = tstops, kwargs...)
 end
 
 
-function create_davies(coupling, bath::OhmicBath; ω_range = nothing)
-    γ_loc, S_loc = davies_spectrum(bath; ω_range = ω_range)
-    DaviesGenerator(coupling, γ_loc, S_loc)
-end
-
-
-function (D::AMEDiffEqOperator{true,T})(du, u, p, t) where T <: PausingControl
+function (D::AMEDiffEqOperator{true,T})(du, u, p, t) where {T<:PausingControl}
     s, a_scale, g_scale = p.control(p.tf, t)
     hmat = D.H(u, a_scale, g_scale, s)
     du.x .= -1.0im * (hmat * u.x - u.x * hmat)
@@ -103,15 +127,18 @@ end
 function solve_af_rwa(
     A::Annealing,
     tf::Real;
-    span_unit = false, ω_hint = nothing, lvl = nothing, kwargs...
+    span_unit::Bool = false,
+    ω_hint = [],
+    lvl::Int = size(A.H, 1),
+    kwargs...,
 )
     if !(typeof(A.H) <: AdiabaticFrameHamiltonian)
         throw(ArgumentError("Adiabatic Frame RWA equation currently only works for adiabatic frame Hamiltonian."))
     end
-    u0 = prepare_u0(A.u0, type=:m, control=A.control)
+    u0 = prepare_u0(A.u0, type = :m, control = A.control)
     tf = prepare_tf(tf, span_unit)
     #
-    davies = create_davies(A.coupling, A.bath; ω_range = ω_hint)
+    davies = create_davies(A.coupling, A.bath, ω_hint)
     f = AFRWADiffEqOperator(A.H, davies; lvl = lvl, control = A.control)
     p = LightAnnealingParams(tf; control = A.control)
     if typeof(A.control) <: PausingControl
@@ -131,17 +158,17 @@ function solve_af_rwa(
     alg,
     para_alg = EnsembleSerial();
     output_func = (sol, i) -> (sol, false),
-    span_unit = false,
-    ω_hint = nothing,
-    lvl = nothing,
-    kwargs...
-) where T <: Real
+    span_unit::Bool = false,
+    ω_hint = [],
+    lvl::Int = size(A.H, 1),
+    kwargs...,
+) where {T<:Real}
     if !(typeof(A.H) <: AdiabaticFrameHamiltonian)
         throw(ArgumentError("Adiabatic Frame RWA equation currently only works for adiabatic frame Hamiltonian."))
     end
-    u0 = prepare_u0(A.u0, type=:m, control=A.control)
+    u0 = prepare_u0(A.u0, type = :m, control = A.control)
     t0 = prepare_tf(1.0, span_unit)
-    davies = create_davies(A.coupling, A.bath; ω_range = ω_hint)
+    davies = create_davies(A.coupling, A.bath, ω_hint)
     f = AFRWADiffEqOperator(A.H, davies; lvl = lvl, control = A.control)
     p = LightAnnealingParams(t0; control = A.control)
     # trajectories numbers
@@ -169,14 +196,12 @@ function solve_af_rwa(
         end
     end
     prob = ODEProblem{true}(f, u0, A.sspan, p)
-    ensemble_prob = EnsembleProblem(
-        prob;
-        prob_func = prob_func, output_func = output_func
-    )
-    solve(
-        ensemble_prob,
-        alg,
-        para_alg;
-        trajectories = trajectories, tstops = tstops, kwargs...
-    )
+    ensemble_prob = EnsembleProblem(prob; prob_func = prob_func, output_func = output_func)
+    solve(ensemble_prob, alg, para_alg; trajectories = trajectories, tstops = tstops, kwargs...)
+end
+
+
+function create_davies(coupling, bath::OhmicBath, ω_range)
+    γ_loc, S_loc = davies_spectrum(bath, ω_range)
+    DaviesGenerator(coupling, γ_loc, S_loc)
 end
