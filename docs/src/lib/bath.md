@@ -4,7 +4,7 @@
 OhmicBath
 Ohmic(η, fc, T)
 correlation(τ, params::OhmicBath)
-polaron_correlation(τ, a, params::OhmicBath)
+polaron_correlation(τ, params::OhmicBath)
 γ(w, params::OhmicBath)
 S(w, params::OhmicBath; atol=1e-7)
 interpolate_spectral_density(ω_grid::AbstractRange{T}, params::OhmicBath) where T<:Number
