@@ -14,6 +14,5 @@ using SafeTestsets
     @time @safetestset "Solver utilies" begin
         include("QSolvers/solver_util.jl")
     end
-#@time @safetestset "QSolver" begin include("qsolver.jl") end
 
 end
