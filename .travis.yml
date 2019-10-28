@@ -11,11 +11,12 @@ julia:
 notifications:
   email: false
 
+script:
+  - julia --project --color=yes --check-bounds=yes -e 'using Pkg; Pkg.develop(PackageSpec(url="https://github.com/USCqserver/QTBase.jl")); Pkg.instantiate()'
+  - julia --project --color=yes --check-bounds=yes -e 'using Pkg; Pkg.instantiate(); Pkg.build();'
+
 jobs:
   include:
-    script:
-      - julia --project --color=yes --check-bounds=yes -e 'using Pkg; Pkg.develop(PackageSpec(url="https://github.com/USCqserver/QTBase.jl")); Pkg.instantiate()'
-      - julia --project --color=yes --check-bounds=yes -e 'using Pkg; Pkg.instantiate(); Pkg.build();'
     - stage: "Documentation"
       julia: 1.0
       os: linux
