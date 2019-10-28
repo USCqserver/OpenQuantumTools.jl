@@ -4,10 +4,10 @@ os:
   - osx
 julia:
   - 1.1
-  - nightly
-matrix:
-  allow_failures:
-    - julia: nightly
+#  - nightly
+#matrix:
+#  allow_failures:
+#    - julia: nightly
 notifications:
   email: false
 
@@ -22,4 +22,6 @@ jobs:
                                     Pkg.develop(PackageSpec(path=pwd()));
                                     Pkg.instantiate()'
         - julia --project=docs/ docs/make.jl
-      after_success: skip
+after_success:
+  # push coverage results to Codecov
+  - julia -e 'import Pkg; cd(Pkg.dir("QuantumAnnealingTools")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
