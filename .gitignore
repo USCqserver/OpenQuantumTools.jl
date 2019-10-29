@@ -118,3 +118,5 @@ docs/build/
 docs/make_local.jl
 docs/Manifest.toml
 doc_local_build.jl
+
+Manifest.toml
