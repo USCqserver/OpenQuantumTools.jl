@@ -29,8 +29,9 @@ install:
 
 build_script:
   - echo "%JL_BUILD_SCRIPT%"
-  - C:\julia\bin\julia -e "using Pkg;
-                           Pkg.develop(PackageSpec(url=\`"https://github.com/USCqserver/QTBase.jl\`"))"
+  - $qtbase_path = "https://github.com/USCqserver/QTBase.jl"
+  - $env:JL_QTBASE = "using Pkg; Pkg.develop(PackageSpec(url=\`"$qtbase_path\`"))"
+  - C:\julia\bin\julia -e "%JL_QTBASE%"
   - C:\julia\bin\julia -e "%JL_BUILD_SCRIPT%"
 
 test_script:
