@@ -54,6 +54,10 @@ function γ(ω, params::OhmicBath)
     end
 end
 
+
+spectrum(ω, bath::OhmicBath) = γ(ω, bath)
+
+
 """
     S(w, params::OhmicBath; atol=1e-7)
 
@@ -73,15 +77,16 @@ function S(w, params::OhmicBath; atol = 1e-7)
     -v / 2 / pi
 end
 
-"""
-    correlation(τ, params::OhmicBath)
 
-Calculate the correlation function of Ohmic bath.
 """
-function correlation(τ, params::OhmicBath)
-    x2 = 1 / params.β / params.ωc
-    x1 = 1.0im * τ / params.β
-    params.η * (trigamma(-x1 + 1 + x2) + trigamma(x1 + x2)) / params.β^2
+    correlation(τ, bath)
+
+Calculate the correlation function of `bath`.
+"""
+function correlation(τ, bath::OhmicBath)
+    x2 = 1 / bath.β / bath.ωc
+    x1 = 1.0im * τ / bath.β
+    bath.η * (trigamma(-x1 + 1 + x2) + trigamma(x1 + x2)) / bath.β^2
 end
 
 """
