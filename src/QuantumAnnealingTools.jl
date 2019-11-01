@@ -8,7 +8,7 @@ import SpecialFunctions:trigamma
 import Optim:optimize
 import QuadGK:quadgk
 import Arpack:eigs
-import DiffEqBase:DEDataVector, DEDataMatrix, DEDataArray, ODEProblem, ODEFunction, DiscreteCallback, u_modified!, full_cache, solve, EnsembleSerial, EnsembleProblem, ODESolution
+import DiffEqBase:DEDataVector, DEDataMatrix, DEDataArray, ODEProblem, ODEFunction, DiscreteCallback, u_modified!, full_cache, solve, EnsembleSerial, EnsembleProblem, ODESolution, DiffEqArrayOperator
 
 @reexport using LinearAlgebra
 @reexport using SparseArrays
@@ -20,7 +20,6 @@ include("math_util.jl")
 include("Bath/ohmic.jl")
 include("Bath/hybridohmic.jl")
 include("Bath/onef.jl")
-
 include("Bath/util.jl")
 
 include("QSolver/util.jl")

@@ -12,7 +12,7 @@ function solve_schrodinger(A::Annealing, tf::Real; span_unit = false, kwargs...)
         kwargs = Dict{Symbol,Any}(kwargs)
         kwargs[:callback] = cb
     else
-        ff = ODEFunction(sch_f; jac = sch_jac, jac_prototype = jp)
+        ff = schrodinger_diff_eq_operator(A.H)
     end
     tspan, tstops = scaling_time(tf, A.sspan, A.tstops)
     prob = ODEProblem{true}(ff, u0, tspan, p)
@@ -74,6 +74,14 @@ function solve_schrodinger(
     )
 end
 
+
+function schrodinger_diff_eq_operator(H)
+     DiffEqArrayOperator(H.u_cache, update_func = sch_update!)
+end
+
+function sch_update!(A, u, p, t)
+    update_cache!(A, p.H, p.tf, t)
+end
 
 function sch_f(du, u, p::AbstractAnnealingParams, t::Real)
     p.H(du, u, p.tf, t)
