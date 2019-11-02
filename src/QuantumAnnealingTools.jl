@@ -5,6 +5,7 @@ using Reexport
 using RecipesBase
 
 import SpecialFunctions:trigamma
+import Distributions:Exponential
 import Optim:optimize
 import QuadGK:quadgk
 import Arpack:eigs

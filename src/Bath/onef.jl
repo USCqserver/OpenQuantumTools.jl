@@ -23,6 +23,16 @@ function spectrum(ω, R::SymetricRTN)
 end
 
 
+function construct_distribution(tf::Real, R::SymetricRTN)
+    Exponential(tf/R.γ)
+end
+
+
+function construct_distribution(tf::UnitTime, R::SymetricRTN)
+    Exponential(1/R.γ)
+end
+
+
 """
 $(TYPEDEF)
 
@@ -49,4 +59,30 @@ end
 
 function spectrum(ω, E::EnsembleFluctuator)
     sum((x)->spectrum(ω, x), E.f)
+end
+
+
+function construct_distribution(tf, E::EnsembleFluctuator)
+    [construct_distribution(tf, x) for x in E.f]
+end
+
+
+struct DiffEqFluctuators
+    dist
+    b0
+    idx
+    τ
+end
+
+
+function DiffEqFluctuators(tf, E::EnsembleFluctuator)
+    dist = construct_distribution(tf, E)
+    b0 = [x.b for x in E.f] .* rand([-1, 1], length(dist))
+    DiffEqFluctuators(dist, b0)
+end
+
+
+function next_flip(F::DiffEqFluctuators)
+    τ_vec = [rand(x, 1) for x in F.dist]
+    findmin(τ_vec)
 end
