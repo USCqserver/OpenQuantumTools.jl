@@ -67,22 +67,34 @@ function construct_distribution(tf, E::EnsembleFluctuator)
 end
 
 
-struct DiffEqFluctuators
+mutable struct DiffEqFluctuators
     dist
-    b0
-    idx
-    τ
+    b_cache
+    next_index
+    next_τ
 end
 
 
 function DiffEqFluctuators(tf, E::EnsembleFluctuator)
     dist = construct_distribution(tf, E)
     b0 = [x.b for x in E.f] .* rand([-1, 1], length(dist))
-    DiffEqFluctuators(dist, b0)
+    τ_vec = [rand(x, 1) for x in dist]
+    next_τ, next_index = findmin(τ_vec)
+    DiffEqFluctuators(dist, b0, next_index, next_τ)
 end
 
 
-function next_flip(F::DiffEqFluctuators)
-    τ_vec = [rand(x, 1) for x in F.dist]
+@inline function (F::DiffEqFluctuators)()
+    sum(F.b_cache)
+end
+
+
+@inline function flip!(F::DiffEqFluctuators)
+    F.b_cache[F.next_index] = -F.b_cache[F.next_index]
+end
+
+
+@inline function next_flip(F::DiffEqFluctuators)
+    τ_vec = [rand(x) for x in F.dist]
     findmin(τ_vec)
 end

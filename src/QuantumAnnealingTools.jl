@@ -10,6 +10,7 @@ import Optim:optimize
 import QuadGK:quadgk
 import Arpack:eigs
 import DiffEqBase:DEDataVector, DEDataMatrix, DEDataArray, ODEProblem, ODEFunction, DiscreteCallback, u_modified!, full_cache, solve, EnsembleSerial, EnsembleProblem, ODESolution
+import DiffEqCallbacks:IterativeCallback
 
 @reexport using LinearAlgebra
 @reexport using SparseArrays
@@ -21,11 +22,12 @@ include("math_util.jl")
 include("Bath/ohmic.jl")
 include("Bath/hybridohmic.jl")
 include("Bath/onef.jl")
-
 include("Bath/util.jl")
 
+include("QControl/onef_ode_control.jl")
+include("QControl/pausing_control.jl")
+
 include("QSolver/util.jl")
-include("QSolver/pausing_control.jl")
 include("QSolver/schrodinger_solver.jl")
 include("QSolver/unitary_solver.jl")
 include("QSolver/von_neumann_solver.jl")
