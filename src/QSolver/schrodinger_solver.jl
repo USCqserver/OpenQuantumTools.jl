@@ -48,7 +48,7 @@ function solve_schrodinger(
         kwargs = Dict{Symbol,Any}(kwargs)
         kwargs[:callback] = cb
     else
-        ff = ODEFunction(sch_f; jac = sch_jac, jac_prototype = jp)
+        ff = sch_create_ode_fun(A.H)
     end
     #
     if span_unit == true
@@ -83,11 +83,12 @@ end
 
 
 function sch_create_ode_fun(H)
+    cache = get_cache(H)
     diff_op = DiffEqArrayOperator(
-        H.u_cache,
+        cache,
         update_func = (A, u, p, t) -> update_cache!(A, p.H, p.tf, t),
     )
-    jac_cache = similar(H.u_cache)
+    jac_cache = similar(cache)
     jac_op = DiffEqArrayOperator(
         jac_cache,
         update_func = (A, u, p, t) -> update_cache!(A, p.H, p.tf, t),
