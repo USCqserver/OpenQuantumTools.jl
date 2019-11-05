@@ -1,7 +1,6 @@
 using SafeTestsets
 
 @time begin
-
     @time @safetestset "Bath" begin
         include("bath.jl")
     end
@@ -14,5 +13,7 @@ using SafeTestsets
     @time @safetestset "Solver utilies" begin
         include("QSolvers/solver_util.jl")
     end
-
+    @time @safetestset "Schrodinger test" begin
+        include("QSolvers/schrodinger_solver_test.jl")
+    end
 end

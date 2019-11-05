@@ -1,9 +1,9 @@
 """
-    function prepare_u0(raw_u0; type =:v, control=nothing)
+    function prepare_u0(raw_u0; type =:v, control=nothing, vectorize=false)
 
-Prepare initial state in proper type and dimension for ODE solvers. `type` specifies the dimension of the initial state: `:v` is 1-D state vector and `:m` is 2-D density matrix. `control` should be any `AbstractAnnealingControl` object.
+Prepare initial state in proper type and dimension for ODE solvers. `type` specifies the dimension of the initial state: `:v` is 1-D state vector and `:m` is 2-D density matrix. `control` should be any `AbstractAnnealingControl` object. `vectorize` indicate whether to vectorize the density matrix.
 """
-function prepare_u0(raw_u0; type =:v, control=nothing)
+function prepare_u0(raw_u0; type =:v, control=nothing, vectorize=false)
     res = complex(raw_u0)
     if type == :v && ndims(res) != 1
         throw(ArgumentError("Cannot convert density matrix to state vector."))
@@ -14,6 +14,9 @@ function prepare_u0(raw_u0; type =:v, control=nothing)
     end
     if control != nothing
         res = adjust_u0(res, control)
+    end
+    if vectorize == true
+        res = res[:]
     end
     res
 end

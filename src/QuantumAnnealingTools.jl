@@ -8,7 +8,7 @@ import SpecialFunctions:trigamma
 import Optim:optimize
 import QuadGK:quadgk
 import Arpack:eigs
-import DiffEqBase:DEDataVector, DEDataMatrix, DEDataArray, ODEProblem, ODEFunction, DiscreteCallback, u_modified!, full_cache, solve, EnsembleSerial, EnsembleProblem, ODESolution
+import DiffEqBase:DEDataVector, DEDataMatrix, DEDataArray, ODEProblem, ODEFunction, DiscreteCallback, u_modified!, full_cache, solve, EnsembleSerial, EnsembleProblem, ODESolution, DiffEqArrayOperator
 
 @reexport using LinearAlgebra
 @reexport using SparseArrays
@@ -19,6 +19,7 @@ include("math_util.jl")
 
 include("Bath/ohmic.jl")
 include("Bath/hybridohmic.jl")
+include("Bath/onef.jl")
 include("Bath/util.jl")
 
 include("QSolver/util.jl")
@@ -41,9 +42,11 @@ include("plot_util/projected_system.jl")
 
 
 
-export OhmicBath, Ohmic, γ, S, correlation, polaron_correlation, interpolate_spectral_density
+export OhmicBath, Ohmic, γ, S, correlation, polaron_correlation, interpolate_spectral_density, spectrum
 
 export HybridOhmicBath, HybridOhmic, convolution_rate, Gₗ, Gₕ, half_width_half_maximum, bloch_rate, direct_integrate, spectrum_info, Sₕ, MRT_Γ
+
+export EnsembleFluctuator
 
 export info_freq, τ_SB, τ_B
 
