@@ -26,12 +26,12 @@ end
 
 
 function uni_create_ode_fun(H, vectorize)
-    j_cache = Matrix{eltype(H)}(I, size(H.u_cache)) ⊗ H.u_cache
+    cache = get_cache(H)
+    j_cache = Matrix{eltype(H)}(I, size(H)) ⊗ cache
     if vectorize == false
-        cache = H.u_cache
         diff_op_update = (A, u, p, t) -> update_cache!(A, p.H, p.tf, t)
     else
-        cache = Matrix{eltype(H)}(I, size(H.u_cache)) ⊗ H.u_cache
+        cache = Matrix{eltype(H)}(I, size(H)) ⊗ cache
         diff_op_update = uni_jac!
     end
     diff_op = DiffEqArrayOperator(cache, update_func = diff_op_update)
