@@ -9,7 +9,6 @@ function solve_unitary(
     u0 = Matrix{ComplexF64}(I, A.H.size)
     u0 = prepare_u0(u0, type = :m, control = A.control, vectorize=vectorize)
     tf = prepare_tf(tf, span_unit)
-    #jp = vectorized_jacobian_prototype(A.H)
     p = AnnealingParams(A.H, tf; control = A.control)
     if typeof(A.control) <: PausingControl
         ff = ODEFunction(uni_control_f; jac = uni_control_jac)
