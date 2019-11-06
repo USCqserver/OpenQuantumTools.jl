@@ -22,7 +22,7 @@ function prepare_u0(raw_u0; type =:v, control=nothing, vectorize=false)
 end
 
 
-function hyper_tstops(tf_arr, tstops)
+function create_tstops_for_tf_array(tf_arr, tstops)
     temp = [tf * tstops for tf in tf_arr]
     temp = vcat(temp...)
     unique(sort(temp))

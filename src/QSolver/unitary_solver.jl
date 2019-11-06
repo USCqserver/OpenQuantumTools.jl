@@ -9,7 +9,6 @@ function solve_unitary(
     u0 = Matrix{ComplexF64}(I, A.H.size)
     u0 = prepare_u0(u0, type = :m, control = A.control, vectorize=vectorize)
     tf = prepare_tf(tf, span_unit)
-    #jp = vectorized_jacobian_prototype(A.H)
     p = AnnealingParams(A.H, tf; control = A.control)
     if typeof(A.control) <: PausingControl
         ff = ODEFunction(uni_control_f; jac = uni_control_jac)
@@ -26,12 +25,12 @@ end
 
 
 function uni_create_ode_fun(H, vectorize)
-    j_cache = Matrix{eltype(H)}(I, size(H.u_cache)) ⊗ H.u_cache
+    cache = get_cache(H)
+    j_cache = Matrix{eltype(H)}(I, size(H)) ⊗ cache
     if vectorize == false
-        cache = H.u_cache
         diff_op_update = (A, u, p, t) -> update_cache!(A, p.H, p.tf, t)
     else
-        cache = Matrix{eltype(H)}(I, size(H.u_cache)) ⊗ H.u_cache
+        cache = Matrix{eltype(H)}(I, size(H)) ⊗ cache
         diff_op_update = uni_jac!
     end
     diff_op = DiffEqArrayOperator(cache, update_func = diff_op_update)

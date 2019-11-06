@@ -48,11 +48,11 @@ function solve_schrodinger(
         kwargs = Dict{Symbol,Any}(kwargs)
         kwargs[:callback] = cb
     else
-        ff = ODEFunction(sch_f; jac = sch_jac, jac_prototype = jp)
+        ff = sch_create_ode_fun(A.H)
     end
     #
     if span_unit == true
-        tstops = hyper_tstops(tf_arr, A.tstops)
+        tstops = create_tstops_for_tf_array(tf_arr, A.tstops)
         prob_func = (prob, i, repeat) -> begin
             tspan = (prob.tspan[1] * tf_arr[i], prob.tspan[2] * tf_arr[i])
             p = set_tf(prob.p, tf_arr[i])
@@ -83,11 +83,12 @@ end
 
 
 function sch_create_ode_fun(H)
+    cache = get_cache(H)
     diff_op = DiffEqArrayOperator(
-        H.u_cache,
+        cache,
         update_func = (A, u, p, t) -> update_cache!(A, p.H, p.tf, t),
     )
-    jac_cache = similar(H.u_cache)
+    jac_cache = similar(cache)
     jac_op = DiffEqArrayOperator(
         jac_cache,
         update_func = (A, u, p, t) -> update_cache!(A, p.H, p.tf, t),
