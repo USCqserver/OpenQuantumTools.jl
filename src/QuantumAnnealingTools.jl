@@ -10,6 +10,8 @@ import QuadGK:quadgk
 import Arpack:eigs
 import DiffEqBase:DEDataVector, DEDataMatrix, DEDataArray, ODEProblem, ODEFunction, DiscreteCallback, u_modified!, full_cache, solve, EnsembleSerial, EnsembleProblem, ODESolution, DiffEqArrayOperator
 
+import DiffEqCallbacks:PresetTimeCallback, IterativeCallback
+
 @reexport using LinearAlgebra
 @reexport using SparseArrays
 @reexport using QTBase
@@ -21,6 +23,10 @@ include("Bath/ohmic.jl")
 include("Bath/hybridohmic.jl")
 include("Bath/onef.jl")
 include("Bath/util.jl")
+
+include("QControl/control_de_datatype.jl")
+include("QControl/dd_control.jl")
+include("QControl/pausing_control.jl")
 
 include("QSolver/util.jl")
 include("QSolver/pausing_control.jl")

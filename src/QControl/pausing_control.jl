@@ -36,11 +36,11 @@ end
 
 
 """
-    function adjust_u0(u0, p)
+    function adjust_u0_with_control(u0, p)
 
 Convert the state vector/density matrix to the corresponding DEDataArray depending on the type of control `p`.
 """
-function adjust_u0(u0, p::PausingControl)
+function adjust_u0_with_control(u0, ::PausingControl)
     if ndims(u0) == 1
         DEPausingVec(u0, 1)
     elseif ndims(u0) == 2
