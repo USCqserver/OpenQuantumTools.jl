@@ -29,7 +29,7 @@ include("QControl/dd_control.jl")
 include("QControl/pausing_control.jl")
 
 include("QSolver/util.jl")
-include("QSolver/pausing_control.jl")
+#include("QSolver/pausing_control.jl")
 include("QSolver/schrodinger_solver.jl")
 include("QSolver/unitary_solver.jl")
 include("QSolver/von_neumann_solver.jl")

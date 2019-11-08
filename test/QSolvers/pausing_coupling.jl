@@ -18,8 +18,8 @@ acs = QuantumAnnealingTools.attach_annealing_param(pausing_control, cs)
 
 u0 = PauliVec[1][1]
 ρ0 = u0*u0'
-DEu0 = QuantumAnnealingTools.adjust_u0(u0, pausing_control)
-DEρ0 = QuantumAnnealingTools.adjust_u0(ρ0, pausing_control)
+DEu0 = QuantumAnnealingTools.adjust_u0_with_control(u0, pausing_control)
+DEρ0 = QuantumAnnealingTools.adjust_u0_with_control(ρ0, pausing_control)
 @test DEu0 == u0
 @test DEρ0 == ρ0
 @test typeof(DEu0) <: QuantumAnnealingTools.DEPausingVec

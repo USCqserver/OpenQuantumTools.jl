@@ -51,6 +51,21 @@ function adjust_u0_with_control(u0, ::PausingControl)
 end
 
 
+function QTBase.update_cache!(
+    cache,
+    H::AdiabaticFrameHamiltonian,
+    tf,
+    t,
+    control::PausingControl,
+)
+    s, adiabatic_scale, geometric_scale = control(p.tf, t)
+    ω = H.diagonal(s)
+    cache .= -2.0im * π * adiabatic_scale * ω
+    G = H.geometric(s)
+    cache .+= -1.0im * geometric_scale * u.pause * G
+end
+
+
 """
 $(TYPEDEF)
 DEDataVector type used for pausing control.
@@ -108,16 +123,11 @@ function QTBase.adjust_tstops(p::PausingControl, tstops)
 end
 
 
-function update_cache!(cache, H::AdiabaticFrameHamiltonian, p::PausingControl, tf, t)
-    hmat = H(u, p, tf, t)
-end
-
-
 function (h::AdiabaticFrameHamiltonian)(
     du::DEPausingVec,
     u::DEPausingVec,
     p::AbstractAnnealingParams,
-    t::Real
+    t::Real,
 )
     s, adiabatic_scale, geometric_scale = p.control(p.tf, t)
     ω = h.diagonal(s)
@@ -131,7 +141,7 @@ function (h::AdiabaticFrameHamiltonian)(
     du::DEPausingMat,
     u::DEPausingMat,
     p::AbstractAnnealingParams,
-    t::Real
+    t::Real,
 )
     s, adiabatic_scale, geometric_scale = p.control(p.tf, t)
     ω = h.diagonal(s)
@@ -144,7 +154,7 @@ end
 function (h::AdiabaticFrameHamiltonian)(
     u::Union{DEPausingVec,DEPausingMat},
     p::AbstractAnnealingParams,
-    t::Real
+    t::Real,
 )
     s, adiabatic_scale, geometric_scale = p.control(p.tf, t)
     ω = 2.0 * π * adiabatic_scale * h.diagonal(s)
@@ -157,7 +167,7 @@ function (h::AdiabaticFrameHamiltonian)(
     u::Union{DEPausingVec,DEPausingMat},
     a_scale::Real,
     g_scale::Real,
-    s::Real
+    s::Real,
 )
     ω = 2.0 * π * a_scale * h.diagonal(s)
     G = g_scale * u.pause * h.geometric(s)
@@ -226,7 +236,7 @@ function attach_annealing_param(p::PausingControl, c::TimeDependentCoupling)
 end
 
 
-function (D::AFRWADiffEqOperator{S})(du, u, p, t) where S <: PausingControl
+function (D::AFRWADiffEqOperator{S})(du, u, p, t) where {S<:PausingControl}
     s, a_scale, g_scale = p.control(p.tf, t)
     w, v = ω_matrix_RWA(D.H, u, p.tf, s, D.lvl)
     ρ = v' * u.x * v

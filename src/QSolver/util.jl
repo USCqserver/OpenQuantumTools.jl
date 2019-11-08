@@ -13,7 +13,7 @@ function prepare_u0(raw_u0; type =:v, control=nothing, vectorize=false)
         throw(ArgumentError("u0 can either be a vector or matrix."))
     end
     if control != nothing
-        res = adjust_u0(res, control)
+        res = adjust_u0_with_control(res, control)
     end
     if vectorize == true
         res = res[:]
