@@ -6,7 +6,7 @@ function solve_unitary(
     kwargs...,
 )
     tstops = A.tstops
-    u0 = Matrix{ComplexF64}(I, A.H.size)
+    u0 = Matrix{ComplexF64}(I, size(A.H))
     u0 = prepare_u0(u0, type = :m, control = A.control, vectorize=vectorize)
     tf = prepare_tf(tf, span_unit)
     p = AnnealingParams(A.H, tf; control = A.control)
@@ -24,6 +24,11 @@ function solve_unitary(
 end
 
 
+"""
+    function uni_create_ode_fun(H, vectorize)
+
+
+"""
 function uni_create_ode_fun(H, vectorize)
     cache = get_cache(H)
     j_cache = Matrix{eltype(H)}(I, size(H)) ⊗ cache
@@ -42,6 +47,11 @@ function uni_create_ode_fun(H, vectorize)
 end
 
 
+"""
+    function uni_jac!(J, u, p, t)
+
+Update the jacobian matrix for unitary solver.
+"""
 function uni_jac!(J, u, p, t)
     hmat = p.H(p.tf, t)
     J .= -1.0im * Matrix{eltype(hmat)}(I, p.H.size) ⊗ hmat
@@ -49,19 +59,6 @@ end
 
 
 #TODO Replace the code below with DiffEqOperators
-function uni_f(du, u, p, t)
-    hmat = p.H(p.tf, t)
-    mul!(du, hmat, u)
-    lmul!(-1.0im, du)
-end
-
-
-function uni_jac(J, u, p, t)
-    hmat = p.H(p.tf, t)
-    mul!(J, -1.0im, Matrix{eltype(hmat)}(I, p.H.size) ⊗ hmat)
-end
-
-
 function uni_control_f(du, u, p::AbstractAnnealingParams, t::Real)
     hmat = p.H(u, p, t)
     mul!(du, hmat, u)

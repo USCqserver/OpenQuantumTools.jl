@@ -108,6 +108,11 @@ function QTBase.adjust_tstops(p::PausingControl, tstops)
 end
 
 
+function update_cache!(cache, H::AdiabaticFrameHamiltonian, p::PausingControl, tf, t)
+    hmat = H(u, p, tf, t)
+end
+
+
 function (h::AdiabaticFrameHamiltonian)(
     du::DEPausingVec,
     u::DEPausingVec,
