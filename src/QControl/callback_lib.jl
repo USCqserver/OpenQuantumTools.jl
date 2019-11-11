@@ -1,8 +1,8 @@
-
+"""This is a modified version of PresetTimeCallback object in DiffEqCallbacks.jl"""
 function PresetTimeCallback(tstops,user_affect!;
                             initialize = INITIALIZE_DEFAULT, kwargs...)
     condition = function (u, t, integrator)
-      t in tstops
+      t in scale_tstops(integrator.p.tf, tstops)
     end
 
     # Call f, update tnext, and make sure we stop at the new tnext
@@ -16,7 +16,7 @@ function PresetTimeCallback(tstops,user_affect!;
         initialize(c, u, t, integrator)
         scaled_tstops = scale_tstops(integrator.p.tf, tstops)
         add_tstop!.((integrator,), scaled_tstops)
-        if t ∈ tstops
+        if t ∈ scaled_tstops
             user_affect!(integrator)
         end
     end
