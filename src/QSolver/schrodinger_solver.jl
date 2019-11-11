@@ -1,23 +1,23 @@
-function solve_schrodinger(A::Annealing, tf::Real; span_unit = false, kwargs...)
+function solve_schrodinger(
+    A::Annealing,
+    tf::Real;
+    span_unit = false,
+    kwargs...,
+)
     u0 = prepare_u0(A.u0, type = :v, control = A.control)
     tf = prepare_tf(tf, span_unit)
-    jp = sch_jacobian_prototype(A.H)
     p = AnnealingParams(A.H, tf; control = A.control)
-    if typeof(A.control) <: PausingControl
-        ff = ODEFunction(
-            sch_control_f;
-            jac = sch_control_jac,
-            jac_prototype = jp,
-        )
-        cb = DiscreteCallback(pause_condition, pause_affect!)
-        kwargs = Dict{Symbol,Any}(kwargs)
-        kwargs[:callback] = cb
-    else
-        ff = sch_create_ode_fun(A.H)
-    end
+    callback = construct_callback(A.control, :unitary)
+    ff = schrodinger_construct_ode_function(A.H, A.control)
     tspan, tstops = scaling_time(tf, A.sspan, A.tstops)
     prob = ODEProblem{true}(ff, u0, tspan, p)
-    solve(prob; alg_hints = [:nonstiff], tstops = tstops, kwargs...)
+    solve(
+        prob;
+        alg_hints = [:nonstiff],
+        callback = callback,
+        tstops = tstops,
+        kwargs...,
+    )
 end
 
 
@@ -38,18 +38,8 @@ function solve_schrodinger(
     trajectories = length(tf)
     tf_arr = float.(tf)
     # resolve control
-    if typeof(A.control) <: PausingControl
-        ff = ODEFunction(
-            sch_control_f;
-            jac = sch_control_jac,
-            jac_prototype = jp,
-        )
-        cb = DiscreteCallback(pause_condition, pause_affect!)
-        kwargs = Dict{Symbol,Any}(kwargs)
-        kwargs[:callback] = cb
-    else
-        ff = sch_create_ode_fun(A.H)
-    end
+    callback = construct_callback(A.control, :unitary)
+    ff = schrodinger_construct_ode_function(A.H, A.control)
     #
     if span_unit == true
         tstops = create_tstops_for_tf_array(tf_arr, A.tstops)
@@ -82,7 +72,10 @@ function solve_schrodinger(
 end
 
 
-function sch_create_ode_fun(H)
+function schrodinger_construct_ode_function(
+    H,
+    ::Union{Nothing,InstPulseControl},
+)
     cache = get_cache(H)
     diff_op = DiffEqArrayOperator(
         cache,
@@ -97,6 +90,8 @@ function sch_create_ode_fun(H)
 end
 
 
+
+#
 function sch_f(du, u, p::AbstractAnnealingParams, t::Real)
     p.H(du, u, p.tf, t)
 end

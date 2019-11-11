@@ -7,8 +7,8 @@ using SafeTestsets
     @time @safetestset "Adiabatic Frame Hamiltonian Pausing" begin
         include("QSolvers/adiabatic_hamil_pausing.jl")
     end
-    @time @safetestset "Pausing adjusted couplings" begin
-        include("QSolvers/pausing_coupling.jl")
+    @time @safetestset "Pausing control" begin
+        include("QControl/pausing_coupling.jl")
     end
     @time @safetestset "Solver utilies" begin
         include("QSolvers/solver_util.jl")
