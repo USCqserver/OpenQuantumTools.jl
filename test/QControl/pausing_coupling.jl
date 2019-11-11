@@ -22,5 +22,5 @@ DEu0 = QuantumAnnealingTools.adjust_u0_with_control(u0, pausing_control)
 DEρ0 = QuantumAnnealingTools.adjust_u0_with_control(ρ0, pausing_control)
 @test DEu0 == u0
 @test DEρ0 == ρ0
-@test typeof(DEu0) <: QuantumAnnealingTools.DEPausingVec
-@test typeof(DEρ0) <: QuantumAnnealingTools.DEPausingMat
+@test typeof(DEu0) <: QuantumAnnealingTools.DEStateMachineVec
+@test typeof(DEρ0) <: QuantumAnnealingTools.DEStateMachineMat

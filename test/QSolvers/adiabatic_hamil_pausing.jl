@@ -22,10 +22,10 @@ s, as, gs = pausing_control(UnitTime(4.0), 2.4)
 
 DEV = QuantumAnnealingTools.prepare_u0(u0; control=pausing_control)
 @test DEV.x == u0
-@test DEV.pause == 1
+@test DEV.state == 1
 DEM = QuantumAnnealingTools.prepare_u0(u0 * u0'; type=:m, control=pausing_control)
 @test DEM.x == u0 * u0'
-@test DEM.pause == 1
+@test DEM.state == 1
 
 dθ = (s) -> π / 2
 gap = (s) -> (cos(2 * π * s) + 1) / 2
@@ -42,7 +42,7 @@ unit_param = QuantumAnnealingTools.AnnealingParams(
 )
 
 u = QuantumAnnealingTools.prepare_u0(deepcopy(PauliVec[3][1]); control= pausing_control)
-du = QuantumAnnealingTools.DEPausingVec(deepcopy(PauliVec[3][1]), 1)
+du = QuantumAnnealingTools.DEStateMachineVec(deepcopy(PauliVec[3][1]), 1)
 
 @test H(u, unitless_param, 0.0) == H(10, 0.0)
 @test H(u, unit_param, 0.0) == H(10, 0.0) / 10.0
@@ -59,7 +59,7 @@ res_du = H(du, u, unitless_param, 1.2)
 res_du = H(du, u, unit_param, 12)
 @test res_du == exp_du / 10
 
-u.pause = 1 - u.pause
+u.state = 1 - u.state
 res_du = H(du, u, unitless_param, 0.7)
 @test res_du == [0, 0]
 res_du = H(du, u, unit_param, 7)

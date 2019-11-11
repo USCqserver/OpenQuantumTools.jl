@@ -59,6 +59,7 @@ end
 
 
 adjust_u0_with_control(u0, ::Nothing) = u0
+construct_callback(::Nothing, ::Symbol) = nothing
 
 
 function pulse_on_unitary(P, u::DEStateMachineMat)

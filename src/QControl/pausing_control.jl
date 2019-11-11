@@ -34,65 +34,35 @@ function (p::PausingControl)(tf::UnitTime, t::Real)
     s, 1.0, 1 / tf
 end
 
-
-"""
-    function adjust_u0_with_control(u0, p)
-
-Convert the state vector/density matrix to the corresponding DEDataArray depending on the type of control `p`.
-"""
-function adjust_u0_with_control(u0, ::PausingControl)
-    if ndims(u0) == 1
-        DEPausingVec(u0, 1)
-    elseif ndims(u0) == 2
-        DEPausingMat(u0, 1)
-    else
-        throw(ArgumentError("u0 can either be a vector or matrix."))
-    end
-end
+QTBase.need_change_time_scale(::PausingControl) = true
 
 
 function QTBase.update_cache!(
     cache,
-    H::AdiabaticFrameHamiltonian,
+    u,
     tf,
     t,
+    H::AdiabaticFrameHamiltonian,
     control::PausingControl,
 )
     s, adiabatic_scale, geometric_scale = control(p.tf, t)
     ω = H.diagonal(s)
     cache .= -2.0im * π * adiabatic_scale * ω
     G = H.geometric(s)
-    cache .+= -1.0im * geometric_scale * u.pause * G
+    cache .+= -1.0im * geometric_scale * u.state * G
 end
 
 
-"""
-$(TYPEDEF)
-DEDataVector type used for pausing control.
-
-# Fields
-$(FIELDS)
-"""
-mutable struct DEPausingVec{T} <: DEDataVector{T}
-    """The state vector"""
-    x::Array{T,1}
-    """Flag for whether pause is turned on"""
-    pause::Int
-end
-
-
-"""
-$(TYPEDEF)
-DEDataMatrix type used for pausing control.
-
-# Fields
-$(FIELDS)
-"""
-mutable struct DEPausingMat{T} <: DEDataMatrix{T}
-    """The density matrix"""
-    x::Array{T,2}
-    """Flag for whether pause is turned on"""
-    pause::Int
+function (h::AdiabaticFrameHamiltonian)(
+    u::Union{DEStateMachineVec,DEStateMachineMat},
+    tf,
+    t::Real,
+    p::PausingControl,
+)
+    s, adiabatic_scale, geometric_scale = p.control(p.tf, t)
+    ω = 2.0 * π * adiabatic_scale * h.diagonal(s)
+    G = geometric_scale * u.state * h.geometric(s)
+    ω + G
 end
 
 
@@ -124,8 +94,8 @@ end
 
 
 function (h::AdiabaticFrameHamiltonian)(
-    du::DEPausingVec,
-    u::DEPausingVec,
+    du::DEStateMachineVec,
+    u::DEStateMachineVec,
     p::AbstractAnnealingParams,
     t::Real,
 )
@@ -133,13 +103,13 @@ function (h::AdiabaticFrameHamiltonian)(
     ω = h.diagonal(s)
     du.x .= -2.0im * π * adiabatic_scale * ω * u.x
     G = h.geometric(s)
-    du.x .+= -1.0im * geometric_scale * u.pause * G * u.x
+    du.x .+= -1.0im * geometric_scale * u.state * G * u.x
 end
 
 
 function (h::AdiabaticFrameHamiltonian)(
-    du::DEPausingMat,
-    u::DEPausingMat,
+    du::DEStateMachineMat,
+    u::DEStateMachineMat,
     p::AbstractAnnealingParams,
     t::Real,
 )
@@ -147,30 +117,30 @@ function (h::AdiabaticFrameHamiltonian)(
     ω = h.diagonal(s)
     du.x .= -2.0im * π * adiabatic_scale * (ω * u.x - u.x * ω)
     G = h.geometric(s)
-    du.x .+= -1.0im * geometric_scale * u.pause * (G * u.x - u.x * G)
+    du.x .+= -1.0im * geometric_scale * u.state * (G * u.x - u.x * G)
 end
 
 
 function (h::AdiabaticFrameHamiltonian)(
-    u::Union{DEPausingVec,DEPausingMat},
+    u::Union{DEStateMachineVec,DEStateMachineMat},
     p::AbstractAnnealingParams,
     t::Real,
 )
     s, adiabatic_scale, geometric_scale = p.control(p.tf, t)
     ω = 2.0 * π * adiabatic_scale * h.diagonal(s)
-    G = geometric_scale * u.pause * h.geometric(s)
+    G = geometric_scale * u.state * h.geometric(s)
     ω + G
 end
 
 
 function (h::AdiabaticFrameHamiltonian)(
-    u::Union{DEPausingVec,DEPausingMat},
+    u::Union{DEStateMachineVec,DEStateMachineMat},
     a_scale::Real,
     g_scale::Real,
     s::Real,
 )
     ω = 2.0 * π * a_scale * h.diagonal(s)
-    G = g_scale * u.pause * h.geometric(s)
+    G = g_scale * u.state * h.geometric(s)
     ω + G
 end
 
@@ -195,14 +165,6 @@ function pause_condition(u, t, integrator)
     elseif typeof(integrator.p.tf) <: UnitTime
         return t in integrator.p.tf * integrator.p.control.tstops
     end
-end
-
-
-function pause_affect!(integrator)
-    for c in full_cache(integrator)
-        c.pause = 1 - c.pause
-    end
-    u_modified!(integrator, false)
 end
 
 
@@ -249,9 +211,15 @@ function (D::AFRWADiffEqOperator{S})(du, u, p, t) where {S<:PausingControl}
 end
 
 
-function ω_matrix_RWA(H::AdiabaticFrameHamiltonian, u::DEPausingMat, tf, s, lvl)
+function ω_matrix_RWA(
+    H::AdiabaticFrameHamiltonian,
+    u::DEStateMachineMat,
+    tf,
+    s,
+    lvl,
+)
     ω = 2π * H.diagonal(s)
-    off = 2π * u.pause * H.geometric(s) / tf
+    off = 2π * u.state * H.geometric(s) / tf
     ω + off
     eigen!(Hermitian(ω + off), 1:lvl)
 end
