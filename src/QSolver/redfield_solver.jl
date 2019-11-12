@@ -9,10 +9,11 @@ Solve the time dependent Redfield equation for `Annealing` defined by `A` with t
 - `tf::Real`: the total annealing time.
 - `unitary` : precalculated unitary of close system evolution.
 - `span_unit::Bool=false`: flag variable which, when set to true, informs the solver to work with time in physical unit.
+- `tstops` : extra times that the timestepping algorithm must step to.
 - `kwargs` : other keyword arguments supported by DifferentialEquations.jl
 ...
 """
-function solve_redfield(A::Annealing, tf::Real, unitary; span_unit::Bool = false, kwargs...)
+function solve_redfield(A::Annealing, tf::Real, unitary; span_unit::Bool = false, tstops = Float64[], kwargs...)
     u0 = prepare_u0(A.u0, type=:m, control=A.control)
     tf = prepare_tf(tf, span_unit)
     coupling = A.coupling
