@@ -25,3 +25,8 @@ end
 
 scale_tstops(tf::UnitTime, tstops) = tf * tstops
 scale_tstops(tf::Real, tstops) = tstops
+
+
+function empty_affect!(integrator)
+    u_modified!(integrator,false)
+end
