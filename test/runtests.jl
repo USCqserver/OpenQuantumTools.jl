@@ -16,6 +16,9 @@ using SafeTestsets
     @time @safetestset "Schrodinger test" begin
         include("QSolvers/schrodinger_solver_test.jl")
     end
+    @time @safetestset "Von Neumann test" begin
+        include("QSolvers/von_neumann_solver.jl")
+    end
     @time @safetestset "Unitary test" begin
         include("QSolvers/unitary_solver_test.jl")
     end

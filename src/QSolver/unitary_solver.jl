@@ -3,23 +3,18 @@ function solve_unitary(
     tf::Real;
     span_unit = false,
     vectorize = false,
+    tstops = Float64[],
     kwargs...,
 )
     tf = prepare_tf(tf, span_unit)
-    tspan, tstops = scaling_time(tf, A.sspan, A.tstops)
+    tstops = prepare_tstops(tf, tstops, A.tstops)
     u0 = Matrix{ComplexF64}(I, size(A.H))
     u0 = prepare_u0(u0, type = :m, control = A.control, vectorize = vectorize)
     p = AnnealingParams(A.H, tf; control = A.control)
     callback = construct_callback(A.control, :unitary)
     ff = unitary_construct_ode_function(A.H, A.control, vectorize)
-    prob = ODEProblem{true}(ff, u0, tspan, p)
-    solve(
-        prob;
-        alg_hints = [:nonstiff],
-        tstops = tstops,
-        callback = callback,
-        kwargs...
-    )
+    prob = ODEProblem{true}(ff, u0, (p) -> scaling_tspan(p.tf, A.sspan), p)
+    solve(prob; alg_hints = [:nonstiff], tstops = tstops, callback = callback, kwargs...)
 end
 
 
@@ -28,11 +23,7 @@ end
 
 Construct the corresponding `ODEFunction` for unitary solver.
 """
-function unitary_construct_ode_function(
-    H,
-    ::Union{Nothing,InstPulseControl},
-    vectorize,
-)
+function unitary_construct_ode_function(H, ::Union{Nothing,InstPulseControl}, vectorize)
     cache = get_cache(H)
     j_cache = Matrix{eltype(H)}(I, size(H)) ⊗ cache
     if vectorize == false
@@ -54,14 +45,7 @@ function unitary_construct_ode_function(H, control::PausingControl, vectorize)
     cache = get_cache(H)
     j_cache = Matrix{eltype(H)}(I, size(H)) ⊗ cache
     if vectorize == false
-        diff_op_update = (A, u, p, t) -> update_cache!(
-            A,
-            u,
-            p.tf,
-            t,
-            p.H,
-            p.control,
-        )
+        diff_op_update = (A, u, p, t) -> update_cache!(A, u, p.tf, t, p.H, p.control)
     else
         cache = Matrix{eltype(H)}(I, size(H)) ⊗ cache
         diff_op_update = uni_control_jac!
