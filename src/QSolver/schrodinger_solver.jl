@@ -54,7 +54,7 @@ function solve_schrodinger(
     )
 end
 
-
+        
 function schrodinger_construct_ode_function(H, ::Union{Nothing,InstPulseControl})
     cache = get_cache(H)
     diff_op = DiffEqArrayOperator(
