@@ -17,10 +17,19 @@ f(t) = QuantumAnnealingTools.quadgk(cfun, 0, t)[1]
 @test sol(1.0)[1,2] ≈ exp(-4*γ)*0.5 atol=1e-5 rtol=1e-5
 
 # test for CustomBath
+H = DenseHamiltonian([(s)->0.0], [σi], unit=:ħ)
+u0 = PauliVec[1][1]
+coupling = ConstantCouplings(["Z"], unit=:ħ)
 tf = 20
 cfun(x) = x<=20 ? 1e-4 : 0
 bath = CustomBath(correlation=cfun)
 annealing = Annealing(H, u0; coupling=coupling, bath=bath)
 U = solve_unitary(annealing, tf, alg=Tsit5(), abstol=1e-8, retol=1e-8);
 sol = solve_redfield(annealing, tf, U; alg=Tsit5(), abstol=1e-8, retol=1e-8);
-@test sol(1.0)[1,2] ≈ exp(-4*0.02)*0.5 atol=1e-3 rtol=1e-3
+@test sol(1.0)[1,2] ≈ exp(-4*0.02)*0.5 atol=1e-4 rtol=1e-4
+
+control = InstPulseControl([0.5], (x)->σx)
+annealing = Annealing(H, u0, control=control, coupling=coupling, bath=bath)
+U = solve_unitary(annealing, tf, alg=Tsit5(), abstol=1e-8, retol=1e-8);
+sol = solve_redfield(annealing, tf, U; alg=Tsit5(), abstol=1e-8, retol=1e-8, tstops=[0.51]);
+@test sol(1.0)[1,2] ≈ 0.5 atol=1e-3
