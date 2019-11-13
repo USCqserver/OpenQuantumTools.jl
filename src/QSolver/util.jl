@@ -12,11 +12,11 @@ function prepare_u0(raw_u0; type = :v, control = nothing, vectorize = false)
     elseif ndims(res) < 1 || ndims(res) > 2
         throw(ArgumentError("u0 can either be a vector or matrix."))
     end
-    if control != nothing
-        res = adjust_u0_with_control(res, control)
-    end
     if vectorize == true
         res = res[:]
+    end
+    if control != nothing
+        res = adjust_u0_with_control(res, control)
     end
     res
 end

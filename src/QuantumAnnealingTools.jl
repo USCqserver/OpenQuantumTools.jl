@@ -18,6 +18,7 @@ import DiffEqBase:DEDataVector, DEDataMatrix, DEDataArray, ODEProblem, ODEFuncti
 
 include("math_util.jl")
 
+include("Bath/custom_bath.jl")
 include("Bath/ohmic.jl")
 include("Bath/hybridohmic.jl")
 include("Bath/onef.jl")
@@ -49,7 +50,7 @@ include("plot_util/projected_system.jl")
 
 
 
-export OhmicBath, Ohmic, γ, S, correlation, polaron_correlation, interpolate_spectral_density, spectrum
+export OhmicBath, Ohmic, γ, S, correlation, polaron_correlation, interpolate_spectral_density, spectrum, CustomBath
 
 export HybridOhmicBath, HybridOhmic, convolution_rate, Gₗ, Gₕ, half_width_half_maximum, bloch_rate, direct_integrate, spectrum_info, Sₕ, MRT_Γ
 

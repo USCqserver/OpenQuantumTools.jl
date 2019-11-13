@@ -13,24 +13,52 @@ Solve the time dependent Redfield equation for `Annealing` defined by `A` with t
 - `kwargs` : other keyword arguments supported by DifferentialEquations.jl
 ...
 """
-function solve_redfield(A::Annealing, tf::Real, unitary; span_unit::Bool = false, tstops = Float64[], kwargs...)
-    u0 = prepare_u0(A.u0, type=:m, control=A.control)
+function solve_redfield(
+    A::Annealing,
+    tf::Real,
+    unitary;
+    span_unit::Bool = false,
+    tstops = Float64[],
+    kwargs...,
+)
     tf = prepare_tf(tf, span_unit)
-    coupling = A.coupling
-    ff = redfield_f
-    if typeof(A.control) <: PausingControl
-        cb = DiscreteCallback(pause_condition, pause_affect!)
-        kwargs = Dict{Symbol,Any}(kwargs)
-        kwargs[:callback] = cb
-        coupling = attach_annealing_param(A.control, coupling)
-        ff = redfield_control_f
-    end
+    tstops = prepare_tstops(tf, tstops, A.tstops)
+    u0 = prepare_u0(A.u0, type = :m, control = A.control)
+    ff = redfield_construct_ode_function(A.H, A.control)
+    coupling = redfield_construct_coupling_function(A.coupling, A.control)
+    ff = redfield_construct_ode_function(A.H, A.control)
     opensys = create_redfield(coupling, unitary, tf, A.bath)
-    p = AnnealingParams(A.H, tf; opensys=opensys, control=A.control)
-    tspan, tstops = scaling_time(tf, A.sspan, A.tstops)
-    prob = ODEProblem(ff, u0, tspan, p)
-    solve(prob; alg_hints = [:nonstiff], tstops=tstops, kwargs...)
+    p = AnnealingParams(A.H, tf; opensys = opensys, control = A.control)
+    callback = construct_callback(A.control, :redfield)
+    prob = ODEProblem(ff, u0, (p) -> scaling_tspan(p.tf, A.sspan), p)
+    solve(
+        prob;
+        alg_hints = [:nonstiff],
+        tstops = tstops,
+        callback = callback,
+        kwargs...,
+    )
 end
+
+
+function redfield_construct_ode_function(H, ::Union{Nothing,InstPulseControl})
+    redfield_f
+end
+
+
+function redfield_contruct_ode_function(H, ::PausingControl)
+    redfield_control_f
+end
+
+
+redfield_construct_coupling_function(
+    coupling,
+    ::Union{Nothing,InstPulseControl},
+) = coupling
+
+
+redfield_construct_coupling_function(coupling, control::PausingControl) =
+    attach_annealing_param(control, coupling)
 
 
 function redfield_f(du, u, p, t)
