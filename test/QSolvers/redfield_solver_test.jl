@@ -23,4 +23,4 @@ bath = CustomBath(correlation=cfun)
 annealing = Annealing(H, u0; coupling=coupling, bath=bath)
 U = solve_unitary(annealing, tf, alg=Tsit5(), abstol=1e-8, retol=1e-8);
 sol = solve_redfield(annealing, tf, U; alg=Tsit5(), abstol=1e-8, retol=1e-8);
-@test sol(1.0)[1,2] ≈ exp(-4*0.02)*0.5 atol=1e-5 rtol=1e-5
+@test sol(1.0)[1,2] ≈ exp(-4*0.02)*0.5 atol=1e-3 rtol=1e-3
