@@ -22,4 +22,7 @@ using SafeTestsets
     @time @safetestset "Unitary test" begin
         include("QSolvers/unitary_solver_test.jl")
     end
+    @time @safetestset "Redfield test" begin
+        include("QSolvers/redfield_solver_test.jl")
+    end
 end

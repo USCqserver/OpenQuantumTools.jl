@@ -11,6 +11,8 @@ end
 function construct_callback(control::InstPulseControl, solver_type::Symbol)
     if solver_type == :unitary
         PresetTimeCallback(control.tstops, unitary_dd_affect!)
+    elseif solver_type == :redfield
+        PresetTimeCallback(control.tstops, density_matrix_dd_affect!)
     else
         ArgumentError("$solver_type solver does not support the specified control protocol.")
     end
@@ -54,7 +56,23 @@ Callback function for `InstPulseControl`. It is used by unitary solver.
 function unitary_dd_affect!(integrator)
     for c in full_cache(integrator)
         pulse = integrator.p.control(c.state)
-        c.x = pulse * c.x
+        c.x = pulse_on_unitary(pulse, c)
         c.state += 1
     end
 end
+
+
+@inline pulse_on_unitary(p, c::DEDataVector) = Matrix{eltype(p)}(I, size(p))⊗p * c.x
+@inline pulse_on_unitary(p, c::DEDataMatrix) = p * c.x
+
+
+function density_matrix_dd_affect!(integrator)
+    for c in full_cache(integrator)
+        pulse = integrator.p.control(c.state)
+        c.x = pulse_on_density_matrix(pulse, c)
+        c.state += 1
+    end
+end
+
+@inline pulse_on_density_matrix(p, c::DEDataVector) = conj(p)⊗p * c.x
+@inline pulse_on_density_matrix(p, c::DEDataMatrix) = p * c.x * p'

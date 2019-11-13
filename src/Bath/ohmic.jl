@@ -125,8 +125,9 @@ end
 
 
 function create_redfield(coupling, unitary, tf::UnitTime, bath::OhmicBath)
+    cp(t) = coupling(t/tf)
     cfun(t) = correlation(t, bath)
-    Redfield(coupling, unitary, cfun)
+    Redfield(cp, unitary, cfun)
 end
 
 

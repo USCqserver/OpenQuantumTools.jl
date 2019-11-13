@@ -62,6 +62,9 @@ adjust_u0_with_control(u0, ::Nothing) = u0
 construct_callback(::Nothing, ::Symbol) = nothing
 
 
-function pulse_on_unitary(P, u::DEStateMachineMat)
-    lmul!(P, u.x)
+function (h::DenseHamiltonian)(du, u::DEDataMatrix{T}, p::Real, t::Real) where T<:Complex
+    fill!(du, 0.0+0.0im)
+    H = h(t)
+    LinearAlgebra.BLAS.gemm!('N', 'N', -1.0im * p, H, u.x, 1.0 + 0.0im, du.x)
+    LinearAlgebra.BLAS.gemm!('N', 'N', 1.0im * p, u.x, H, 1.0 + 0.0im, du.x)
 end
