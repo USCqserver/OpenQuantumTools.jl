@@ -19,6 +19,14 @@ function construct_callback(control::InstPulseControl, solver_type::Symbol)
 end
 
 
+function construct_callback(control::FluctuatorControl, solver_type::Symbol)
+    if solver_type == :stochastic_schrodinger
+        IterativeCallback()
+    else
+        ArgumentError("$solver_type solver does not support the specified control protocol.")
+    end
+end
+
 """
     function adjust_u0_with_control(u0, p)
 
@@ -76,3 +84,18 @@ end
 
 @inline pulse_on_density_matrix(p, c::DEDataVector) = conj(p)⊗p * c.x
 @inline pulse_on_density_matrix(p, c::DEDataMatrix) = p * c.x * p'
+
+
+function fluctuator_affect!(integrator)
+    noise_value = integrator.p.control()
+    for c in full_cache(integrator)
+        c.n = noise_value
+    end
+    next_state!(integrator.p.control)
+    u_modified!(integrator, false)
+end
+
+
+function fluctuator_time_choice(integrator)
+    integrator.t + integrator.p.control.next_τ
+end

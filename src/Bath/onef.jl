@@ -60,3 +60,22 @@ function FluctuatorControl(tf, E::EnsembleFluctuator)
     next_τ, next_idx = findmin(rand(dist))
     FluctuatorControl(dist, b0, next_idx, next_τ)
 end
+
+
+function construct_stochastic_control(tf, bath::EnsembleFluctuator)
+    FluctuatorControl(tf, bath)
+end
+
+
+function (f::FluctuatorControl)()
+    sum(f.b0)
+end
+
+
+function next_state!(f::FluctuatorControl)
+    next_τ, next_idx = findmin(rand(f.dist))
+    f.next_τ = next_τ
+    f.next_idx = next_idx
+    f.b0[next_idx] *= -1
+    nothing
+end
