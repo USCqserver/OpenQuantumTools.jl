@@ -13,24 +13,11 @@ struct SymetricRTN
 end
 
 
-function correlation(τ, R::SymetricRTN)
-    R.b^2*exp(-R.γ*τ)
-end
+correlation(τ, R::SymetricRTN) = R.b^2 * exp(-R.γ * τ)
+spectrum(ω, R::SymetricRTN) = 2 * R.b^2 * R.γ / (ω^2 + R.γ^2)
 
-
-function spectrum(ω, R::SymetricRTN)
-    2 * R.b^2 * R.γ / (ω^2 + R.γ^2)
-end
-
-
-function construct_distribution(tf::Real, R::SymetricRTN)
-    Exponential(tf/R.γ)
-end
-
-
-function construct_distribution(tf::UnitTime, R::SymetricRTN)
-    Exponential(1/R.γ)
-end
+construct_distribution(tf::Real, R::SymetricRTN) = Exponential(tf / R.γ)
+construct_distribution(tf::UnitTime, R::SymetricRTN) = Exponential(1 / R.γ)
 
 
 """
@@ -46,43 +33,30 @@ struct EnsembleFluctuator{T}
 end
 
 
-function EnsembleFluctuator(b::AbstractArray{T}, ω::AbstractArray{T}) where T<:Number
-    f = [SymetricRTN(x, y) for (x,y) in zip(b, ω)]
+function EnsembleFluctuator(b::AbstractArray{T}, ω::AbstractArray{T}) where {T<:Number}
+    f = [SymetricRTN(x, y) for (x, y) in zip(b, ω)]
     EnsembleFluctuator(f)
 end
 
 
-function correlation(τ, E::EnsembleFluctuator)
-    sum((x)->correlation(τ, x), E.f)
-end
+correlation(τ, E::EnsembleFluctuator) = sum((x) -> correlation(τ, x), E.f)
+spectrum(ω, E::EnsembleFluctuator) = sum((x) -> spectrum(ω, x), E.f)
 
 
-function spectrum(ω, E::EnsembleFluctuator)
-    sum((x)->spectrum(ω, x), E.f)
-end
+construct_distribution(tf, E::EnsembleFluctuator) = product_distribution([construct_distribution(tf, x) for x in E.f])
 
 
-function construct_distribution(tf, E::EnsembleFluctuator)
-    [construct_distribution(tf, x) for x in E.f]
-end
-
-
-struct DiffEqFluctuators
+mutable struct FluctuatorControl
     dist
     b0
-    idx
-    τ
+    next_idx
+    next_τ
 end
 
 
-function DiffEqFluctuators(tf, E::EnsembleFluctuator)
+function FluctuatorControl(tf, E::EnsembleFluctuator)
     dist = construct_distribution(tf, E)
     b0 = [x.b for x in E.f] .* rand([-1, 1], length(dist))
-    DiffEqFluctuators(dist, b0)
-end
-
-
-function next_flip(F::DiffEqFluctuators)
-    τ_vec = [rand(x, 1) for x in F.dist]
-    findmin(τ_vec)
+    next_τ, next_idx = findmin(rand(dist))
+    FluctuatorControl(dist, b0, next_idx, next_τ)
 end
