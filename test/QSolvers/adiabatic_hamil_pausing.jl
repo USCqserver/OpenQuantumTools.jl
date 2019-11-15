@@ -42,7 +42,7 @@ unit_param = QuantumAnnealingTools.AnnealingParams(
 )
 
 u = QuantumAnnealingTools.prepare_u0(deepcopy(PauliVec[3][1]); control= pausing_control)
-du = QuantumAnnealingTools.DEStateMachineVec(deepcopy(PauliVec[3][1]), 1)
+du = QuantumAnnealingTools.DEStateMachineVec{ComplexF64}(deepcopy(PauliVec[3][1]), 1)
 
 @test H(u, unitless_param, 0.0) == H(10, 0.0)
 @test H(u, unit_param, 0.0) == H(10, 0.0) / 10.0

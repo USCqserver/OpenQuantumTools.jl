@@ -3,6 +3,10 @@
 
 Contruct the corresponding callback functions (if there is any) for `control`, which can be nothing or any `AbstractAnnealingControl` object. `solver_type` specifies for which solver the callback function is needed.
 """
+function construct_callback(::Nothing, ::Symbol)
+    nothing
+end
+
 function construct_callback(control::PausingControl, solver_type::Symbol)
     PresetTimeCallback(control.tstops, pause_affect!)
 end
@@ -21,25 +25,33 @@ end
 
 function construct_callback(control::FluctuatorControl, solver_type::Symbol)
     if solver_type == :stochastic_schrodinger
-        IterativeCallback()
+        IterativeCallback(fluctuator_time_choice, fluctuator_affect!)
     else
         ArgumentError("$solver_type solver does not support the specified control protocol.")
     end
 end
+
 
 """
     function adjust_u0_with_control(u0, p)
 
 Convert the state vector/density matrix to the corresponding DEDataArray depending on the type of control `p`.
 """
-function adjust_u0_with_control(u0, ::Union{PausingControl,InstPulseControl})
-    if ndims(u0) == 1
-        DEStateMachineVec(u0, 1)
-    elseif ndims(u0) == 2
-        DEStateMachineMat(u0, 1)
-    else
-        throw(ArgumentError("u0 can either be a vector or matrix."))
-    end
+function adjust_u0_with_control(u0, ::Nothing)
+    u0
+end
+
+
+function adjust_u0_with_control(
+    u0::Array{T,N},
+    ::Union{PausingControl,InstPulseControl},
+) where {T<:Number,N}
+    DEStateMachineArray{T,N}(u0, 1)
+end
+
+
+function adjust_u0_with_control(u0::Array{T,N}, f::FluctuatorControl) where {T<:Number,N}
+    DENoiseArray{T,N}(u0, f())
 end
 
 
@@ -70,7 +82,7 @@ function unitary_dd_affect!(integrator)
 end
 
 
-@inline pulse_on_unitary(p, c::DEDataVector) = Matrix{eltype(p)}(I, size(p))⊗p * c.x
+@inline pulse_on_unitary(p, c::DEDataVector) = Matrix{eltype(p)}(I, size(p)) ⊗ p * c.x
 @inline pulse_on_unitary(p, c::DEDataMatrix) = p * c.x
 
 
@@ -82,7 +94,7 @@ function density_matrix_dd_affect!(integrator)
     end
 end
 
-@inline pulse_on_density_matrix(p, c::DEDataVector) = conj(p)⊗p * c.x
+@inline pulse_on_density_matrix(p, c::DEDataVector) = conj(p) ⊗ p * c.x
 @inline pulse_on_density_matrix(p, c::DEDataMatrix) = p * c.x * p'
 
 

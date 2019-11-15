@@ -1,13 +1,13 @@
 """
 $(TYPEDEF)
-DEDataVector type for finite state machine control
+DEDataArray type for finite state machine control.
 
 # Fields
 $(FIELDS)
 """
-mutable struct DEStateMachineVec{T} <: DEDataVector{T}
-    """DiffEq vector"""
-    x::Array{T,1}
+mutable struct DEStateMachineArray{T, N} <: DEDataArray{T, N}
+    """Array data"""
+    x::Array{T, N}
     """Current state"""
     state::Int
 end
@@ -15,51 +15,23 @@ end
 
 """
 $(TYPEDEF)
-DEDataMatrix type for finite state machine control
+DEDataArray type for noise injection.
 
 # Fields
 $(FIELDS)
 """
-mutable struct DEStateMachineMat{T} <: DEDataMatrix{T}
-    """DiffEq matrix"""
-    x::Array{T,2}
-    """Current state"""
-    state::Int
-end
-
-
-"""
-$(TYPEDEF)
-DEDataVector type for noise injection
-
-# Fields
-$(FIELDS)
-"""
-mutable struct DENoiseVec{T} <: DEDataVector{T}
-    """DiffEq vector"""
-    x::Array{T,1}
+mutable struct DENoiseArray{T, N} <: DEDataArray{T, N}
+    """Array data"""
+    x::Array{T, N}
     """Current noise value"""
     n::Float64
 end
 
 
-"""
-$(TYPEDEF)
-DEDataMatrix type for noise injection
-
-# Fields
-$(FIELDS)
-"""
-mutable struct DENoiseMat{T} <: DEDataMatrix{T}
-    """DiffEq matrix"""
-    x::Array{T,2}
-    """Current noise value"""
-    n::Float64
-end
-
-
-adjust_u0_with_control(u0, ::Nothing) = u0
-construct_callback(::Nothing, ::Symbol) = nothing
+const DEStateMachineVec{T} = DEStateMachineArray{T, 1}
+const DEStateMachineMat{T} = DEStateMachineArray{T, 2}
+const DENoiseVec{T} = DENoiseArray{T, 1}
+const DENoiseMat{T} = DENoiseArray{T, 2}
 
 
 function (h::DenseHamiltonian)(du, u::DEDataMatrix{T}, p::Real, t::Real) where T<:Complex
