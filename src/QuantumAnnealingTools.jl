@@ -4,11 +4,28 @@ using DocStringExtensions
 using Reexport
 using RecipesBase
 
-import SpecialFunctions:trigamma
-import Optim:optimize
-import QuadGK:quadgk
-import Arpack:eigs
-import DiffEqBase:DEDataVector, DEDataMatrix, DEDataArray, ODEProblem, ODEFunction, DiscreteCallback, u_modified!, full_cache, solve, EnsembleSerial, EnsembleProblem, ODESolution, DiffEqArrayOperator, INITIALIZE_DEFAULT, add_tstop!, CallbackSet
+import SpecialFunctions: trigamma
+import Optim: optimize
+import QuadGK: quadgk
+import Arpack: eigs
+import DiffEqBase: DEDataVector,
+                   DEDataMatrix,
+                   DEDataArray,
+                   ODEProblem,
+                   ODEFunction,
+                   DiscreteCallback,
+                   u_modified!,
+                   full_cache,
+                   solve,
+                   EnsembleSerial,
+                   EnsembleProblem,
+                   ODESolution,
+                   DiffEqArrayOperator,
+                   INITIALIZE_DEFAULT,
+                   add_tstop!,
+                   CallbackSet,
+                   terminate!
+import DiffEqCallbacks: FunctionCallingCallback
 
 
 @reexport using LinearAlgebra
@@ -50,9 +67,27 @@ include("plot_util/projected_system.jl")
 
 
 
-export OhmicBath, Ohmic, γ, S, correlation, polaron_correlation, interpolate_spectral_density, spectrum, CustomBath
+export OhmicBath,
+       Ohmic,
+       γ,
+       S,
+       correlation,
+       polaron_correlation,
+       interpolate_spectral_density,
+       spectrum,
+       CustomBath
 
-export HybridOhmicBath, HybridOhmic, convolution_rate, Gₗ, Gₕ, half_width_half_maximum, bloch_rate, direct_integrate, spectrum_info, Sₕ, MRT_Γ
+export HybridOhmicBath,
+       HybridOhmic,
+       convolution_rate,
+       Gₗ,
+       Gₕ,
+       half_width_half_maximum,
+       bloch_rate,
+       direct_integrate,
+       spectrum_info,
+       Sₕ,
+       MRT_Γ
 
 export EnsembleFluctuator
 

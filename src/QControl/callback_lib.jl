@@ -1,8 +1,7 @@
 """This is a modified version of PresetTimeCallback object in DiffEqCallbacks.jl"""
-function PresetTimeCallback(tstops,user_affect!;
-                            initialize = INITIALIZE_DEFAULT, kwargs...)
+function PresetTimeCallback(tstops, user_affect!; initialize = INITIALIZE_DEFAULT, kwargs...)
     condition = function (u, t, integrator)
-      t in scale_tstops(integrator.p.tf, tstops)
+        t in scale_tstops(integrator.p.tf, tstops)
     end
 
     # Call f, update tnext, and make sure we stop at the new tnext
@@ -26,6 +25,15 @@ end
 scale_tstops(tf::UnitTime, tstops) = tf * tstops
 scale_tstops(tf::Real, tstops) = tstops
 
+
 function empty_affect!(integrator)
-    u_modified!(integrator,false)
+    u_modified!(integrator, false)
+end
+
+
+function positivity_check_affect(u, t, integrator)
+    if !check_positivity(u)
+        @warn "The density matrix becomes negative at time $t."
+        terminate!(integrator)
+    end
 end
