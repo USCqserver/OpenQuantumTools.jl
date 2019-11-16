@@ -96,7 +96,7 @@ function solve_ame(
     end
     #
     if span_unit == true
-        tstops = hyper_tstops(tf_arr, A.tstops)
+        tstops = create_tstops_for_tf_array(tf_arr, A.tstops)
         prob_func = (prob, i, repeat) -> begin
             tspan = (prob.tspan[1] * tf_arr[i], prob.tspan[2] * tf_arr[i])
             p = set_tf(prob.p, tf_arr[i])
@@ -182,7 +182,7 @@ function solve_af_rwa(
     end
     #
     if span_unit == true
-        tstops = hyper_tstops(tf_arr, A.tstops)
+        tstops = create_tstops_for_tf_array(tf_arr, A.tstops)
         prob_func = (prob, i, repeat) -> begin
             tspan = (prob.tspan[1] * tf_arr[i], prob.tspan[2] * tf_arr[i])
             p = set_tf(prob.p, tf_arr[i])
