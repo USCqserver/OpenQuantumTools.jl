@@ -1,28 +1,23 @@
 """
 $(TYPEDEF)
-DEDataVector type used for spin-fluctuator simulation.
+
+Defines stochastic system-bath coupling operator
 
 # Fields
+
 $(FIELDS)
 """
-mutable struct DEFluctuatorVec{T} <: DEDataVector{T}
-    """The state vector"""
-    x::Array{T,1}
-    """Noise value"""
-    n::Float64
+struct StochasticNoise <: AbstractOpenSys
+    """system-bath coupling operator"""
+    ops::AbstractCouplings
 end
 
 
-"""
-$(TYPEDEF)
-DEDataMatrix type used for spin-fluctuator simulation.
+function (S::StochasticNoise)(A, u, tf::Real, t)
+    A .+= tf * sum(u.n .* S.ops(t))
+end
 
-# Fields
-$(FIELDS)
-"""
-mutable struct DEFluctuatorMat{T} <: DEDataMatrix{T}
-    """The density matrix"""
-    x::Array{T,2}
-    """Noise value"""
-    n::Float64
+
+function (S::StochasticNoise)(A, u, tf::UnitTime, t)
+    A .+= sum(u.n .* S.ops(t / tf))
 end

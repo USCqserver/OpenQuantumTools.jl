@@ -24,7 +24,7 @@ mutable struct DENoiseArray{T, N} <: DEDataArray{T, N}
     """Array data"""
     x::Array{T, N}
     """Current noise value"""
-    n::Float64
+    n::Vector{Float64}
 end
 
 

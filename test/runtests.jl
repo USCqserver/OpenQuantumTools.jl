@@ -25,4 +25,7 @@ using SafeTestsets
     @time @safetestset "Redfield test" begin
         include("QSolvers/redfield_solver_test.jl")
     end
+    @time @safetestset "One over f (Stochastic Schrodinger) test" begin
+        include("QSolvers/onef_ode_control.jl")
+    end
 end

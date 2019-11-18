@@ -46,6 +46,7 @@ include("QControl/control_de_datatype.jl")
 include("QControl/dd_control.jl")
 include("QControl/pausing_control.jl")
 include("QControl/control_dispatch.jl")
+include("QControl/onef_ode_control.jl")
 
 
 include("QSolver/util.jl")
