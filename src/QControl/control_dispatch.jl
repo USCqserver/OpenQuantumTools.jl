@@ -55,6 +55,16 @@ function adjust_u0_with_control(u0::Array{T,N}, f::FluctuatorControl) where {T<:
 end
 
 
+function adjust_coupling_with_control(coupling, ::Union{PausingControl,InstPulseControl})
+    coupling
+end
+
+
+function adjust_coupling_with_control(coupling, control::PausingControl)
+    attach_annealing_param(control, coupling)
+end
+
+
 """
     function pause_affect!(integrator)
 
