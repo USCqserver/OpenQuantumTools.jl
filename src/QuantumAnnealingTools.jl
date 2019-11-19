@@ -24,8 +24,9 @@ import DiffEqBase: DEDataVector,
                    DiffEqArrayOperator,
                    INITIALIZE_DEFAULT,
                    add_tstop!,
-                   CallbackSet
-import DiffEqCallbacks: IterativeCallback
+                   CallbackSet,
+                   terminate!
+import DiffEqCallbacks: FunctionCallingCallback, IterativeCallback
 
 
 @reexport using LinearAlgebra

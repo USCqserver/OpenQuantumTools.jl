@@ -19,6 +19,7 @@ function solve_redfield(
     unitary;
     span_unit::Bool = false,
     tstops = Float64[],
+    positivity_check = false,
     kwargs...,
 )
     tf = prepare_tf(tf, span_unit)
@@ -30,14 +31,16 @@ function solve_redfield(
     opensys = create_redfield(coupling, unitary, tf, A.bath)
     p = AnnealingParams(A.H, tf; opensys = opensys, control = A.control)
     callback = construct_callback(A.control, :redfield)
+    if positivity_check
+        positivity_check_callback = FunctionCallingCallback(
+            positivity_check_affect,
+            func_everystep = true,
+            func_start = false,
+        )
+        callback = CallbackSet(callback, positivity_check_callback)
+    end
     prob = ODEProblem(ff, u0, (p) -> scaling_tspan(p.tf, A.sspan), p)
-    solve(
-        prob;
-        alg_hints = [:nonstiff],
-        tstops = tstops,
-        callback = callback,
-        kwargs...,
-    )
+    solve(prob; alg_hints = [:nonstiff], tstops = tstops, callback = callback, kwargs...)
 end
 
 
@@ -49,6 +52,13 @@ end
 function redfield_contruct_ode_function(H, ::PausingControl)
     redfield_control_f
 end
+
+
+redfield_construct_coupling_function(coupling, ::Union{Nothing,InstPulseControl}) = coupling
+
+
+redfield_construct_coupling_function(coupling, control::PausingControl) =
+    attach_annealing_param(control, coupling)
 
 
 function redfield_f(du, u, p, t)
