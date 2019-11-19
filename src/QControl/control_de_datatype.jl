@@ -34,6 +34,48 @@ const DENoiseVec{T} = DENoiseArray{T, 1}
 const DENoiseMat{T} = DENoiseArray{T, 2}
 
 
+"""
+$(TYPEDEF)
+DEDataArray type for both finite state machine control and noise injection.
+
+# Fields
+$(FIELDS)
+"""
+mutable struct DESTNoiseArray{T, N} <: DEDataArray{T, N}
+    """Array data"""
+    x::Array{T, N}
+    """Current state"""
+    state::Int
+    """Current noise value"""
+    n::Vector{Float64}
+end
+
+
+const DESTNoiseVec{T} = DESTNoiseArray{T, 1}
+const DESTNoiseMat{T} = DESTNoiseArray{T, 2}
+
+
+"""
+$(TYPEDEF)
+ControlSet to combine multiple control protocols.
+
+# Fields
+$(FIELDS)
+"""
+struct ControlSet{T<:Tuple} <: AbstractAnnealingControl
+    """Tuple for control objects"""
+    ctrs::T
+end
+
+
+ControlSet(::Nothing) = nothing
+ControlSet(ctrs::Union{AbstractAnnealingControl, Nothing}...) = ControlSet(sort_ctrs((),ctrs...))
+
+sort_ctrs(ctrs) = ctrs
+sort_ctrs(ctrs, ctr::AbstractAnnealingControl, args...) = sort_ctrs((ctrs..., ctr), args...)
+sort_ctrs(ctrs, set::ControlSet, args...) = sort_ctrs((ctrs..., set.ctrs...), args...)
+
+
 function (h::DenseHamiltonian)(du, u::DEDataMatrix{T}, p::Real, t::Real) where T<:Complex
     fill!(du, 0.0+0.0im)
     H = h(t)

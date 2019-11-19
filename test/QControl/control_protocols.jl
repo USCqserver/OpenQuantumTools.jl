@@ -24,3 +24,12 @@ DEρ0 = QuantumAnnealingTools.adjust_u0_with_control(ρ0, pausing_control)
 @test DEρ0 == ρ0
 @test typeof(DEu0) <: QuantumAnnealingTools.DEStateMachineVec
 @test typeof(DEρ0) <: QuantumAnnealingTools.DEStateMachineMat
+
+ctr1 = QuantumAnnealingTools.InstPulseControl([0.5], (x)->σx)
+ctr2 = single_pausing(0.5, 0.5)
+
+@test ctr1(1) == σx
+
+ctrs = ControlSet(ctr1, ctr2)
+@test ctrs.ctrs[1] == ctr1
+@test ctrs.ctrs[2] == ctr2

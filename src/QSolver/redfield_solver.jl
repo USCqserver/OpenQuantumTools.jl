@@ -25,7 +25,7 @@ function solve_redfield(
     tstops = prepare_tstops(tf, tstops, A.tstops)
     u0 = prepare_u0(A.u0, type = :m, control = A.control)
     ff = redfield_construct_ode_function(A.H, A.control)
-    coupling = redfield_construct_coupling_function(A.coupling, A.control)
+    coupling = adjust_coupling_with_control(A.coupling, A.control)
     ff = redfield_construct_ode_function(A.H, A.control)
     opensys = create_redfield(coupling, unitary, tf, A.bath)
     p = AnnealingParams(A.H, tf; opensys = opensys, control = A.control)
@@ -49,16 +49,6 @@ end
 function redfield_contruct_ode_function(H, ::PausingControl)
     redfield_control_f
 end
-
-
-redfield_construct_coupling_function(
-    coupling,
-    ::Union{Nothing,InstPulseControl},
-) = coupling
-
-
-redfield_construct_coupling_function(coupling, control::PausingControl) =
-    attach_annealing_param(control, coupling)
 
 
 function redfield_f(du, u, p, t)

@@ -96,7 +96,7 @@ export info_freq, τ_SB, τ_B
 
 export solve_unitary, solve_schrodinger, solve_von_neumann, solve_redfield, solve_ame, solve_af_rwa
 
-export PausingControl, single_pausing, InstPulseControl
+export PausingControl, single_pausing, InstPulseControl, ControlSet
 
 export SA_Δ², SA_redfield, SA_marcus, SA_Γ, SA_τ, solve_SA, SA_lz_rotate
 
