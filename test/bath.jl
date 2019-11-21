@@ -22,8 +22,8 @@ ensemble_rtn = EnsembleFluctuator([1.0, 2.0], [2.0, 1.0])
 @test exp(-2 * 3) + 4 * exp(-3) == correlation(3, ensemble_rtn)
 @test 2 * 2 / (9 + 4) + 2 * 4 / (9 + 1) == spectrum(3, ensemble_rtn)
 
-fluctuator_control = QuantumAnnealingTools.construct_stochastic_control(2.0, ensemble_rtn)
-@test fluctuator_control() == sum(fluctuator_control.b0)
+fluctuator_control = QuantumAnnealingTools.FluctuatorControl(2.0, 3, ensemble_rtn)
+@test fluctuator_control() == sum(fluctuator_control.b0, dims=1)
 
 η = 0.25 / 8 / pi
 W = 2

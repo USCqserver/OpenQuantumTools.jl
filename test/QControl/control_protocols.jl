@@ -30,6 +30,17 @@ ctr2 = single_pausing(0.5, 0.5)
 
 @test ctr1(1) == σx
 
-ctrs = ControlSet(ctr1, ctr2)
-@test ctrs.ctrs[1] == ctr1
-@test ctrs.ctrs[2] == ctr2
+control_set_1 = ControlSet(ctr1, ctr2)
+@test control_set_1.ctrs[1] == ctr1
+@test control_set_1.ctrs[2] == ctr2
+
+ensemble_rtn = EnsembleFluctuator([1.0, 2.0], [2.0, 1.0])
+ctr3 = QuantumAnnealingTools.FluctuatorControl(2.0, 1, ensemble_rtn)
+
+control_set_2 = ControlSet(control_set_1, ctr3)
+@test control_set_2.ctrs[3] == ctr3
+
+ctr4 = QuantumAnnealingTools.InstPulseControl([0.6], (x)->σx)
+control_set_2 = ControlSet(ctr3, ctr4)
+control_set_3 = ControlSet(control_set_1, control_set_2)
+@test length(control_set_3) == 4

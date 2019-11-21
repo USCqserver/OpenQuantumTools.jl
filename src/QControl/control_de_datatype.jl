@@ -33,6 +33,9 @@ const DEStateMachineMat{T} = DEStateMachineArray{T, 2}
 const DENoiseVec{T} = DENoiseArray{T, 1}
 const DENoiseMat{T} = DENoiseArray{T, 2}
 
+QTBase.check_positivity(x::Union{DEStateMachineMat, DENoiseMat}) = QTBase.check_positivity(x.x)
+QTBase.check_unitary(x::Union{DEStateMachineMat, DENoiseMat}; rtol=1e-6, atol=1e-8) = QTBase.check_unitary(x.x, rtol=rtol, atol=atol)
+
 
 """
 $(TYPEDEF)
@@ -74,6 +77,9 @@ ControlSet(ctrs::Union{AbstractAnnealingControl, Nothing}...) = ControlSet(sort_
 sort_ctrs(ctrs) = ctrs
 sort_ctrs(ctrs, ctr::AbstractAnnealingControl, args...) = sort_ctrs((ctrs..., ctr), args...)
 sort_ctrs(ctrs, set::ControlSet, args...) = sort_ctrs((ctrs..., set.ctrs...), args...)
+
+Base.length(c::ControlSet) = length(c.ctrs)
+Base.iterate(c::ControlSet, state = 1) = Base.iterate(c.ctrs, state)
 
 
 function (h::DenseHamiltonian)(du, u::DEDataMatrix{T}, p::Real, t::Real) where T<:Complex

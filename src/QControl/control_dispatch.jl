@@ -7,6 +7,7 @@ function construct_callback(::Nothing, ::Symbol)
     nothing
 end
 
+
 function construct_callback(control::PausingControl, solver_type::Symbol)
     PresetTimeCallback(control.tstops, pause_affect!)
 end
@@ -32,6 +33,17 @@ function construct_callback(control::FluctuatorControl, solver_type::Symbol)
 end
 
 
+function construct_callback(control::ControlSet, solver_type::Symbol)
+    if length(control) == 1
+        res = construct_callback(control.ctrs[1], solver_type)
+    else
+        cbs = [construct_callback(c, solver_type) for c in control]
+        res = CallbackSet(cbs...)
+    end
+    res
+end
+
+
 """
     function adjust_u0_with_control(u0, p)
 
@@ -52,6 +64,15 @@ end
 
 function adjust_u0_with_control(u0::Array{T,N}, f::FluctuatorControl) where {T<:Number,N}
     DENoiseArray{T,N}(u0, f())
+end
+
+
+function adjust_u0_with_control(u0, control::ControlSet)
+    if length(control)==1
+        adjust_u0_with_control(u0, control.ctrs[1])
+    else
+        error("Adjusting initial state according to a ControlSet is currently not implemented.")
+    end
 end
 
 

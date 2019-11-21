@@ -44,38 +44,3 @@ spectrum(ω, E::EnsembleFluctuator) = sum((x) -> spectrum(ω, x), E.f)
 
 
 construct_distribution(tf, E::EnsembleFluctuator) = product_distribution([construct_distribution(tf, x) for x in E.f])
-
-
-mutable struct FluctuatorControl
-    dist
-    b0
-    next_idx
-    next_τ
-end
-
-
-function FluctuatorControl(tf, E::EnsembleFluctuator)
-    dist = construct_distribution(tf, E)
-    b0 = [x.b for x in E.f] .* rand([-1, 1], length(dist))
-    next_τ, next_idx = findmin(rand(dist))
-    FluctuatorControl(dist, b0, next_idx, next_τ)
-end
-
-
-function construct_stochastic_control(tf, bath::EnsembleFluctuator)
-    FluctuatorControl(tf, bath)
-end
-
-
-function (f::FluctuatorControl)()
-    sum(f.b0)
-end
-
-
-function next_state!(f::FluctuatorControl)
-    next_τ, next_idx = findmin(rand(f.dist))
-    f.next_τ = next_τ
-    f.next_idx = next_idx
-    f.b0[next_idx] *= -1
-    nothing
-end

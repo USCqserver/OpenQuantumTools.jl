@@ -10,7 +10,7 @@ function solve_stochastic_schrodinger(
 )
     tf = prepare_tf(tf, span_unit)
     tstops = prepare_tstops(tf, tstops, A.tstops)
-    control = construct_stochastic_control(tf, A.bath)
+    control = FluctuatorControl(tf, length(A.coupling), A.bath)
     control = merge_control(A.control, control, )
     u0 = prepare_u0(A.u0, type = :v, control = control)
     opensys = create_redfield(coupling, unitary, tf, A.bath)
