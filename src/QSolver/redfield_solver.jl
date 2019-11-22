@@ -30,7 +30,7 @@ function solve_redfield(
     ff = redfield_construct_ode_function(A.H, A.control)
     opensys = create_redfield(coupling, unitary, tf, A.bath)
     p = AnnealingParams(A.H, tf; opensys = opensys, control = A.control)
-    callback = construct_callback(A.control, :redfield)
+    callback = build_callback(A.control, :redfield)
     if positivity_check
         positivity_check_callback = FunctionCallingCallback(
             positivity_check_affect,

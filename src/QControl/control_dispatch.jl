@@ -1,19 +1,19 @@
 """
-    function construct_callback(control, solver_type)
+    function build_callback(control, solver_type)
 
 Contruct the corresponding callback functions (if there is any) for `control`, which can be nothing or any `AbstractAnnealingControl` object. `solver_type` specifies for which solver the callback function is needed.
 """
-function construct_callback(::Nothing, ::Symbol)
+function build_callback(::Nothing, ::Symbol)
     nothing
 end
 
 
-function construct_callback(control::PausingControl, solver_type::Symbol)
+function build_callback(control::PausingControl, solver_type::Symbol)
     PresetTimeCallback(control.tstops, pause_affect!)
 end
 
 
-function construct_callback(control::InstPulseControl, solver_type::Symbol)
+function build_callback(control::InstPulseControl, solver_type::Symbol)
     if solver_type == :unitary
         PresetTimeCallback(control.tstops, unitary_dd_affect!)
     elseif solver_type == :redfield
@@ -24,7 +24,7 @@ function construct_callback(control::InstPulseControl, solver_type::Symbol)
 end
 
 
-function construct_callback(control::FluctuatorControl, solver_type::Symbol)
+function build_callback(control::FluctuatorControl, solver_type::Symbol)
     if solver_type == :stochastic_schrodinger
         IterativeCallback(fluctuator_time_choice, fluctuator_affect!)
     else
@@ -33,11 +33,11 @@ function construct_callback(control::FluctuatorControl, solver_type::Symbol)
 end
 
 
-function construct_callback(control::ControlSet, solver_type::Symbol)
+function build_callback(control::ControlSet, solver_type::Symbol)
     if length(control) == 1
-        res = construct_callback(control.ctrs[1], solver_type)
+        res = build_callback(control.ctrs[1], solver_type)
     else
-        cbs = [construct_callback(c, solver_type) for c in control]
+        cbs = [build_callback(c, solver_type) for c in control]
         res = CallbackSet(cbs...)
     end
     res

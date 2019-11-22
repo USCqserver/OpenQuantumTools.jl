@@ -11,7 +11,7 @@ function solve_unitary(
     u0 = Matrix{ComplexF64}(I, size(A.H))
     u0 = build_u0(u0, type = :m, control = A.control, vectorize = vectorize)
     p = AnnealingParams(A.H, tf; control = A.control)
-    callback = construct_callback(A.control, :unitary)
+    callback = build_callback(A.control, :unitary)
     ff = unitary_construct_ode_function(A.H, A.control, vectorize)
     prob = ODEProblem{true}(ff, u0, (p) -> scaling_tspan(p.tf, A.sspan), p)
     solve(prob; alg_hints = [:nonstiff], tstops = tstops, callback = callback, kwargs...)

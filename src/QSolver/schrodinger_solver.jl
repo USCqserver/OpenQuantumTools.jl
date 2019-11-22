@@ -3,7 +3,7 @@ function solve_schrodinger(A::Annealing, tf::Real; span_unit = false, tstops = F
     tstops = build_tstops(tf, tstops, A.tstops)
     u0 = build_u0(A.u0, type = :v, control = A.control)
     p = AnnealingParams(A.H, tf; control = A.control)
-    callback = construct_callback(A.control, :schrodinger)
+    callback = build_callback(A.control, :schrodinger)
     ff = schrodinger_construct_ode_function(A.H, A.control)
     prob = ODEProblem{true}(ff, u0, (p) -> scaling_tspan(p.tf, A.sspan), p)
     solve(prob; alg_hints = [:nonstiff], callback = callback, tstops = tstops, kwargs...)
@@ -28,7 +28,7 @@ function solve_schrodinger(
     # set the type of tf array
     tf_arr = float.(tf)
     # resolve control
-    callback = construct_callback(A.control, :schrodinger)
+    callback = build_callback(A.control, :schrodinger)
     ff = schrodinger_construct_ode_function(A.H, A.control)
     #
     prob_func = (prob, i, repeat) -> begin
