@@ -28,7 +28,7 @@ end
 
 
 function (f::FluctuatorControl)()
-    sum(f.b0, dims=1)
+    view(sum(f.b0, dims=1), :)
 end
 
 

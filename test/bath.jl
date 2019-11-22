@@ -23,7 +23,7 @@ ensemble_rtn = EnsembleFluctuator([1.0, 2.0], [2.0, 1.0])
 @test 2 * 2 / (9 + 4) + 2 * 4 / (9 + 1) == spectrum(3, ensemble_rtn)
 
 fluctuator_control = QuantumAnnealingTools.FluctuatorControl(2.0, 3, ensemble_rtn)
-@test fluctuator_control() == sum(fluctuator_control.b0, dims=1)
+@test fluctuator_control() == sum(fluctuator_control.b0, dims=1)[:]
 
 η = 0.25 / 8 / pi
 W = 2

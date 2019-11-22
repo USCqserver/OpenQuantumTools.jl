@@ -1,5 +1,13 @@
 """
 $(TYPEDEF)
+
+Base for types defining annealing controller that does not require DEDataArray in ODE solver.
+"""
+abstract type ParameterFreeControl <: AbstractAnnealingControl end
+
+
+"""
+$(TYPEDEF)
 DEDataArray type for finite state machine control.
 
 # Fields
@@ -77,9 +85,14 @@ ControlSet(ctrs::Union{AbstractAnnealingControl, Nothing}...) = ControlSet(sort_
 sort_ctrs(ctrs) = ctrs
 sort_ctrs(ctrs, ctr::AbstractAnnealingControl, args...) = sort_ctrs((ctrs..., ctr), args...)
 sort_ctrs(ctrs, set::ControlSet, args...) = sort_ctrs((ctrs..., set.ctrs...), args...)
+sort_ctrs(ctrs, set::Nothing, args...) = sort_ctrs(ctrs, args...)
 
 Base.length(c::ControlSet) = length(c.ctrs)
 Base.iterate(c::ControlSet, state = 1) = Base.iterate(c.ctrs, state)
+
+
+function build_controllers(bath)
+end
 
 
 function (h::DenseHamiltonian)(du, u::DEDataMatrix{T}, p::Real, t::Real) where T<:Complex

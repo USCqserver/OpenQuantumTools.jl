@@ -49,7 +49,7 @@ end
 
 Convert the state vector/density matrix to the corresponding DEDataArray depending on the type of control `p`.
 """
-function adjust_u0_with_control(u0, ::Nothing)
+function adjust_u0_with_control(u0, ::Union{Nothing, ParameterFreeControl})
     u0
 end
 
@@ -97,36 +97,6 @@ function pause_affect!(integrator)
     end
     u_modified!(integrator, false)
 end
-
-
-"""
-    function unitary_dd_affect!(integrator)
-
-Callback function for `InstPulseControl`. It is used by unitary solver.
-"""
-function unitary_dd_affect!(integrator)
-    for c in full_cache(integrator)
-        pulse = integrator.p.control(c.state)
-        c.x = pulse_on_unitary(pulse, c)
-        c.state += 1
-    end
-end
-
-
-@inline pulse_on_unitary(p, c::DEDataVector) = Matrix{eltype(p)}(I, size(p)) ⊗ p * c.x
-@inline pulse_on_unitary(p, c::DEDataMatrix) = p * c.x
-
-
-function density_matrix_dd_affect!(integrator)
-    for c in full_cache(integrator)
-        pulse = integrator.p.control(c.state)
-        c.x = pulse_on_density_matrix(pulse, c)
-        c.state += 1
-    end
-end
-
-@inline pulse_on_density_matrix(p, c::DEDataVector) = conj(p) ⊗ p * c.x
-@inline pulse_on_density_matrix(p, c::DEDataMatrix) = p * c.x * p'
 
 
 function fluctuator_affect!(integrator)

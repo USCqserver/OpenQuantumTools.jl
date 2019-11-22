@@ -25,8 +25,8 @@ function solve_ame(
     lvl::Int = size(A.H, 1),
     kwargs...,
 )
-    u0 = prepare_u0(A.u0, type = :m, control = A.control)
-    tf = prepare_tf(tf, span_unit)
+    u0 = build_u0(A.u0, type = :m, control = A.control)
+    tf = build_tf(tf, span_unit)
     davies = create_davies(A.coupling, A.bath, ω_hint)
     f = AMEDiffEqOperator(A.H, davies; lvl = lvl, control = A.control)
     p = LightAnnealingParams(tf; control = A.control)
@@ -80,8 +80,8 @@ function solve_ame(
     lvl::Int = size(A.H, 1),
     kwargs...,
 ) where {T<:Real}
-    u0 = prepare_u0(A.u0, type = :m, control = A.control)
-    t0 = prepare_tf(1.0, span_unit)
+    u0 = build_u0(A.u0, type = :m, control = A.control)
+    t0 = build_tf(1.0, span_unit)
     davies = create_davies(A.coupling, A.bath, ω_hint)
     f = AMEDiffEqOperator(A.H, davies; lvl = lvl, control = A.control)
     p = LightAnnealingParams(t0; control = A.control)
@@ -135,8 +135,8 @@ function solve_af_rwa(
     if !(typeof(A.H) <: AdiabaticFrameHamiltonian)
         throw(ArgumentError("Adiabatic Frame RWA equation currently only works for adiabatic frame Hamiltonian."))
     end
-    u0 = prepare_u0(A.u0, type = :m, control = A.control)
-    tf = prepare_tf(tf, span_unit)
+    u0 = build_u0(A.u0, type = :m, control = A.control)
+    tf = build_tf(tf, span_unit)
     #
     davies = create_davies(A.coupling, A.bath, ω_hint)
     f = AFRWADiffEqOperator(A.H, davies; lvl = lvl, control = A.control)
@@ -166,8 +166,8 @@ function solve_af_rwa(
     if !(typeof(A.H) <: AdiabaticFrameHamiltonian)
         throw(ArgumentError("Adiabatic Frame RWA equation currently only works for adiabatic frame Hamiltonian."))
     end
-    u0 = prepare_u0(A.u0, type = :m, control = A.control)
-    t0 = prepare_tf(1.0, span_unit)
+    u0 = build_u0(A.u0, type = :m, control = A.control)
+    t0 = build_tf(1.0, span_unit)
     davies = create_davies(A.coupling, A.bath, ω_hint)
     f = AFRWADiffEqOperator(A.H, davies; lvl = lvl, control = A.control)
     p = LightAnnealingParams(t0; control = A.control)

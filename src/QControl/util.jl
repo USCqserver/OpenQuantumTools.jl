@@ -1,0 +1,3 @@
+struct name
+    fields
+end
