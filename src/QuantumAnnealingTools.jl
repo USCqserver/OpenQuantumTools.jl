@@ -51,6 +51,7 @@ include("QControl/control_dispatch.jl")
 
 include("QSolver/util.jl")
 include("QSolver/schrodinger_solver.jl")
+include("QSolver/stochastic_schrodinger_solver.jl")
 include("QSolver/unitary_solver.jl")
 include("QSolver/von_neumann_solver.jl")
 include("QSolver/ame_solver.jl")
@@ -95,7 +96,8 @@ export solve_unitary,
        solve_von_neumann,
        solve_redfield,
        solve_ame,
-       solve_af_rwa
+       solve_af_rwa,
+       solve_stochastic_schrodinger
 
 export PausingControl, single_pausing, InstPulseControl, ControlSet
 

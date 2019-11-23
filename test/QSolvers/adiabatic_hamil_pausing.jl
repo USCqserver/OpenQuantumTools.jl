@@ -1,8 +1,8 @@
 using QuantumAnnealingTools, Test
 
 u0 = PauliVec[3][1]
-@test QuantumAnnealingTools.build_u0(u0) == u0
-@test QuantumAnnealingTools.build_u0(u0 * u0'; type=:m) == u0 * u0'
+@test QuantumAnnealingTools.build_u0(u0, :v) == u0
+@test QuantumAnnealingTools.build_u0(u0 * u0', :m) == u0 * u0'
 
 pausing_control = single_pausing(0.5, 0.5)
 s, as, gs = pausing_control(2.0, 0.1)
@@ -20,10 +20,10 @@ s, as, gs = pausing_control(UnitTime(4.0), 2.4)
 @test as == 1.0
 @test gs == 0.25
 
-DEV = QuantumAnnealingTools.build_u0(u0; control=pausing_control)
+DEV = QuantumAnnealingTools.build_u0(u0, :v; control=pausing_control)
 @test DEV.x == u0
 @test DEV.state == 1
-DEM = QuantumAnnealingTools.build_u0(u0 * u0'; type=:m, control=pausing_control)
+DEM = QuantumAnnealingTools.build_u0(u0 * u0', :m, control=pausing_control)
 @test DEM.x == u0 * u0'
 @test DEM.state == 1
 
@@ -41,7 +41,7 @@ unit_param = QuantumAnnealingTools.AnnealingParams(
     control = pausing_control
 )
 
-u = QuantumAnnealingTools.build_u0(deepcopy(PauliVec[3][1]); control= pausing_control)
+u = QuantumAnnealingTools.build_u0(deepcopy(PauliVec[3][1]), :v, control= pausing_control)
 du = QuantumAnnealingTools.DEStateMachineVec{ComplexF64}(deepcopy(PauliVec[3][1]), 1)
 
 @test H(u, unitless_param, 0.0) == H(10, 0.0)

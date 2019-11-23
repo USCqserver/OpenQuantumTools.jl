@@ -1,6 +1,6 @@
 function solve_von_neumann(A::Annealing, tf::Real; span_unit = false, kwargs...)
     tstops = A.tstops
-    u0 = build_u0(A.u0, type=:m, control=A.control)
+    u0 = build_u0(A.u0, :m, control=A.control)
     tf = build_tf(tf, span_unit)
     if typeof(A.control) <: PausingControl
         ff = ODEFunction{true}(

@@ -97,18 +97,3 @@ function pause_affect!(integrator)
     end
     u_modified!(integrator, false)
 end
-
-
-function fluctuator_affect!(integrator)
-    noise_value = integrator.p.control()
-    for c in full_cache(integrator)
-        c.n = noise_value
-    end
-    next_state!(integrator.p.control)
-    u_modified!(integrator, false)
-end
-
-
-function fluctuator_time_choice(integrator)
-    integrator.t + integrator.p.control.next_τ
-end

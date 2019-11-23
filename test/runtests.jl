@@ -16,6 +16,9 @@ using SafeTestsets
     @time @safetestset "Schrodinger test" begin
         include("QSolvers/schrodinger_solver_test.jl")
     end
+    @time @safetestset "Stochastic Schrodinger test" begin
+        include("QSolvers/stochastic_schrodinger.jl")
+    end
     @time @safetestset "Von Neumann test" begin
         include("QSolvers/von_neumann_solver.jl")
     end

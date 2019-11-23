@@ -41,6 +41,33 @@ function next_state!(f::FluctuatorControl)
 end
 
 
+function reset!(f::FluctuatorControl)
+    f.b0 = abs.(f.b0) .* rand([-1, 1], length(f.dist), size(f.b0, 2))
+    nothing
+end
+
+
+function fluctuator_affect!(integrator)
+    noise_value = integrator.p.control()
+    for c in full_cache(integrator)
+        c.n .= noise_value
+    end
+    next_state!(integrator.p.control)
+    u_modified!(integrator, false)
+end
+
+
+function fluctuator_time_choice(integrator)
+    next_t = integrator.t + integrator.p.control.next_τ
+    @show next_t
+    if next_t > integrator.sol.prob.tspan[2]
+        return nothing
+    else
+        return next_t
+    end
+end
+
+
 """
 $(TYPEDEF)
 
@@ -57,10 +84,13 @@ end
 
 
 function (S::StochasticNoise)(A, u, tf::Real, t)
-    A .+= tf * sum(u.n .* S.ops(t))
+    A .+= -1.0im * tf * sum(u.n .* S.ops(t))
 end
 
 
 function (S::StochasticNoise)(A, u, tf::UnitTime, t)
-    A .+= sum(u.n .* S.ops(t / tf))
+    A .+= -1.0im * sum(u.n .* S.ops(t / tf))
 end
+
+
+build_stochastic_opensys(coupling) = StochasticNoise(coupling)

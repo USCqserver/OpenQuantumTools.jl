@@ -24,7 +24,7 @@ function solve_redfield(
 )
     tf = build_tf(tf, span_unit)
     tstops = build_tstops(tf, tstops, A.tstops)
-    u0 = build_u0(A.u0, type = :m, control = A.control)
+    u0 = build_u0(A.u0, :m, control = A.control)
     ff = redfield_construct_ode_function(A.H, A.control)
     coupling = adjust_coupling_with_control(A.coupling, A.control)
     ff = redfield_construct_ode_function(A.H, A.control)
