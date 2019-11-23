@@ -10,3 +10,9 @@
     xlabel --> L"\omega / \omega_c"
     (ω, y ./ bath.η / bath.ωc)
 end
+
+
+@recipe function f(bath::EnsembleFluctuator, func_symbol, x_axis)
+    y = [eval(Expr(:call, func_symbol, x, bath)) for x in x_axis]
+    (x_axis, y)
+end

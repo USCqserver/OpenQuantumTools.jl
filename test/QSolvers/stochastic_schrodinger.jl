@@ -11,4 +11,4 @@ v = QuantumAnnealingTools.DENoiseVec{ComplexF64}(PauliVec[3][1], [0.1])
 A = QuantumAnnealingTools.DENoiseMat{ComplexF64}(σz, [0.0])
 @test opensys(A, v, 2.0, 0.5) = σz + 2.0 * 0.1 * σz
 
-sol = solve_stochastic_schrodinger(annealing, 2.0, 2, Tsit5())
+#sol = solve_stochastic_schrodinger(annealing, 2.0, 2, Tsit5())

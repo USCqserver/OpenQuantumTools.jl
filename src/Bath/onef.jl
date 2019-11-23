@@ -38,9 +38,29 @@ function EnsembleFluctuator(b::AbstractArray{T}, ω::AbstractArray{T}) where {T<
     EnsembleFluctuator(f)
 end
 
-
+Base.length(E::EnsembleFluctuator) = Base.length(E.f)
 correlation(τ, E::EnsembleFluctuator) = sum((x) -> correlation(τ, x), E.f)
 spectrum(ω, E::EnsembleFluctuator) = sum((x) -> spectrum(ω, x), E.f)
 
 
 construct_distribution(tf, E::EnsembleFluctuator) = product_distribution([construct_distribution(tf, x) for x in E.f])
+
+
+function Base.show(io::IO, ::MIME"text/plain", E::EnsembleFluctuator)
+    print(
+        io,
+        "Fluctuator ensemble with ",
+        length(E),
+        " fluctuators"
+    )
+end
+
+
+function Base.show(io::IO, E::EnsembleFluctuator)
+    print(
+        io,
+        "Fluctuator ensemble with ",
+        length(E),
+        " fluctuators"
+    )
+end

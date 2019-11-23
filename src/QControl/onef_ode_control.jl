@@ -59,7 +59,6 @@ end
 
 function fluctuator_time_choice(integrator)
     next_t = integrator.t + integrator.p.control.next_τ
-    @show next_t
     if next_t > integrator.sol.prob.tspan[2]
         return nothing
     else
