@@ -22,15 +22,15 @@ function solve_redfield(
     positivity_check = false,
     kwargs...,
 )
-    tf = prepare_tf(tf, span_unit)
-    tstops = prepare_tstops(tf, tstops, A.tstops)
-    u0 = prepare_u0(A.u0, type = :m, control = A.control)
+    tf = build_tf(tf, span_unit)
+    tstops = build_tstops(tf, tstops, A.tstops)
+    u0 = build_u0(A.u0, :m, control = A.control)
     ff = redfield_construct_ode_function(A.H, A.control)
-    coupling = redfield_construct_coupling_function(A.coupling, A.control)
+    coupling = adjust_coupling_with_control(A.coupling, A.control)
     ff = redfield_construct_ode_function(A.H, A.control)
     opensys = create_redfield(coupling, unitary, tf, A.bath)
     p = AnnealingParams(A.H, tf; opensys = opensys, control = A.control)
-    callback = construct_callback(A.control, :redfield)
+    callback = build_callback(A.control, :redfield)
     if positivity_check
         positivity_check_callback = FunctionCallingCallback(
             positivity_check_affect,

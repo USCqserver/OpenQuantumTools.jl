@@ -13,14 +13,11 @@ struct SymetricRTN
 end
 
 
-function correlation(τ, R::SymetricRTN)
-    R.b^2*exp(-R.γ*τ)
-end
+correlation(τ, R::SymetricRTN) = R.b^2 * exp(-R.γ * τ)
+spectrum(ω, R::SymetricRTN) = 2 * R.b^2 * R.γ / (ω^2 + R.γ^2)
 
-
-function spectrum(ω, R::SymetricRTN)
-    2 * R.b^2 * R.γ / (ω^2 + R.γ^2)
-end
+construct_distribution(tf::Real, R::SymetricRTN) = Exponential(tf / R.γ)
+construct_distribution(tf::UnitTime, R::SymetricRTN) = Exponential(1 / R.γ)
 
 
 """
@@ -36,17 +33,34 @@ struct EnsembleFluctuator{T}
 end
 
 
-function EnsembleFluctuator(b::AbstractArray{T}, ω::AbstractArray{T}) where T<:Number
-    f = [SymetricRTN(x, y) for (x,y) in zip(b, ω)]
+function EnsembleFluctuator(b::AbstractArray{T}, ω::AbstractArray{T}) where {T<:Number}
+    f = [SymetricRTN(x, y) for (x, y) in zip(b, ω)]
     EnsembleFluctuator(f)
 end
 
+Base.length(E::EnsembleFluctuator) = Base.length(E.f)
+correlation(τ, E::EnsembleFluctuator) = sum((x) -> correlation(τ, x), E.f)
+spectrum(ω, E::EnsembleFluctuator) = sum((x) -> spectrum(ω, x), E.f)
 
-function correlation(τ, E::EnsembleFluctuator)
-    sum((x)->correlation(τ, x), E.f)
+
+construct_distribution(tf, E::EnsembleFluctuator) = product_distribution([construct_distribution(tf, x) for x in E.f])
+
+
+function Base.show(io::IO, ::MIME"text/plain", E::EnsembleFluctuator)
+    print(
+        io,
+        "Fluctuator ensemble with ",
+        length(E),
+        " fluctuators"
+    )
 end
 
 
-function spectrum(ω, E::EnsembleFluctuator)
-    sum((x)->spectrum(ω, x), E.f)
+function Base.show(io::IO, E::EnsembleFluctuator)
+    print(
+        io,
+        "Fluctuator ensemble with ",
+        length(E),
+        " fluctuators"
+    )
 end

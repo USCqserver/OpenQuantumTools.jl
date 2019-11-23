@@ -5,6 +5,7 @@ using Reexport
 using RecipesBase
 
 import SpecialFunctions: trigamma
+import Distributions: Exponential, product_distribution
 import Optim: optimize
 import QuadGK: quadgk
 import Arpack: eigs
@@ -26,6 +27,7 @@ import DiffEqBase: DEDataVector,
                    CallbackSet,
                    terminate!
 import DiffEqCallbacks: FunctionCallingCallback
+import DataStructures: compare
 
 
 @reexport using LinearAlgebra
@@ -45,26 +47,23 @@ include("QControl/callback_lib.jl")
 include("QControl/control_de_datatype.jl")
 include("QControl/dd_control.jl")
 include("QControl/pausing_control.jl")
+include("QControl/onef_ode_control.jl")
 include("QControl/control_dispatch.jl")
-
 
 include("QSolver/util.jl")
 include("QSolver/schrodinger_solver.jl")
+include("QSolver/stochastic_schrodinger_solver.jl")
 include("QSolver/unitary_solver.jl")
 include("QSolver/von_neumann_solver.jl")
 include("QSolver/ame_solver.jl")
 include("QSolver/redfield_solver.jl")
 include("QSolver/PTRE.jl")
 
-
-
 include("plot_util/high_dpi.jl")
 include("plot_util/hamiltonian_plot.jl")
 include("plot_util/ode_sol.jl")
 include("plot_util/bath_plot.jl")
 include("plot_util/projected_system.jl")
-
-
 
 
 export OhmicBath,
@@ -93,9 +92,15 @@ export EnsembleFluctuator
 
 export info_freq, τ_SB, τ_B
 
-export solve_unitary, solve_schrodinger, solve_von_neumann, solve_redfield, solve_ame, solve_af_rwa
+export solve_unitary,
+       solve_schrodinger,
+       solve_von_neumann,
+       solve_redfield,
+       solve_ame,
+       solve_af_rwa,
+       solve_stochastic_schrodinger
 
-export PausingControl, single_pausing, InstPulseControl
+export PausingControl, single_pausing, InstPulseControl, ControlSet
 
 export SA_Δ², SA_redfield, SA_marcus, SA_Γ, SA_τ, solve_SA, SA_lz_rotate
 

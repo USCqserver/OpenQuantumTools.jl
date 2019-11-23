@@ -1,9 +1,9 @@
 function solve_schrodinger(A::Annealing, tf::Real; span_unit = false, tstops = Float64[], kwargs...)
-    tf = prepare_tf(tf, span_unit)
-    tstops = prepare_tstops(tf, tstops, A.tstops)
-    u0 = prepare_u0(A.u0, type = :v, control = A.control)
+    tf = build_tf(tf, span_unit)
+    tstops = build_tstops(tf, tstops, A.tstops)
+    u0 = build_u0(A.u0, :v, control = A.control)
     p = AnnealingParams(A.H, tf; control = A.control)
-    callback = construct_callback(A.control, :schrodinger)
+    callback = build_callback(A.control, :schrodinger)
     ff = schrodinger_construct_ode_function(A.H, A.control)
     prob = ODEProblem{true}(ff, u0, (p) -> scaling_tspan(p.tf, A.sspan), p)
     solve(prob; alg_hints = [:nonstiff], callback = callback, tstops = tstops, kwargs...)
@@ -20,15 +20,15 @@ function solve_schrodinger(
     tstops = Float64[],
     kwargs...,
 ) where {T<:Real}
-    u0 = prepare_u0(A.u0, type = :v, control = A.control)
+    u0 = build_u0(A.u0, :v, control = A.control)
     # the hard code 1.0 is just to set the type of argument correct
-    t0 = prepare_tf(1.0, span_unit)
-    tstops = prepare_tstops(1.0, tstops, A.tstops)
+    t0 = build_tf(1.0, span_unit)
+    tstops = build_tstops(1.0, tstops, A.tstops)
     p = AnnealingParams(A.H, t0; control = A.control)
     # set the type of tf array
     tf_arr = float.(tf)
     # resolve control
-    callback = construct_callback(A.control, :schrodinger)
+    callback = build_callback(A.control, :schrodinger)
     ff = schrodinger_construct_ode_function(A.H, A.control)
     #
     prob_func = (prob, i, repeat) -> begin
@@ -54,7 +54,7 @@ function solve_schrodinger(
     )
 end
 
-        
+
 function schrodinger_construct_ode_function(H, ::Union{Nothing,InstPulseControl})
     cache = get_cache(H)
     diff_op = DiffEqArrayOperator(

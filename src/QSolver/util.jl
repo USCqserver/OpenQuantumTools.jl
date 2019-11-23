@@ -1,9 +1,9 @@
 """
-    function prepare_u0(raw_u0; type =:v, control=nothing, vectorize=false)
+    function build_u0(raw_u0, type; control=nothing, vectorize=false)
 
 Prepare initial state in proper type and dimension for ODE solvers. `type` specifies the dimension of the initial state: `:v` is 1-D state vector and `:m` is 2-D density matrix. `control` should be any `AbstractAnnealingControl` object. `vectorize` indicate whether to vectorize the density matrix.
 """
-function prepare_u0(raw_u0; type = :v, control = nothing, vectorize = false)
+function build_u0(raw_u0, type; control = nothing, vectorize = false)
     res = complex(raw_u0)
     if type == :v && ndims(res) != 1
         throw(ArgumentError("Cannot convert density matrix to state vector."))
@@ -27,7 +27,7 @@ function prepare_tspan(tspan)
 end
 
 
-function prepare_tstops(tf, arg_tstops, obj_tstops)
+function build_tstops(tf, arg_tstops, obj_tstops)
     if !isempty(arg_tstops) && !isempty(obj_tstops)
         @warn "Both the annealing object and the solver arguments have tstops. They will be merged together."
     end
@@ -47,7 +47,7 @@ function create_tstops_for_tf_array(tf_arr, tstops)
 end
 
 
-prepare_tf(tf, span_unit) = span_unit==true ? UnitTime(tf) : float(tf)
+build_tf(tf, span_unit) = span_unit==true ? UnitTime(tf) : float(tf)
 scaling_tspan(tf::Real, tspan) = tspan
 scaling_tspan(tf::UnitTime, tspan) = (tf*tspan[1], tf*tspan[2])
 
