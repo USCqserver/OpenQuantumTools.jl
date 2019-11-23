@@ -8,7 +8,8 @@ annealing = Annealing(H, u0, coupling=coupling, bath=bath)
 
 opensys = QuantumAnnealingTools.build_stochastic_opensys(coupling)
 v = QuantumAnnealingTools.DENoiseVec{ComplexF64}(PauliVec[3][1], [0.1])
-A = QuantumAnnealingTools.DENoiseMat{ComplexF64}(σz, [0.0])
-@test opensys(A, v, 2.0, 0.5) = σz + 2.0 * 0.1 * σz
+A = QuantumAnnealingTools.DENoiseMat{ComplexF64}(copy(σz), [0.0])
+opensys(A, v, 2.0, 0.5)
+@test A == σz-1.0im*2.0*0.1*σz
 
 #sol = solve_stochastic_schrodinger(annealing, 2.0, 2, Tsit5())
