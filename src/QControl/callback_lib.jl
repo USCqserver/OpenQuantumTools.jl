@@ -39,6 +39,15 @@ function positivity_check_affect(u, t, integrator)
 end
 
 
+function positivity_check_affect(u::AbstractArray{T, 1}, t, integrator) where T<:Number
+    dim = convert(Int, sqrt(length(u)))
+    if !check_positivity(reshape(u, dim, dim))
+        @warn "The density matrix becomes negative at time $t."
+        terminate!(integrator)
+    end
+end
+
+
 """This is a modified version of IterativeCallback object in DiffEqCallbacks.jl"""
 function IterativeCallback(time_choice, user_affect!,tType = Float64;
                            initialize = INITIALIZE_DEFAULT,
