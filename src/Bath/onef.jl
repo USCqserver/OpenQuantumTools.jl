@@ -16,7 +16,7 @@ end
 correlation(τ, R::SymetricRTN) = R.b^2 * exp(-R.γ * τ)
 spectrum(ω, R::SymetricRTN) = 2 * R.b^2 * R.γ / (ω^2 + R.γ^2)
 
-construct_distribution(tf::Real, R::SymetricRTN) = Exponential(tf / R.γ)
+construct_distribution(tf::Real, R::SymetricRTN) = Exponential(1 / R.γ / tf)
 construct_distribution(tf::UnitTime, R::SymetricRTN) = Exponential(1 / R.γ)
 
 

@@ -98,7 +98,8 @@ export solve_unitary,
        solve_redfield,
        solve_ame,
        solve_af_rwa,
-       solve_stochastic_schrodinger
+       solve_stochastic_schrodinger,
+       build_ensemble_problem
 
 export PausingControl, single_pausing, InstPulseControl, ControlSet
 

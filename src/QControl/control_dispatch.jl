@@ -49,7 +49,7 @@ end
 
 Convert the state vector/density matrix to the corresponding DEDataArray depending on the type of control `p`.
 """
-function adjust_u0_with_control(u0, ::Union{Nothing, ParameterFreeControl})
+function adjust_u0_with_control(u0, ::Union{Nothing,ParameterFreeControl})
     u0
 end
 
@@ -62,13 +62,16 @@ function adjust_u0_with_control(
 end
 
 
-function adjust_u0_with_control(u0::Array{T,N}, f::FluctuatorControl) where {T<:Number,N}
+function adjust_u0_with_control(
+    u0::Array{T,N},
+    f::FluctuatorControl,
+) where {T<:Number,N}
     DENoiseArray{T,N}(u0, f())
 end
 
 
 function adjust_u0_with_control(u0, control::ControlSet)
-    if length(control)==1
+    if length(control) == 1
         adjust_u0_with_control(u0, control.ctrs[1])
     else
         error("Adjusting initial state according to a ControlSet is currently not implemented.")
@@ -76,7 +79,10 @@ function adjust_u0_with_control(u0, control::ControlSet)
 end
 
 
-function adjust_coupling_with_control(coupling, ::Union{Nothing, InstPulseControl})
+function adjust_coupling_with_control(
+    coupling,
+    ::Union{Nothing,InstPulseControl},
+)
     coupling
 end
 
@@ -85,6 +91,30 @@ function adjust_coupling_with_control(coupling, control::PausingControl)
     attach_annealing_param(control, coupling)
 end
 
+
+function build_ensemble_problem(
+    A::Annealing,
+    tf,
+    type;
+    output_func = (sol, i) -> (sol, false),
+    span_unit = false,
+    tstops = Float64[],
+    kwargs...,
+)
+    if type == :stochastic_schrodinger
+        prob, kwarg_dict = build_ensemble_problem_stochastic_schrodinger(
+            A,
+            tf,
+            output_func = output_func,
+            span_unit = span_unit,
+            tstops = tstops,
+            kwargs...
+        )
+    else
+        error("Ensemble problem of type $type is not implemented.")
+    end
+    prob, kwarg_dict
+end
 
 """
     function pause_affect!(integrator)

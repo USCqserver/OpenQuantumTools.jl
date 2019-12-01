@@ -9,7 +9,33 @@ function solve_stochastic_schrodinger(
     tstops = Float64[],
     kwargs...,
 )
-    # the hard code 1.0 is just to set the type of argument correct
+    ensemble_prob, kwarg_dict = build_ensemble_problem(
+        A,
+        tf,
+        :stochastic_schrodinger,
+        output_func = output_func,
+        span_unit = span_unit,
+        tstops = tstops;
+        kwargs...,
+    )
+    solve(
+        ensemble_prob,
+        alg,
+        para_alg;
+        trajectories = trajectories,
+        kwarg_dict...,
+    )
+end
+
+
+function build_ensemble_problem_stochastic_schrodinger(
+    A::Annealing,
+    tf::Real;
+    output_func = (sol, i) -> (sol, false),
+    span_unit = false,
+    tstops = Float64[],
+    kwargs...,
+)
     tf = build_tf(tf, span_unit)
     tstops = build_tstops(tf, tstops, A.tstops)
     # build control object from bath; a prototype implementation
@@ -21,24 +47,17 @@ function solve_stochastic_schrodinger(
     p = AnnealingParams(A.H, tf; opensys = opensys, control = control)
     ff = stochastic_schrodinger_build_ode_function(A.H, A.control)
     prob = ODEProblem{true}(ff, u0, (p) -> scaling_tspan(p.tf, A.sspan), p)
-    # build the ensemble problem for parallel simulation
-    prob_func = (prob, i, repeat) -> begin
-        reset!(prob.p.control)
-        u0 = prob.u0
-        u0.n .= prob.p.control()
-        next_state!(prob.p.control)
-        ODEProblem{true}(prob.f, u0, prob.tspan, prob.p)
-    end
-    ensemble_prob = EnsembleProblem(prob; prob_func = prob_func, output_func = output_func)
-    solve(
-        ensemble_prob,
-        alg,
-        para_alg;
-        trajectories = trajectories,
-        tstops = tstops,
-        callback = callback,
-        kwargs...,
+
+    ensemble_prob = EnsembleProblem(
+        prob;
+        prob_func = DEFAULT_FLUCTUATOR_CONTROL_PROB_FUNC,
+        output_func = output_func,
     )
+
+    kwarg_dict = Dict(kwargs...)
+    kwarg_dict[:tstops] = tstops
+    kwarg_dict[:callback] = callback
+    ensemble_prob, kwarg_dict
 end
 
 
@@ -46,12 +65,26 @@ function stochastic_schrodinger_build_ode_function(H, control)
     cache = get_cache(H)
     diff_op = DiffEqArrayOperator(
         cache,
-        update_func = (A, u, p, t) -> stochastic_update!(A, u, p.tf, t, p.H, p.opensys),
+        update_func = (A, u, p, t) -> stochastic_update!(
+            A,
+            u,
+            p.tf,
+            t,
+            p.H,
+            p.opensys,
+        ),
     )
     jac_cache = similar(cache)
     jac_op = DiffEqArrayOperator(
         jac_cache,
-        update_func = (A, u, p, t) -> stochastic_update!(A, u, p.tf, t, p.H, p.opensys),
+        update_func = (A, u, p, t) -> stochastic_update!(
+            A,
+            u,
+            p.tf,
+            t,
+            p.H,
+            p.opensys,
+        ),
     )
     ff = ODEFunction(diff_op; jac_prototype = jac_op)
 end

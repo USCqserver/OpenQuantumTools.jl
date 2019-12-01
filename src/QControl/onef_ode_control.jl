@@ -47,6 +47,15 @@ function reset!(f::FluctuatorControl)
 end
 
 
+function DEFAULT_FLUCTUATOR_CONTROL_PROB_FUNC(prob, i, repeat)
+    reset!(prob.p.control)
+    u0 = prob.u0
+    u0.n .= prob.p.control()
+    next_state!(prob.p.control)
+    ODEProblem{true}(prob.f, u0, prob.tspan, prob.p)
+end
+
+
 function fluctuator_affect!(integrator)
     noise_value = integrator.p.control()
     for c in full_cache(integrator)
