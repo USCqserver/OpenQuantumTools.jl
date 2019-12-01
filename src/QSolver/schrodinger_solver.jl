@@ -1,4 +1,10 @@
-function solve_schrodinger(A::Annealing, tf::Real; span_unit = false, tstops = Float64[], kwargs...)
+function solve_schrodinger(
+    A::Annealing,
+    tf::Real;
+    span_unit = false,
+    tstops = Float64[],
+    kwargs...,
+)
     tf = build_tf(tf, span_unit)
     tstops = build_tstops(tf, tstops, A.tstops)
     u0 = build_u0(A.u0, :v, control = A.control)
@@ -6,7 +12,13 @@ function solve_schrodinger(A::Annealing, tf::Real; span_unit = false, tstops = F
     callback = build_callback(A.control, :schrodinger)
     ff = schrodinger_construct_ode_function(A.H, A.control)
     prob = ODEProblem{true}(ff, u0, (p) -> scaling_tspan(p.tf, A.sspan), p)
-    solve(prob; alg_hints = [:nonstiff], callback = callback, tstops = tstops, kwargs...)
+    solve(
+        prob;
+        alg_hints = [:nonstiff],
+        callback = callback,
+        tstops = tstops,
+        kwargs...,
+    )
 end
 
 
@@ -37,12 +49,23 @@ function solve_schrodinger(
     end
     if span_unit == true
         if !isempty(tstops)
-            callback = CallbackSet(callback, PresetTimeCallback(tstops, empty_affect!, save_positions=(true, false)))
+            callback = CallbackSet(
+                callback,
+                PresetTimeCallback(
+                    tstops,
+                    empty_affect!,
+                    save_positions = (true, false),
+                ),
+            )
         end
         tstops = []
     end
     prob = ODEProblem{true}(ff, u0, (p) -> scaling_tspan(p.tf, A.sspan), p)
-    ensemble_prob = EnsembleProblem(prob; prob_func = prob_func, output_func = output_func)
+    ensemble_prob = EnsembleProblem(
+        prob;
+        prob_func = prob_func,
+        output_func = output_func,
+    )
     solve(
         ensemble_prob,
         alg,
@@ -55,7 +78,10 @@ function solve_schrodinger(
 end
 
 
-function schrodinger_construct_ode_function(H, ::Union{Nothing,InstPulseControl})
+function schrodinger_construct_ode_function(
+    H,
+    ::Union{Nothing,InstPulseControl},
+)
     cache = get_cache(H)
     diff_op = DiffEqArrayOperator(
         cache,

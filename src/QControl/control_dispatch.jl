@@ -92,30 +92,6 @@ function adjust_coupling_with_control(coupling, control::PausingControl)
 end
 
 
-function build_ensemble_problem(
-    A::Annealing,
-    tf,
-    type;
-    output_func = (sol, i) -> (sol, false),
-    span_unit = false,
-    tstops = Float64[],
-    kwargs...,
-)
-    if type == :stochastic_schrodinger
-        prob, kwarg_dict = build_ensemble_problem_stochastic_schrodinger(
-            A,
-            tf,
-            output_func = output_func,
-            span_unit = span_unit,
-            tstops = tstops,
-            kwargs...
-        )
-    else
-        error("Ensemble problem of type $type is not implemented.")
-    end
-    prob, kwarg_dict
-end
-
 """
     function pause_affect!(integrator)
 

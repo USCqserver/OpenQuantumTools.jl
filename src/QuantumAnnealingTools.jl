@@ -58,6 +58,7 @@ include("QSolver/von_neumann_solver.jl")
 include("QSolver/ame_solver.jl")
 include("QSolver/redfield_solver.jl")
 include("QSolver/PTRE.jl")
+include("QSolver/ensemble_builder.jl")
 
 include("plot_util/high_dpi.jl")
 include("plot_util/hamiltonian_plot.jl")
