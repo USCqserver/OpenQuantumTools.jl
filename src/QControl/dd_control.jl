@@ -14,6 +14,7 @@ end
 
 
 (C::InstPulseControl)(state::Int) = C.pulse_func(state)
+reset!(C::InstPulseControl) = nothing
 QTBase.need_change_time_scale(::InstPulseControl) = false
 
 
