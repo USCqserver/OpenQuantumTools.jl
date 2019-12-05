@@ -5,7 +5,7 @@
 The interface to [Redfield](https://en.wikipedia.org/wiki/Redfield_equation) equation is:
 
 ### Basic usage
-The basic usage of AME solve is
+The basic usage of Redfield solver is
 ```@docs
 solve_redfield(A::Annealing, tf::Real, unitary; span_unit::Bool = false, kwargs...)
 ```

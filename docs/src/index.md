@@ -47,7 +47,7 @@ First, we need to load the package [DifferentialEquations.jl](http://docs.juliad
 ```julia
 H = DenseHamiltonian([(s)->1-s, (s)->s], [σx, σz], unit=:ħ)
 ```
-The resulting Hamiltonian is an affine combination of the corresponding functions and matrices $(1-s)σx + sσ_z$. Then we define the initial state `u0`. Together with Hamiltonian, an annealing object can be constructed
+The resulting Hamiltonian is an affine combination of the corresponding functions and matrices $(1-s)σ_x + sσ_z$. Then we define the initial state `u0`. Together with Hamiltonian, an annealing object can be constructed
 ```julia
 annealing = Annealing(H, u0)
 ```
