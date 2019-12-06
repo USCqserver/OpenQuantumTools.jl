@@ -1,4 +1,4 @@
-# QuantumAnnealingTools
+# QuantumAnnealingTools.jl
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://uscqserver.github.io/QuantumAnnealingTools.jl/dev/)
 [![codecov](https://codecov.io/gh/USCqserver/QuantumAnnealingTools.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/USCqserver/QuantumAnnealingTools.jl)
 
