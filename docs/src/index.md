@@ -29,7 +29,7 @@ Even though `QuantumAnnealingTools.jl` can function without `DifferentialEquatio
 ## Quick Start
 In the first example, we solve a standard single qubit annealing problem with Hamiltonian
 ```math
-    H(s) = A(s)σx + B(s)σz
+    H(s) = A(s)σ_x + B(s)σ_z
 ```
 where $A(s)=1-s$ and $B(s)=s$ are usually known as annealing schedules. The general workflow is to define the Hamiltonian, construct the annealing process and then solve the system dynamics. The full code for this example is
 ```julia
