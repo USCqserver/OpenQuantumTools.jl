@@ -8,13 +8,14 @@ This package implements [AbstractFactory](https://refactoring.guru/design-patter
 
 For example, the following code block construct a standard single qubit annealing process
 ``` julia
-H = DenseHamiltonian([(s)->1-s, (s)->s], -[σx, σz]/2)
+H = DenseHamiltonian([(s)->1-s, (s)->s], -[σx, σz]/2, unit=:ħ)
 u0 = PauliVec[1][1]
-coupling = ConstantCouplings(["Z"])
+coupling = ConstantCouplings(["Z"], unit=:ħ)
 bath = Ohmic(1e-4, 4, 16)
 annealing = Annealing(H, u0; coupling=coupling, bath=bath)
 ```
-with Hamiltonian
+with total Hamiltonian
 ```math
 H(s) = -(1-s)\frac{\sigma_x}{2} - s\frac{\sigma_z}{2} + \sigma_z \otimes B + H_B
 ```
+where $\{B, H_B\}$ forms an Ohmic bath.

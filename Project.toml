@@ -1,7 +1,7 @@
 name = "QuantumAnnealingTools"
 uuid = "e429f160-8886-11e9-20cb-0dbe84e78965"
 authors = ["Huo Chen <neversakura@hotmail.com>"]
-version = "0.3.0"
+version = "0.4.0"
 
 [deps]
 Arpack = "7d9fca2a-8960-54d3-9f78-7d1dccf2cb97"
