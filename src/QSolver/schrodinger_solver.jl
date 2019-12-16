@@ -22,21 +22,6 @@ function solve_schrodinger(
 end
 
 
-# if span_unit == true
-#     if !isempty(tstops)
-#         callback = CallbackSet(
-#             callback,
-#             PresetTimeCallback(
-#                 tstops,
-#                 empty_affect!,
-#                 save_positions = (true, false),
-#             ),
-#         )
-#     end
-#     tstops = []
-# end
-
-
 function build_ensemble_problem_schrodinger(
     A::Annealing,
     prob_func,

@@ -5,7 +5,7 @@ A hybrid noise model with both low and high frequency noise. The high frequency 
 
 $(FIELDS)
 """
-struct HybridOhmicBath
+struct HybridOhmicBath <: AbstractBath
     """MRT width (2π GHz)"""
     W::Float64
     """low spectrum reorganization energy (2π GHz)"""

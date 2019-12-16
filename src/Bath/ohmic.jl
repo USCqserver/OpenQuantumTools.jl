@@ -8,7 +8,7 @@ Ohmic bath object to hold a particular parameter set.
 - `ωc` -- cutoff frequence.
 - `β` -- inverse temperature.
 """
-struct OhmicBath
+struct OhmicBath <: AbstractBath
     η::Float64
     ωc::Float64
     β::Float64
@@ -137,12 +137,21 @@ function info_freq(bath::OhmicBath)
 end
 
 
-function davies_spectrum(bath::OhmicBath, ω_range = [])
-    if isempty(ω_range)
-        γ_loc(ω) = γ(ω, bath)
-        S_loc(ω) = S(ω, bath)
+"""
+    function davies_spectrum(bath::OhmicBath, ω_range, lambshift)
+
+Construct the spectrum and lambshift for Davies operators. `ω_range` is the grid for precalculating lambshift. `lambshift` is whether to include lambshift in the calculation.
+"""
+function davies_spectrum(bath::OhmicBath, ω_range, lambshift)
+    if lambshift == true
+        if isempty(ω_range)
+            γ_loc(ω) = γ(ω, bath)
+            S_loc(ω) = S(ω, bath)
+        else
+            γ_loc, S_loc = interpolate_spectral_density(2π * ω_range, bath)
+        end
+        return γ_loc, S_loc
     else
-        γ_loc, S_loc = interpolate_spectral_density(2π * ω_range, bath)
+        return (ω)->γ(ω, bath), (ω)->0.0
     end
-    γ_loc, S_loc
 end
