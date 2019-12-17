@@ -125,7 +125,7 @@ end
 
 
 function create_redfield(coupling, unitary, tf::UnitTime, bath::OhmicBath)
-    cp(t) = coupling(t/tf)
+    cp(t) = coupling(t / tf)
     cfun(t) = correlation(t, bath)
     Redfield(cp, unitary, cfun)
 end
@@ -152,6 +152,6 @@ function davies_spectrum(bath::OhmicBath, ω_range, lambshift)
         end
         return γ_loc, S_loc
     else
-        return (ω)->γ(ω, bath), (ω)->0.0
+        return (ω) -> γ(ω, bath), (ω) -> 0.0
     end
 end
