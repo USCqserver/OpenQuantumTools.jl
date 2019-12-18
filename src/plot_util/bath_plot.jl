@@ -1,5 +1,5 @@
 @recipe function f(bath::OhmicBath, func_symbol, ω)
-    if func_symbol == :γ
+    if (func_symbol == :γ) || (func_symbol == :spectrum)
         ylabel --> L"\frac{\gamma(\omega)}{\eta g^2 \omega_c}"
     elseif func_symbol == :S
         ylabel --> L"\frac{S(\omega)}{\eta g^2 \omega_c}"

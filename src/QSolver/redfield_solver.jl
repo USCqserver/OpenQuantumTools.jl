@@ -1,5 +1,14 @@
 """
-    function solve_redfield(A::Annealing, tf::Real, unitary; span_unit::Bool = false, kwargs...)
+    function solve_redfield(
+        A::Annealing,
+        tf::Real,
+        unitary;
+        vectorize::Bool = false,
+        span_unit::Bool = false,
+        tstops = Float64[],
+        positivity_check::Bool = false,
+        kwargs...,
+    )
 
 Solve the time dependent Redfield equation for `Annealing` defined by `A` with total annealing time `tf`.
 

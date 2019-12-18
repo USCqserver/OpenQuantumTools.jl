@@ -30,6 +30,7 @@ solve_ame(
     tf::Real;
     span_unit::Bool = false,
     ω_hint = [],
+    lambshift::Bool = true,
     lvl = size(A.H, 1),
     kwargs...,
 )
