@@ -45,7 +45,7 @@ function QTBase.update_cache!(
     H::AdiabaticFrameHamiltonian,
     control::PausingControl,
 )
-    s, adiabatic_scale, geometric_scale = control(p.tf, t)
+    s, adiabatic_scale, geometric_scale = control(tf, t)
     ω = H.diagonal(s)
     cache .= -2.0im * π * adiabatic_scale * ω
     G = H.geometric(s)

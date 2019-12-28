@@ -62,3 +62,21 @@ function schrodinger_construct_ode_function(
     )
     ff = ODEFunction(diff_op; jac_prototype = jac_op)
 end
+
+
+function schrodinger_construct_ode_function(
+    H,
+    pause_control::PausingControl,
+)
+    cache = get_cache(H)
+    diff_op = DiffEqArrayOperator(
+        cache,
+        update_func = (A, u, p, t) -> update_cache!(A, u, p.tf, t, p.H, p.control),
+    )
+    jac_cache = similar(cache)
+    jac_op = DiffEqArrayOperator(
+        jac_cache,
+        update_func = (A, u, p, t) -> update_cache!(A, u, p.tf, t, p.H, p.control),
+    )
+    ff = ODEFunction(diff_op; jac_prototype = jac_op)
+end
