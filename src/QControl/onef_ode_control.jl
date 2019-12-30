@@ -41,17 +41,12 @@ function next_state!(f::FluctuatorControl)
 end
 
 
-function reset!(f::FluctuatorControl)
-    f.b0 = abs.(f.b0) .* rand([-1, 1], length(f.dist), size(f.b0, 2))
-    nothing
-end
-
-
 function DEFAULT_FLUCTUATOR_CONTROL_PROB_FUNC(prob, i, repeat)
-    reset!(prob.p.control)
+    ctrl = prob.p.control
+    ctrl.b0 = abs.(ctrl.b0) .* rand([-1, 1], length(ctrl.dist), size(ctrl.b0, 2))
     u0 = prob.u0
-    u0.n .= prob.p.control()
-    next_state!(prob.p.control)
+    u0.n .= ctrl()
+    next_state!(ctrl)
     ODEProblem{true}(prob.f, u0, prob.tspan, prob.p)
 end
 
