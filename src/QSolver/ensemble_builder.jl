@@ -45,3 +45,20 @@ end
 DEFAULT_OUTPUT_FUNC(sol, i) = (sol, false)
 # this is not the actually default problem function
 DEFAULT_PROB_FUNC(prob, i, repeat) = (prob)
+
+
+function build_prob_func(func, type::Symbol)
+    if type == :fluctuator
+        res = function (prob, i, repeat)
+            ctrl = prob.p.control
+            ctrl.b0 = abs.(ctrl.b0) .* func()
+            u0 = prob.u0
+            u0.n .= ctrl()
+            next_state!(ctrl)
+            ODEProblem{true}(prob.f, u0, prob.tspan, prob.p)
+        end
+    else
+        error("Build prob_func for type $type is not implemented.")
+    end
+    res
+end

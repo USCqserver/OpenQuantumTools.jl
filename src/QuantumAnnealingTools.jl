@@ -100,7 +100,8 @@ export solve_unitary,
        solve_ame,
        solve_af_rwa,
        solve_stochastic_schrodinger,
-       build_ensemble_problem
+       build_ensemble_problem,
+       build_prob_func
 
 export PausingControl, single_pausing, InstPulseControl, ControlSet
 
