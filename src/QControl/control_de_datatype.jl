@@ -5,7 +5,8 @@ Base for types defining annealing controller that does not require DEDataArray i
 """
 abstract type ParameterFreeControl <: AbstractAnnealingControl end
 
-
+# The following struct are the predefined DEDataArray object for DD control/stochasitc schrodinger equation/AME trajectory simulation.
+# TODO: Add macro to create struct with given field on the fly.
 """
 $(TYPEDEF)
 DEDataArray type for finite state machine control.
@@ -47,23 +48,17 @@ QTBase.check_unitary(x::Union{DEStateMachineMat, DENoiseMat}; rtol=1e-6, atol=1e
 
 """
 $(TYPEDEF)
-DEDataArray type for both finite state machine control and noise injection.
+DEDataArray type for AME trajectory simulation.
 
 # Fields
 $(FIELDS)
 """
-mutable struct DESTNoiseArray{T, N} <: DEDataArray{T, N}
+mutable struct DEAMEArray{T, N} <: DEDataArray{T, N}
     """Array data"""
     x::Array{T, N}
-    """Current state"""
-    state::Int
     """Current noise value"""
-    n::Vector{Float64}
+    r::Float64
 end
-
-
-const DESTNoiseVec{T} = DESTNoiseArray{T, 1}
-const DESTNoiseMat{T} = DESTNoiseArray{T, 2}
 
 
 """
@@ -89,10 +84,6 @@ sort_ctrs(ctrs, set::Nothing, args...) = sort_ctrs(ctrs, args...)
 
 Base.length(c::ControlSet) = length(c.ctrs)
 Base.iterate(c::ControlSet, state = 1) = Base.iterate(c.ctrs, state)
-
-
-function build_controllers(bath)
-end
 
 
 function (h::DenseHamiltonian)(du, u::DEDataMatrix{T}, p::Real, t::Real) where T<:Complex

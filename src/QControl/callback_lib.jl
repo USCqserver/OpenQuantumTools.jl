@@ -100,3 +100,22 @@ function IterativeCallback(time_choice, user_affect!,tType = Float64;
     end
     DiscreteCallback(condition, affect!; initialize = initialize_iterative, kwargs...)
 end
+
+
+function AMEJumpCallback()
+    condition = function (u, t ,integrator)
+        real(u.x' * u.x) - u.r
+    end
+
+    affect! = function (integrator)
+        A = QTBase.ame_jump(integrator.p.control, integrator.u, integrator.p.tf, integrator.t)
+        new_r = rand()
+        new_state = normalize(A * integrator.u)
+        for c in full_cache(integrator)
+            c.x .= new_state
+            c.r = new_r
+        end
+    end
+
+    ContinuousCallback(condition, affect!)
+end
