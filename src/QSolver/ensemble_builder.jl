@@ -6,19 +6,12 @@ function build_ensemble_problem(
     output_func = DEFAULT_OUTPUT_FUNC,
     prob_func = DEFAULT_PROB_FUNC,
     reduction = (u, data, I) -> (append!(u, data), false),
+    kwargs...
 )
     if type == :stochastic_schrodinger
         if prob_func == DEFAULT_PROB_FUNC
             prob_func = DEFAULT_FLUCTUATOR_CONTROL_PROB_FUNC
         end
-        prob, callback = build_ensemble_problem_stochastic_schrodinger(
-            A,
-            tf,
-            prob_func,
-            output_func,
-            reduction;
-            span_unit = span_unit,
-        )
     elseif type == :schrodinger
         if prob_func == DEFAULT_PROB_FUNC
             tf_arr = ndims(tf) == 0 ?
@@ -29,17 +22,23 @@ function build_ensemble_problem(
                 ODEProblem{true}(prob.f, prob.u0, prob.tspan, p)
             end
         end
-        prob, callback = build_ensemble_problem_schrodinger(
-            A,
-            prob_func,
-            output_func,
-            reduction;
-            span_unit = span_unit,
-        )
+    elseif type == :ame_trajectory
+        if prob_func == DEFAULT_PROB_FUNC
+            prob_func = DEFAULT_AME_TRAJECTORY_PROB_FUNC
+        end
     else
         error("Ensemble problem of type $type is not implemented.")
     end
-    prob, callback
+    builder = getfield(QuantumAnnealingTools, Symbol("build_ensemble_problem_", type))
+    prob, callback = builder(
+        A,
+        tf,
+        prob_func,
+        output_func,
+        reduction;
+        span_unit = span_unit,
+        kwargs...
+    )
 end
 
 DEFAULT_OUTPUT_FUNC(sol, i) = (sol, false)
@@ -61,4 +60,10 @@ function build_prob_func(func, type::Symbol)
         error("Build prob_func for type $type is not implemented.")
     end
     res
+end
+
+
+function DEFAULT_AME_TRAJECTORY_PROB_FUNC(prob, i, repeat)
+    prob.u0.r = rand()
+    prob
 end

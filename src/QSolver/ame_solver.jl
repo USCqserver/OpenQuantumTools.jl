@@ -137,3 +137,54 @@ function build_davies(coupling, bath::OhmicBath, ω_range, lambshift)
     γ_loc, S_loc = davies_spectrum(bath, ω_range, lambshift)
     DaviesGenerator(coupling, γ_loc, S_loc)
 end
+
+
+function build_ensemble_problem_ame_trajectory(
+    A::Annealing,
+    tf::Real,
+    prob_func,
+    output_func,
+    reduction;
+    span_unit::Bool = false,
+    ω_hint = [],
+    lambshift::Bool = true,
+    lvl::Int = size(A.H, 1),
+    kwargs...,
+)
+    tf = build_tf(tf, span_unit)
+    davies = build_davies(A.coupling, A.bath, ω_hint, lambshift)
+    control = AMETrajectoryOperator(A.H, davies, lvl)
+    control = A.control == nothing ? control : ControlSet(control, A.control)
+    u0 = build_u0(A.u0, :v, control = control)
+    p = LightAnnealingParams(tf; control = control)
+    callback = build_callback(control, :ame_trajectory)
+    ff  = ame_trajectory_construct_ode_function(A.H, control)
+    prob = ODEProblem{true}(ff, u0, (p) -> scaling_tspan(p.tf, A.sspan), p)
+
+    ensemble_prob = EnsembleProblem(
+        prob;
+        prob_func = prob_func,
+        output_func = output_func,
+        reduction = reduction
+    )
+
+    ensemble_prob, callback
+end
+
+
+function ame_trajectory_construct_ode_function(
+    H,
+    ::AMETrajectoryOperator,
+)
+    cache = get_cache(H)
+    diff_op = DiffEqArrayOperator(
+        cache,
+        update_func = (A, u, p, t) -> update_cache!(A, p.control, p.tf, t),
+    )
+    jac_cache = similar(cache)
+    jac_op = DiffEqArrayOperator(
+        jac_cache,
+        update_func = (A, u, p, t) -> update_cache!(A, p.control, p.tf, t),
+    )
+    ff = ODEFunction(diff_op; jac_prototype = jac_op)
+end

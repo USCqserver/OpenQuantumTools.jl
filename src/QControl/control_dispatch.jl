@@ -33,6 +33,15 @@ function build_callback(control::FluctuatorControl, solver_type::Symbol)
 end
 
 
+function build_callback(control::AMETrajectoryOperator, solver_type::Symbol)
+    if solver_type == :ame_trajectory
+        AMEJumpCallback()
+    else
+        ArgumentError("$solver_type solver does not support the specified control protocol.")
+    end
+end
+
+
 function build_callback(control::ControlSet, solver_type::Symbol)
     if length(control) == 1
         res = build_callback(control.ctrs[1], solver_type)
@@ -67,6 +76,14 @@ function adjust_u0_with_control(
     f::FluctuatorControl,
 ) where {T<:Number,N}
     DENoiseArray{T,N}(u0, f())
+end
+
+
+function adjust_u0_with_control(
+    u0::Array{T,N},
+    f::AMETrajectoryOperator,
+) where {T<:Number,N}
+    DEAMEArray{T, N}(u0, rand())
 end
 
 

@@ -24,6 +24,7 @@ end
 
 function build_ensemble_problem_schrodinger(
     A::Annealing,
+    tf,
     prob_func,
     output_func,
     reduction;
