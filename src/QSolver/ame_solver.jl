@@ -5,7 +5,11 @@
         span_unit::Bool = false,
         ω_hint = [],
         lambshift::Bool = true,
-        lvl = size(A.H, 1),
+        lvl,
+        eig_tol = 1e-8,
+        maxiter = 3000,
+        ncv,
+        v0,
         kwargs...,
     )
 
@@ -18,7 +22,11 @@ Solve the adiabatic master equation for `Annealing` defined by `A` with total an
 - `span_unit::Bool=false`: flag variable which, when set to true, informs the solver to work with time in physical unit.
 - `ω_hint=[]` : grid for precalculating the lambshift; skip the precalculation if empty.
 - 'lambshift::Bool=true' : whether to include Lambshift in the calculation.
-- `lvl::Int = size(A.H, 1)` : number of levels to keep.
+- `lvl::Int` : number of levels to keep. The default value is the dim/dim-1 for dense/sparse Hamiltonian.
+- `eig_tol = 1e-8` : (only for sparse Hamiltonian) relative tolerance for eigen-decomposition.
+- 'ncv' : (only for sparse Hamiltonian) number of Krylov vectors used in Arpack. The default value is max(20, 2*lvl+1).
+- `maxiter::Int = 3000` : (only for sparse Hamiltonian) maximum number of iterations for Arpack.
+- `v0` : (only for sparse Hamiltonian) starting vector for Arpack. The default value is the initial state `u0` if it is a state vector and ground state of the initial Hamiltonian if not.
 - `kwargs` : other keyword arguments supported by DifferentialEquations.jl
 ...
 """
@@ -29,12 +37,25 @@ function solve_ame(
     ω_hint = [],
     lambshift::Bool = true,
     lvl::Int = size(A.H, 1),
+    eig_tol = 0.0,
+    maxiter::Int = 3000,
+    ncv = 20,
+    v0 = copy(A.u0),
     kwargs...,
 )
     u0 = build_u0(A.u0, :m, control = A.control)
     tf = build_tf(tf, span_unit)
     davies = build_davies(A.coupling, A.bath, ω_hint, lambshift)
-    f = AMEDiffEqOperator(A.H, davies; lvl = lvl, control = A.control)
+    f = AMEDiffEqOperator(
+        A.H,
+        davies,
+        lvl,
+        eig_tol = eig_tol,
+        control = A.control,
+        maxiter = maxiter,
+        ncv = ncv,
+        v0 = v0,
+    )
     p = LightAnnealingParams(tf; control = A.control)
     if typeof(A.control) <: PausingControl
         cb = DiscreteCallback(pause_condition, pause_affect!)
@@ -47,7 +68,7 @@ function solve_ame(
 end
 
 
-function (D::AMEDiffEqOperator{true,T})(du, u, p, t) where {T<:PausingControl}
+function (D::QTBase.AMEDenseDiffEqOperator{true,T})(du, u, p, t) where {T<:PausingControl}
     s, a_scale, g_scale = p.control(p.tf, t)
     hmat = D.H(u, a_scale, g_scale, s)
     du.x .= -1.0im * (hmat * u.x - u.x * hmat)
@@ -128,8 +149,19 @@ function solve_af_rwa(
         end
     end
     prob = ODEProblem{true}(f, u0, A.sspan, p)
-    ensemble_prob = EnsembleProblem(prob; prob_func = prob_func, output_func = output_func)
-    solve(ensemble_prob, alg, para_alg; trajectories = trajectories, tstops = tstops, kwargs...)
+    ensemble_prob = EnsembleProblem(
+        prob;
+        prob_func = prob_func,
+        output_func = output_func,
+    )
+    solve(
+        ensemble_prob,
+        alg,
+        para_alg;
+        trajectories = trajectories,
+        tstops = tstops,
+        kwargs...,
+    )
 end
 
 
@@ -149,33 +181,38 @@ function build_ensemble_problem_ame_trajectory(
     ω_hint = [],
     lambshift::Bool = true,
     lvl::Int = size(A.H, 1),
+    eig_tol = 0.0,
+    v0 = copy(A.u0),
     kwargs...,
 )
     tf = build_tf(tf, span_unit)
     davies = build_davies(A.coupling, A.bath, ω_hint, lambshift)
-    control = AMETrajectoryOperator(A.H, davies, lvl)
+    control = AMETrajectoryOperator(
+        A.H,
+        davies,
+        lvl,
+        eig_tol = eig_tol,
+        v0 = v0,
+    )
     control = A.control == nothing ? control : ControlSet(control, A.control)
     u0 = build_u0(A.u0, :v, control = control)
     p = LightAnnealingParams(tf; control = control)
     callback = build_callback(control, :ame_trajectory)
-    ff  = ame_trajectory_construct_ode_function(A.H, control)
+    ff = ame_trajectory_construct_ode_function(A.H, control)
     prob = ODEProblem{true}(ff, u0, (p) -> scaling_tspan(p.tf, A.sspan), p)
 
     ensemble_prob = EnsembleProblem(
         prob;
         prob_func = prob_func,
         output_func = output_func,
-        reduction = reduction
+        reduction = reduction,
     )
 
     ensemble_prob, callback
 end
 
 
-function ame_trajectory_construct_ode_function(
-    H,
-    ::AMETrajectoryOperator,
-)
+function ame_trajectory_construct_ode_function(H, ::AMETrajectoryOperator)
     cache = get_cache(H)
     diff_op = DiffEqArrayOperator(
         cache,
