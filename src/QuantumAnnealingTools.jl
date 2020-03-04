@@ -108,6 +108,6 @@ export PausingControl, single_pausing, InstPulseControl, ControlSet
 
 export SA_Δ², SA_redfield, SA_marcus, SA_Γ, SA_τ, solve_SA, SA_lz_rotate
 
-export @publish, minimum_gap
+export @publish, minimum_gap, @highdpi
 
 end # end module
