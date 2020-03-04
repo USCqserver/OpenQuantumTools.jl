@@ -83,7 +83,7 @@ function adjust_u0_with_control(
     u0::Array{T,N},
     f::AMETrajectoryOperator,
 ) where {T<:Number,N}
-    DEAMEArray{T, N}(u0, rand())
+    DEAMEArray{T,N}(u0, rand())
 end
 
 
