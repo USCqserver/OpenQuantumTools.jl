@@ -9,6 +9,11 @@ function CustomBath(;correlation=nothing, spectrum=nothing)
 end
 
 
+function correlation(τ, bath::CustomBath)
+    bath.cfun(τ)
+end
+
+
 function create_redfield(coupling, unitary, tf::Real, bath::CustomBath)
     if bath.cfun == nothing
         error("Correlation function is not defined for the bath.")
