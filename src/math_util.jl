@@ -10,3 +10,7 @@ function minimum_gap(h)
     end
     optimize(gap, 0.0, 1.0)
 end
+
+
+pulse_on_density!(c::Vector, p) = c .= conj(p) ⊗ p * c
+pulse_on_density!(c::Matrix, p) = c .= p * c * p'
