@@ -44,12 +44,13 @@ include("Bath/hybridohmic.jl")
 include("Bath/onef.jl")
 include("Bath/util.jl")
 
+include("interaction.jl")
+
 include("QControl/callback_lib.jl")
-include("QControl/control_de_datatype.jl")
+#include("QControl/control_params_datatype.jl")
+include("QControl/control_datatype.jl")
 include("QControl/dd_control.jl")
-include("QControl/pausing_control.jl")
 include("QControl/onef_ode_control.jl")
-include("QControl/control_dispatch.jl")
 
 include("QSolver/util.jl")
 include("QSolver/schrodinger_solver.jl")
@@ -78,6 +79,8 @@ export OhmicBath,
        spectrum,
        CustomBath
 
+export Interaction, InteractionSet
+
 export HybridOhmicBath,
        HybridOhmic,
        convolution_rate,
@@ -104,7 +107,7 @@ export solve_unitary,
        build_ensemble_problem,
        build_prob_func
 
-export PausingControl, single_pausing, InstPulseControl, ControlSet
+export PausingControl, single_pausing, InstPulseControl, InstDEPulseControl, ControlSet, DEFAULT_INITIALIZER
 
 export SA_Δ², SA_redfield, SA_marcus, SA_Γ, SA_τ, solve_SA, SA_lz_rotate
 

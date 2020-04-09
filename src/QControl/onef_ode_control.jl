@@ -16,6 +16,8 @@ mutable struct FluctuatorControl{T} <: AbstractAnnealingControl
     next_idx
     """time interval for next flip event"""
     next_τ
+    """noise value"""
+    n
 end
 
 
@@ -23,12 +25,73 @@ function FluctuatorControl(tf, num::Int, E::EnsembleFluctuator)
     dist = construct_distribution(tf, E)
     b0 = [x.b for x in E.f] .* rand([-1, 1], length(dist), num)
     next_τ, next_idx = findmin(rand(dist, num))
-    FluctuatorControl{num}(dist, b0, next_idx, next_τ)
+    FluctuatorControl{num}(dist, b0, next_idx, next_τ, sum(b0, dims = 1)[:])
+end
+
+FluctuatorControl(tf, num, E, ::Nothing) = FluctuatorControl(tf, num, E)
+
+(control::FluctuatorControl)() = control.n
+get_controller_name(::FluctuatorControl) = :fluctuator_control
+
+
+function reset!(ctrl::FluctuatorControl, ::DEFAULT_INITIALIZER_CLASS)
+    ctrl.b0 =
+        abs.(ctrl.b0) .* rand([-1, 1], length(ctrl.dist), size(ctrl.b0, 2))
+    ctrl.n = sum(ctrl.b0, dims = 1)[:]
+    next_state!(ctrl)
 end
 
 
-function (f::FluctuatorControl)()
-    view(sum(f.b0, dims=1), :)
+function reset!(ctrl::FluctuatorControl, initializer)
+    ctrl.b0 =
+        abs.(ctrl.b0) .* initializer((length(ctrl.dist), size(ctrl.b0, 2)))
+    ctrl.n = sum(ctrl.b0, dims = 1)[:]
+    next_state!(ctrl)
+end
+
+reset!(ctrl::FluctuatorControl, u0, initializer) = reset!(ctrl, initializer)
+
+
+function build_callback(control::FluctuatorControl)
+    fluctuator_time_choice = function (integrator)
+        next_t = integrator.t + integrator.p.control.next_τ
+        if next_t > integrator.sol.prob.tspan[2]
+            return nothing
+        else
+            return next_t
+        end
+    end
+
+    fluctuator_affect! = function (integrator)
+        f = integrator.p.control
+        f.n = sum(f.b0, dims = 1)[:]
+        next_state!(f)
+        u_modified!(integrator, false)
+    end
+
+    IterativeCallback(fluctuator_time_choice, fluctuator_affect!)
+end
+
+
+function build_callback(control::FluctuatorControl, controller_name::Symbol)
+    fluctuator_time_choice = function (integrator)
+        controller = getproperty(integrator.p.control, controller_name)
+        next_t = integrator.t + controller.next_τ
+        if next_t > integrator.sol.prob.tspan[2]
+            return nothing
+        else
+            return next_t
+        end
+    end
+
+    fluctuator_affect! = function (integrator)
+        f = getproperty(integrator.p.control, controller_name)
+        f.n = sum(f.b0, dims = 1)[:]
+        next_state!(f)
+        u_modified!(integrator, false)
+    end
+
+    IterativeCallback(fluctuator_time_choice, fluctuator_affect!)
 end
 
 
@@ -41,34 +104,122 @@ function next_state!(f::FluctuatorControl)
 end
 
 
-function DEFAULT_FLUCTUATOR_CONTROL_PROB_FUNC(prob, i, repeat)
-    ctrl = prob.p.control
-    ctrl.b0 = abs.(ctrl.b0) .* rand([-1, 1], length(ctrl.dist), size(ctrl.b0, 2))
-    u0 = prob.u0
-    u0.n .= ctrl()
+"""
+$(TYPEDEF)
+
+Defines a single fluctuator ensemble controller
+
+# Fields
+
+$(FIELDS)
+"""
+mutable struct FluctuatorDEControl{T} <: AbstractAnnealingControl
+    """Waitting time distribution for every fluctuators"""
+    dist
+    """Cache for each fluctuator value"""
+    b0
+    """Index of the fluctuator to be flipped next"""
+    next_idx
+    """Time interval for next flip event"""
+    next_τ
+    """Symbol used in DEDataArray"""
+    sym::Symbol
+end
+
+
+function FluctuatorControl(tf, num::Int, E::EnsembleFluctuator, sym::Symbol)
+    dist = construct_distribution(tf, E)
+    b0 = [x.b for x in E.f] .* rand([-1, 1], length(dist), num)
+    next_τ, next_idx = findmin(rand(dist, num))
+    FluctuatorDEControl{num}(dist, b0, next_idx, next_τ, sym)
+end
+
+
+(f::FluctuatorDEControl)() = view(sum(f.b0, dims = 1), :)
+get_controller_name(::FluctuatorDEControl) = :fluctuator_control
+
+
+function reset!(ctrl::FluctuatorDEControl, u0, ::DEFAULT_INITIALIZER_CLASS)
+    ctrl.b0 =
+        abs.(ctrl.b0) .* rand([-1, 1], length(ctrl.dist), size(ctrl.b0, 2))
+    setfield!(u0, ctrl.sym, Array(ctrl()))
     next_state!(ctrl)
+end
+
+
+function reset!(ctrl::FluctuatorDEControl, u0, initializer)
+    ctrl.b0 =
+        abs.(ctrl.b0) .* initializer((length(ctrl.dist), size(ctrl.b0, 2)))
+    setfield!(u0, ctrl.sym, Array(ctrl()))
+    next_state!(ctrl)
+end
+
+
+function build_callback(control::FluctuatorDEControl)
+    fluctuator_time_choice = function (integrator)
+        next_t = integrator.t + integrator.p.control.next_τ
+        if next_t > integrator.sol.prob.tspan[2]
+            return nothing
+        else
+            return next_t
+        end
+    end
+
+    fluctuator_affect! = function (integrator)
+        noise_value = Array(integrator.p.control())
+        sym = getfield(integrator.p.control, :sym)
+        for c in full_cache(integrator)
+            setfield!(c, sym, noise_value)
+#            c.n .= noise_value
+        end
+        next_state!(integrator.p.control)
+        u_modified!(integrator, false)
+    end
+
+    IterativeCallback(fluctuator_time_choice, fluctuator_affect!)
+end
+
+
+function build_callback(control::FluctuatorDEControl, name::Symbol)
+    fluctuator_time_choice = function (integrator)
+        control = getproperty(integrator.p.control, name)
+        next_t = integrator.t + control.next_τ
+        if next_t > integrator.sol.prob.tspan[2]
+            return nothing
+        else
+            return next_t
+        end
+    end
+
+    fluctuator_affect! = function (integrator)
+        control = getproperty(integrator.p.control, name)
+        noise_value = Array(control())
+        for c in full_cache(integrator)
+            setfield!(c, control.sym, noise_value)
+        end
+        next_state!(control)
+        u_modified!(integrator, false)
+    end
+
+    IterativeCallback(fluctuator_time_choice, fluctuator_affect!)
+end
+
+
+function next_state!(f::FluctuatorDEControl)
+    next_τ, next_idx = findmin(rand(f.dist, size(f.b0, 2)))
+    f.next_τ = next_τ
+    f.next_idx = next_idx
+    f.b0[next_idx] *= -1
+    nothing
+end
+
+
+function DEFAULT_FLUCTUATOR_DECONTROL_PROB_FUNC(prob, i, repeat)
+    ctrl = prob.p.control
+    reset!(ctrl)
     ODEProblem{true}(prob.f, u0, prob.tspan, prob.p)
 end
 
-
-function fluctuator_affect!(integrator)
-    noise_value = integrator.p.control()
-    for c in full_cache(integrator)
-        c.n .= noise_value
-    end
-    next_state!(integrator.p.control)
-    u_modified!(integrator, false)
-end
-
-
-function fluctuator_time_choice(integrator)
-    next_t = integrator.t + integrator.p.control.next_τ
-    if next_t > integrator.sol.prob.tspan[2]
-        return nothing
-    else
-        return next_t
-    end
-end
 
 
 """
@@ -81,19 +232,23 @@ Defines stochastic system-bath coupling operator
 $(FIELDS)
 """
 struct StochasticNoise <: AbstractOpenSys
-    """system-bath coupling operator"""
+    """System-bath coupling operator"""
     ops::AbstractCouplings
+    """Symbol used for DEDataArray type"""
+    sym
 end
 
 
-function (S::StochasticNoise)(A, u, tf::Real, t)
-    A .+= -1.0im * tf * sum(u.n .* S.ops(t))
+function (S::StochasticNoise)(A, n, tf::Real, t)
+    A .+= -1.0im * tf * sum(n .* S.ops(t))
 end
 
 
-function (S::StochasticNoise)(A, u, tf::UnitTime, t)
-    A .+= -1.0im * sum(u.n .* S.ops(t / tf))
+(S::StochasticNoise)(A, n, tf::UnitTime, t) = S(A, n, 1.0, t / tf)
+
+function (S::StochasticNoise)(A, u::DEDataArray, tf::Real, t)
+    A .+= -1.0im * tf * sum(getfield(u, S.sym) .* S.ops(t))
 end
 
 
-build_stochastic_opensys(coupling) = StochasticNoise(coupling)
+(S::StochasticNoise)(A, u::DEDataArray, tf::UnitTime, t) = S(A, u, 1.0, t / tf)

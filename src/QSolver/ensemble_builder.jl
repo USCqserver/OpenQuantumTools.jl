@@ -2,26 +2,25 @@ function build_ensemble_problem(
     A::Annealing,
     tf,
     type;
-    span_unit = false,
+    dimensionless_time = true,
     output_func = DEFAULT_OUTPUT_FUNC,
-    prob_func = DEFAULT_PROB_FUNC,
     reduction = (u, data, I) -> (append!(u, data), false),
+    de_array_constructor = nothing,
+    additional_field = nothing,
+    initializer =  DEFAULT_INITIALIZER,
     kwargs...
 )
     if type == :stochastic_schrodinger
-        if prob_func == DEFAULT_PROB_FUNC
-            prob_func = DEFAULT_FLUCTUATOR_CONTROL_PROB_FUNC
-        end
-    elseif type == :schrodinger
-        if prob_func == DEFAULT_PROB_FUNC
-            tf_arr = ndims(tf) == 0 ?
-                     error("Default schrodinger ensemble model parallelized for tf array.") :
-                     float.(tf)
-            prob_func = (prob, i, repeat) -> begin
-                p = set_tf(prob.p, tf_arr[i])
-                ODEProblem{true}(prob.f, prob.u0, prob.tspan, p)
-            end
-        end
+        res = build_ensemble_problem_stochastic_schrodinger(
+            A,
+            tf,
+            output_func,
+            reduction;
+            dimensionless_time = dimensionless_time,
+            de_array_constructor = de_array_constructor,
+            fluctuator_de_field = additional_field,
+            initializer = initializer
+        )
     elseif type == :ame_trajectory
         if prob_func == DEFAULT_PROB_FUNC
             prob_func = DEFAULT_AME_TRAJECTORY_PROB_FUNC
@@ -29,16 +28,19 @@ function build_ensemble_problem(
     else
         error("Ensemble problem of type $type is not implemented.")
     end
-    builder = getfield(QuantumAnnealingTools, Symbol("build_ensemble_problem_", type))
-    prob, callback = builder(
-        A,
-        tf,
-        prob_func,
-        output_func,
-        reduction;
-        span_unit = span_unit,
-        kwargs...
-    )
+    # builder = getfield(QuantumAnnealingTools, Symbol("build_ensemble_problem_", type))
+    # prob, callback = builder(
+    #     A,
+    #     tf,
+    #     prob_func,
+    #     output_func,
+    #     reduction;
+    #     dimensionless_time = dimensionless_time,
+    #     de_array_constructor = de_array_constructor,
+    #     fluctuator_de_field = fluctuator_de_field,
+    #     kwargs...
+    # )
+    res
 end
 
 DEFAULT_OUTPUT_FUNC(sol, i) = (sol, false)

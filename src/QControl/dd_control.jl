@@ -5,44 +5,105 @@ Controller object for applying instantaneous pulses during annealing.
 # Fields
 $(FIELDS)
 """
-struct InstPulseControl <: AbstractAnnealingControl
+mutable struct InstPulseControl <: AbstractAnnealingControl
     """Positions of control pulses"""
     tstops
     """Function to generate pulses based on its input"""
     pulse_func
+    """Index for internal state machine"""
+    state::Int
+end
+
+function InstPulseControl(tstops, pulse_func)
+    InstPulseControl(tstops, pulse_func, 1)
+end
+
+get_pulse(C::InstPulseControl) = C.pulse_func(C.state)
+next!(C::InstPulseControl) = C.state += 1
+reset!(C::InstPulseControl) = C.state = 1
+get_controller_name(::InstPulseControl) = :pulse_control
+
+
+function build_callback(control::InstPulseControl, update!)
+    affect! = function (integrator)
+        controller = integrator.p.control
+        pulse = get_pulse(controller)
+        next!(controller)
+        for c in full_cache(integrator)
+            update!(c, pulse)
+        end
+    end
+    PresetTimeCallback(control.tstops, affect!)
 end
 
 
-(C::InstPulseControl)(state::Int) = C.pulse_func(state)
-reset!(C::InstPulseControl) = nothing
-QTBase.need_change_time_scale(::InstPulseControl) = false
+function build_callback(
+    control::InstPulseControl,
+    controller_name::Symbol,
+    update!,
+)
+    affect! = function (integrator)
+        controller = getproperty(integrator.p.control, controller_name)
+        pulse = get_pulse(controller)
+        next!(controller)
+        for c in full_cache(integrator)
+            update!(c, pulse)
+        end
+    end
+    PresetTimeCallback(control.tstops, affect!)
+end
 
 
 """
-    function unitary_dd_affect!(integrator)
+$(TYPEDEF)
+Controller object for applying instantaneous pulses during annealing. This is to use with the `DEDataArray` structure to record the `state` information.
 
-Callback function for `InstPulseControl`. It is used by unitary solver.
+# Fields
+$(FIELDS)
 """
-function unitary_dd_affect!(integrator)
-    pulse = integrator.p.control(integrator.u.state)
-    for c in full_cache(integrator)
-        c.x = pulse_on_unitary(pulse, c)
-        c.state += 1
+struct InstDEPulseControl <: DEDataControl
+    """Positions of control pulses"""
+    tstops
+    """Function to generate pulses based on its input"""
+    pulse_func
+    """Symbol used in DEDataArray"""
+    sym::Symbol
+end
+
+get_pulse(control::InstDEPulseControl, state::Int) = control.pulse_func(state)
+reset!(::InstDEPulseControl) = nothing
+get_controller_name(::InstDEPulseControl) = :pulse_control
+
+
+function build_callback(control::InstDEPulseControl, update!)
+    affect! = function (integrator)
+        controller = integrator.p.control
+        state_sym = controller.sym
+        state = getproperty(integrator.u, state_sym)
+        pulse = get_pulse(controller, state)
+        for c in full_cache(integrator)
+            update!(c.x, pulse)
+            setproperty!(c, state_sym, state+1)
+        end
     end
+    PresetTimeCallback(control.tstops, affect!)
 end
 
 
-@inline pulse_on_unitary(p, c::DEDataVector) = Matrix{eltype(p)}(I, size(p)) ⊗ p * c.x
-@inline pulse_on_unitary(p, c::DEDataMatrix) = p * c.x
-
-
-function density_matrix_dd_affect!(integrator)
-    pulse = integrator.p.control(integrator.u.state)
-    for c in full_cache(integrator)
-        c.x = pulse_on_density_matrix(pulse, c)
-        c.state += 1
+function build_callback(
+    control::InstDEPulseControl,
+    controller_name::Symbol,
+    update!,
+)
+    affect! = function (integrator)
+        controller = getproperty(integrator.p.control, controller_name)
+        state_sym = controller.sym
+        state = getproperty(integrator.u, state_sym)
+        pulse = get_pulse(controller, state)
+        for c in full_cache(integrator)
+            update!(c, pulse)
+            setproperty!(c, state_sym, state+1)
+        end
     end
+    PresetTimeCallback(control.tstops, affect!)
 end
-
-@inline pulse_on_density_matrix(p, c::DEDataVector) = conj(p) ⊗ p * c.x
-@inline pulse_on_density_matrix(p, c::DEDataMatrix) = p * c.x * p'

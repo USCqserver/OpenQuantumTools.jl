@@ -4,11 +4,11 @@ using SafeTestsets
     @time @safetestset "Bath" begin
         include("bath.jl")
     end
-    @time @safetestset "Adiabatic frame Hamiltonian pausing" begin
-        include("QSolvers/adiabatic_hamil_pausing.jl")
-    end
-    @time @safetestset "Control protocols" begin
-        include("QControl/control_protocols.jl")
+#    @time @safetestset "Adiabatic frame Hamiltonian pausing" begin
+#        include("QSolvers/adiabatic_hamil_pausing.jl")
+#    end
+    @time @safetestset "Control datatypes" begin
+         include("QControl/control_datatype.jl")
     end
     @time @safetestset "Solver utilies" begin
         include("QSolvers/solver_util.jl")
@@ -16,9 +16,9 @@ using SafeTestsets
     @time @safetestset "Schrodinger test" begin
         include("QSolvers/schrodinger_solver_test.jl")
     end
-    @time @safetestset "Stochastic Schrodinger test" begin
-        include("QSolvers/stochastic_schrodinger.jl")
-    end
+    # @time @safetestset "Stochastic Schrodinger test" begin
+    #     include("QSolvers/stochastic_schrodinger.jl")
+    # end
     @time @safetestset "Von Neumann test" begin
         include("QSolvers/von_neumann_solver.jl")
     end
