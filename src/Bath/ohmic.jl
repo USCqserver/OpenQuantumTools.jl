@@ -154,3 +154,9 @@ function davies_spectrum(bath::OhmicBath, ω_range, lambshift)
         return (ω) -> γ(ω, bath), (ω) -> 0.0
     end
 end
+
+
+function build_davies(coupling, bath::OhmicBath, ω_range, lambshift)
+    γ_loc, S_loc = davies_spectrum(bath, ω_range, lambshift)
+    DaviesGenerator(coupling, γ_loc, S_loc)
+end
