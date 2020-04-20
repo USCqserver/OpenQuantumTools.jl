@@ -81,3 +81,12 @@ ODEParams(H, tf::UnitTime; opensys = nothing, control = nothing) =
 
 ODEParams(tf; opensys = nothing, control = nothing) =
     ODEParams(nothing, tf, opensys, control)
+
+
+function build_prob_func(initializer)
+    prob_func = function (prob, i, repeat)
+        ctrl = prob.p.control
+        reset!(ctrl, prob.u0, initializer)
+        ODEProblem{true}(prob.f, prob.u0, prob.tspan, prob.p)
+    end
+end

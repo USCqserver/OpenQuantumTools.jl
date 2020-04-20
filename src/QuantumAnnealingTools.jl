@@ -46,8 +46,8 @@ include("Bath/util.jl")
 
 include("interaction.jl")
 
+include("QControl/ame_trajectory_control.jl")
 include("QControl/callback_lib.jl")
-#include("QControl/control_params_datatype.jl")
 include("QControl/control_datatype.jl")
 include("QControl/dd_control.jl")
 include("QControl/onef_ode_control.jl")

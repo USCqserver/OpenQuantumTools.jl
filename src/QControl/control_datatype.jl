@@ -92,3 +92,13 @@ Base.getproperty(x::ControlSet, sym::Symbol) = getfield(getfield(x, :ctrs), sym)
 Base.length(c::ControlSet) = length(getfield(c, :ctrs))
 Base.iterate(c::ControlSet, state = 1) = Base.iterate(getfield(c, :ctrs), state)
 Base.keys(c::ControlSet) = Base.keys(getfield(c, :ctrs))
+
+reset!(ctrs::ControlSet, u0, initializer) =
+    [reset!(c, u0, initializer) for c in ctrs]
+
+has_fluctuator_control(c::ControlSet) =
+    haskey(getfield(c, :ctrs), :fluctuator_control)
+has_ame_trajectory_control(c::ControlSet) =
+    haskey(getfield(c, :ctrs), :ame_trajectory_control)
+need_de_array(c::ControlSet, sym::Symbol) =
+    typeof(getproperty(c, sym)) <: DEDataControl

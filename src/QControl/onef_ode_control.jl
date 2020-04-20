@@ -1,7 +1,7 @@
 """
 $(TYPEDEF)
 
-Defines a single fluctuator ensemble controller
+Defines a fluctuator ensemble controller
 
 # Fields
 
@@ -107,7 +107,7 @@ end
 """
 $(TYPEDEF)
 
-Defines a single fluctuator ensemble controller
+Defines a fluctuator ensemble controller using DEDataArray
 
 # Fields
 
@@ -212,14 +212,6 @@ function next_state!(f::FluctuatorDEControl)
     f.b0[next_idx] *= -1
     nothing
 end
-
-
-function DEFAULT_FLUCTUATOR_DECONTROL_PROB_FUNC(prob, i, repeat)
-    ctrl = prob.p.control
-    reset!(ctrl)
-    ODEProblem{true}(prob.f, u0, prob.tspan, prob.p)
-end
-
 
 
 """

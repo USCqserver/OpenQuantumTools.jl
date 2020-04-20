@@ -21,6 +21,8 @@ end
 get_pulse(C::InstPulseControl) = C.pulse_func(C.state)
 next!(C::InstPulseControl) = C.state += 1
 reset!(C::InstPulseControl) = C.state = 1
+reset!(C::InstPulseControl, u0, initializer) = C.state = 1
+
 get_controller_name(::InstPulseControl) = :pulse_control
 
 
@@ -72,6 +74,7 @@ end
 
 get_pulse(control::InstDEPulseControl, state::Int) = control.pulse_func(state)
 reset!(::InstDEPulseControl) = nothing
+reset!(ctr::InstDEPulseControl, u0, initializer) = setfield!(u0, ctr.sym, 1)
 get_controller_name(::InstDEPulseControl) = :pulse_control
 
 
