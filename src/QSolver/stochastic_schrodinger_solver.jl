@@ -97,22 +97,28 @@ function build_ensemble_problem_stochastic_schrodinger(
         reduction = reduction,
     )
 
-    ensemble_prob, callback
+    ensemble_prob, callback, tstops
 end
 
 
 function stochastic_schrodinger_build_callback(control::ControlSet)
-    callbacks = [stochastic_schrodinger_build_callback(v, k) for (k, v) in zip(keys(control), control)]
+    callbacks = [
+        stochastic_schrodinger_build_callback(v, k)
+        for (k, v) in zip(keys(control), control)
+    ]
     CallbackSet(callbacks...)
 end
 
 
-stochastic_schrodinger_build_callback(control::Union{FluctuatorControl, FluctuatorDEControl}) =
-    build_callback(control)
+stochastic_schrodinger_build_callback(
+    control::Union{FluctuatorControl,FluctuatorDEControl},
+) = build_callback(control)
 
 
-stochastic_schrodinger_build_callback(control::Union{FluctuatorControl, FluctuatorDEControl}, sym::Symbol) =
-    build_callback(control, sym)
+stochastic_schrodinger_build_callback(
+    control::Union{FluctuatorControl,FluctuatorDEControl},
+    sym::Symbol,
+) = build_callback(control, sym)
 
 
 stochastic_schrodinger_build_callback(
@@ -122,7 +128,7 @@ stochastic_schrodinger_build_callback(
 
 
 function stochastic_schrodinger_build_ode_function(H, control)
-    update_func = build_update_func(control)
+    update_func = build_update_func_fluctuator(control)
     cache = get_cache(H)
     diff_op = DiffEqArrayOperator(cache, update_func = update_func)
     jac_cache = similar(cache)
@@ -130,7 +136,7 @@ function stochastic_schrodinger_build_ode_function(H, control)
     ff = ODEFunction(diff_op; jac_prototype = jac_op)
 end
 
-function build_update_func(::FluctuatorControl)
+function build_update_func_fluctuator(::FluctuatorControl)
     update_func = function (A, u, p, t)
         update_cache!(A, p.H, p.tf, t)
         p.opensys(A, p.control(), p.tf, t)
@@ -138,7 +144,7 @@ function build_update_func(::FluctuatorControl)
 end
 
 
-function build_update_func(::FluctuatorDEControl)
+function build_update_func_fluctuator(::FluctuatorDEControl)
     update_func = function (A, u, p, t)
         update_cache!(A, p.H, p.tf, t)
         p.opensys(A, u, p.tf, t)
@@ -146,7 +152,7 @@ function build_update_func(::FluctuatorDEControl)
 end
 
 
-function build_update_func(control::ControlSet)
+function build_update_func_fluctuator(control::ControlSet)
     f_control = control.fluctuator_control
     if typeof(f_control) <: FluctuatorControl
         update_func = function (A, u, p, t)
@@ -164,7 +170,10 @@ function build_update_func(control::ControlSet)
 end
 
 
-function build_stochastic_prob_func(::Union{FluctuatorControl, FluctuatorDEControl}, initializer)
+function build_stochastic_prob_func(
+    ::Union{FluctuatorControl,FluctuatorDEControl},
+    initializer,
+)
     prob_func = function (prob, i, repeat)
         ctrl = prob.p.control
         reset!(ctrl, prob.u0, initializer)

@@ -27,7 +27,7 @@ An ensemble of random telegraph noise.
 
 $(FIELDS)
 """
-struct EnsembleFluctuator{T}
+struct EnsembleFluctuator{T} <:AbstractBath
     """A list of RTNs"""
     f::Vector{T}
 end
