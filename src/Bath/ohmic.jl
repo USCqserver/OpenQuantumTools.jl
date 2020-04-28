@@ -118,15 +118,29 @@ function interpolate_spectral_density(
 end
 
 
-function create_redfield(coupling, unitary, tf::Real, bath::OhmicBath)
+function create_redfield(
+    coupling,
+    unitary,
+    tf::Real,
+    bath::OhmicBath;
+    atol = 1e-8,
+    rtol = 1e-6,
+)
     cfun(s) = correlation(s * tf, bath)
-    Redfield(coupling, unitary, cfun)
+    Redfield(coupling, unitary, cfun, atol = atol, rtol = rtol)
 end
 
 
-function create_redfield(coupling, unitary, tf::UnitTime, bath::OhmicBath)
+function create_redfield(
+    coupling,
+    unitary,
+    tf::UnitTime,
+    bath::OhmicBath;
+    atol = 1e-8,
+    rtol = 1e-6,
+)
     cfun(t) = correlation(t, bath)
-    Redfield(coupling, unitary, cfun)
+    Redfield(coupling, unitary, cfun, atol = atol, rtol = rtol)
 end
 
 
