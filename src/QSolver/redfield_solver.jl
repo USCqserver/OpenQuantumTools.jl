@@ -7,6 +7,9 @@
         dimensionless_time::Bool = true,
         tstops = Float64[],
         positivity_check::Bool = false,
+        de_array_constructor = nothing,
+        int_atol = 1e-8,
+        int_rtol = 1e-6,
         kwargs...,
     )
 
@@ -34,6 +37,8 @@ function solve_redfield(
     tstops = Float64[],
     positivity_check::Bool = false,
     de_array_constructor = nothing,
+    int_atol = 1e-8,
+    int_rtol = 1e-6,
     kwargs...,
 )
     tf, tstops = preprocessing_time(tf, tstops, A.tstops, dimensionless_time)
@@ -47,9 +52,22 @@ function solve_redfield(
     #coupling = adjust_coupling_with_control(A.coupling, A.control)
     ff = redfield_construct_ode_function(A.H, vectorize)
     if A.interactions == nothing
-        opensys = create_redfield(A.coupling, unitary, tf, A.bath)
+        opensys = create_redfield(
+            A.coupling,
+            unitary,
+            tf,
+            A.bath,
+            atol = int_atol,
+            rtol = int_rtol,
+        )
     else
-        opensys = create_redfield(A.interactions, unitary, tf)
+        opensys = create_redfield(
+            A.interactions,
+            unitary,
+            tf,
+            atol = int_atol,
+            rtol = int_rtol,
+        )
     end
     reset!(A.control)
     callback = redfield_build_callback(A.control)

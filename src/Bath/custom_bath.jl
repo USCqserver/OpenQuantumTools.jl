@@ -4,7 +4,7 @@ mutable struct CustomBath <: AbstractBath
 end
 
 
-function CustomBath(;correlation=nothing, spectrum=nothing)
+function CustomBath(; correlation = nothing, spectrum = nothing)
     CustomBath(correlation, spectrum)
 end
 
@@ -14,19 +14,33 @@ function correlation(τ, bath::CustomBath)
 end
 
 
-function create_redfield(coupling, unitary, tf::Real, bath::CustomBath)
+function create_redfield(
+    coupling,
+    unitary,
+    tf::Real,
+    bath::CustomBath;
+    atol = 1e-8,
+    rtol = 1e-6,
+)
     if bath.cfun == nothing
         error("Correlation function is not defined for the bath.")
     end
     cfun(s) = bath.cfun(s * tf)
-    Redfield(coupling, unitary, cfun)
+    Redfield(coupling, unitary, cfun, atol = atol, rtol = rtol)
 end
 
 
-function create_redfield(coupling, unitary, tf::UnitTime, bath::CustomBath)
+function create_redfield(
+    coupling,
+    unitary,
+    tf::UnitTime,
+    bath::CustomBath;
+    atol = 1e-8,
+    rtol = 1e-6,
+)
     if bath.cfun == nothing
         error("Correlation function is not defined for the bath.")
     end
     cfun(t) = bath.cfun(t)
-    Redfield(coupling, unitary, cfun)
+    Redfield(coupling, unitary, cfun, atol = atol, rtol = rtol)
 end
