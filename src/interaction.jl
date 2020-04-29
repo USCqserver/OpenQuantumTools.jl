@@ -3,25 +3,49 @@ struct Interaction
     bath::AbstractBath
 end
 
-function create_redfield(inter::Interaction, unitary, tf)
-    create_redfield(inter.coupling, unitary, tf, inter.bath)
+
+function create_redfield(
+    inter::Interaction,
+    unitary,
+    tf;
+    atol = 1e-8,
+    rtol = 1e-6,
+)
+    create_redfield(
+        inter.coupling,
+        unitary,
+        tf,
+        inter.bath,
+        atol = atol,
+        rtol = rtol,
+    )
 end
+
 
 function build_davies(inter::Interaction, unitary, tf)
     build_davies(inter.coupling, inter.bath, ω_hint, lambshift)
 end
 
+
 struct InteractionSet{T<:Tuple}
     interactions::T
 end
+
 
 function InteractionSet(inters::Interaction...)
     InteractionSet(inters)
 end
 
-function create_redfield(inter::InteractionSet, unitary, tf)
+
+function create_redfield(
+    inter::InteractionSet,
+    unitary,
+    tf;
+    atol = 1e-8,
+    rtol = 1e-6,
+)
     RedfieldSet([
-        create_redfield(i.coupling, unitary, tf, i.bath)
+        create_redfield(i, unitary, tf, atol = atol, rtol = rtol)
         for i in inter.interactions
     ]...)
 end
