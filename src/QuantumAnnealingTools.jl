@@ -27,7 +27,7 @@ import DiffEqBase: DEDataVector,
                    add_tstop!,
                    CallbackSet,
                    terminate!
-import DiffEqCallbacks: FunctionCallingCallback
+import DiffEqCallbacks: FunctionCallingCallback, ManifoldProjection
 import DataStructures: compare
 
 

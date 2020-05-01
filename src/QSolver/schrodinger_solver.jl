@@ -2,6 +2,7 @@ function solve_schrodinger(
     A::Annealing,
     tf::Real;
     dimensionless_time = true,
+    manifold_projection = false,
     tstops = Float64[],
     de_array_constructor = nothing,
     kwargs...,
@@ -12,6 +13,14 @@ function solve_schrodinger(
     reset!(A.control)
     callback = schrodinger_build_callback(A.control)
     p = ODEParams(A.H, tf; control = A.control)
+
+    if manifold_projection
+        g = function g(resid,u)
+            resid = norm(u) - 1
+        end
+        cb = ManifoldProjection(g)
+        callback = callback == nothing ? cb : CallbackSet(callback, cb)
+    end
 
     cache = get_cache(A.H)
     diff_op = DiffEqArrayOperator(
