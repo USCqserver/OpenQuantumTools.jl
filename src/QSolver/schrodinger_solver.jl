@@ -15,10 +15,7 @@ function solve_schrodinger(
     p = ODEParams(A.H, tf; control = A.control)
 
     if manifold_projection
-        g = function g(resid,u)
-            resid = norm(u) - 1
-        end
-        cb = ManifoldProjection(g)
+        cb = ManifoldRetraction(Sphere())
         callback = callback == nothing ? cb : CallbackSet(callback, cb)
     end
 
