@@ -29,6 +29,7 @@ import DiffEqBase: DEDataVector,
                    terminate!
 import DiffEqCallbacks: FunctionCallingCallback
 import DataStructures: compare
+import NLSolversBase
 
 
 @reexport using LinearAlgebra
@@ -51,6 +52,7 @@ include("QControl/callback_lib.jl")
 include("QControl/control_datatype.jl")
 include("QControl/dd_control.jl")
 include("QControl/onef_ode_control.jl")
+include("QControl/manifold_projection.jl")
 
 include("QSolver/util.jl")
 include("QSolver/schrodinger_solver.jl")
