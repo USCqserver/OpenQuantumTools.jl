@@ -7,9 +7,14 @@ function solve_schrodinger(
     de_array_constructor = nothing,
     kwargs...,
 )
-    tf, tstops = preprocessing_time(tf, tstops, A.tstops, dimensionless_time)
-    u0 = build_u0(A.u0, :v, de_array_constructor = de_array_constructor)
-    check_de_data_error(u0, A.control, de_array_constructor)
+    tf, u0, tstops = __init(
+        A,
+        tf,
+        dimensionless_time,
+        :v,
+        tstops,
+        de_array_constructor,
+    )
     reset!(A.control)
     callback = schrodinger_build_callback(A.control)
     p = ODEParams(A.H, tf; control = A.control)
@@ -45,7 +50,8 @@ schrodinger_build_callback(control) = nothing
 schrodinger_build_callback(
     control::Union{InstPulseControl,InstDEPulseControl},
 ) = build_callback(control, (c, pulse) -> c .= pulse * c)
-schrodinger_build_callback(control::ControlSet) = error("Control set is not currently supported for Schrodinger solver.")
+schrodinger_build_callback(control::ControlSet) =
+    error("Control set is not currently supported for Schrodinger solver.")
 
 
 # function schrodinger_construct_ode_function(

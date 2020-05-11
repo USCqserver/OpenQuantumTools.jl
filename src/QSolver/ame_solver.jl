@@ -40,14 +40,16 @@ function solve_ame(
     de_array_constructor = nothing,
     kwargs...,
 )
-    tf, tstops = preprocessing_time(tf, tstops, A.tstops, dimensionless_time)
-    u0 = build_u0(
-        A.u0,
+    tf, u0, tstops = __init(
+        A,
+        tf,
+        dimensionless_time,
         :m,
+        tstops,
+        de_array_constructor,
         vectorize = vectorize,
-        de_array_constructor = de_array_constructor,
     )
-    check_de_data_error(u0, A.control, de_array_constructor)
+
     if A.interactions == nothing
         davies = build_davies(A.coupling, A.bath, ω_hint, lambshift)
     else
@@ -133,8 +135,8 @@ function build_ensemble_problem_ame_trajectory(
     tstops = Float64[],
     kwargs...,
 )
-    tf, tstops = preprocessing_time(tf, tstops, A.tstops, dimensionless_time)
-    u0 = build_u0(A.u0, :v, de_array_constructor = de_array_constructor)
+    # Put field names for ame_trajectory `r` and fluctuator `n` into `additional_symbol`
+    # TODO: Do we really need to use keyword argument for those field names
     additional_symbol = []
     if ame_trajectory_de_field != nothing
         push!(additional_symbol, ame_trajectory_de_field)
@@ -142,12 +144,17 @@ function build_ensemble_problem_ame_trajectory(
     if fluctuator_de_field != nothing
         push!(additional_symbol, fluctuator_de_field)
     end
-    check_de_data_error(
-        u0,
-        A.control,
+
+    tf, u0, tstops = __init(
+        A,
+        tf,
+        dimensionless_time,
+        :m,
+        tstops,
         de_array_constructor,
-        additional_symbol = additional_symbol,
+        needed_symbol = additional_symbol,
     )
+
     if A.interactions == nothing
         davies = build_davies(A.coupling, A.bath, ω_hint, lambshift)
         op = AMETrajectoryOperator(A.H, davies, lvl)

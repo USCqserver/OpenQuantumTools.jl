@@ -41,14 +41,15 @@ function solve_redfield(
     int_rtol = 1e-6,
     kwargs...,
 )
-    tf, tstops = preprocessing_time(tf, tstops, A.tstops, dimensionless_time)
-    u0 = build_u0(
-        A.u0,
+    tf, u0, tstops = __init(
+        A,
+        tf,
+        dimensionless_time,
         :m,
+        tstops,
+        de_array_constructor,
         vectorize = vectorize,
-        de_array_constructor = de_array_constructor,
     )
-    check_de_data_error(u0, A.control, de_array_constructor)
     #coupling = adjust_coupling_with_control(A.coupling, A.control)
     ff = redfield_construct_ode_function(A.H, vectorize)
     if A.interactions == nothing

@@ -15,17 +15,19 @@ p_control = InstPulseControl([0.5], (x) -> σx)
 p_de_control = InstDEPulseControl([0.5], (x) -> σx, :state)
 # check_de_data_error test
 u0 = PauliVec[1][1]
-@test QuantumAnnealingTools.check_de_data_error(u0, p_control, nothing) ==
+@test QuantumAnnealingTools.check_de_data_error(u0, p_control, nothing, []) ==
       nothing
 @test_throws ErrorException QuantumAnnealingTools.check_de_data_error(
     u0,
     p_de_control,
     nothing,
+    [],
 )
 @test_throws ErrorException QuantumAnnealingTools.check_de_data_error(
     u0,
     p_de_control,
     de_wrapper,
+    [],
 )
 # test reset! method
 p_control.state = 2

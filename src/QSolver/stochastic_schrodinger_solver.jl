@@ -8,16 +8,16 @@ function solve_stochastic_schrodinger(
     initializer = DEFAULT_INITIALIZER,
     kwargs...,
 )
-    tf, tstops = preprocessing_time(tf, tstops, A.tstops, dimensionless_time)
-    u0 = build_u0(A.u0, :v, de_array_constructor = de_array_constructor)
-    additional_symbol =
-        fluctuator_de_field == nothing ? [] : [fluctuator_de_field]
-    check_de_data_error(
-        u0,
-        A.control,
+    tf, u0, tstops = __init(
+        A,
+        tf,
+        dimensionless_time,
+        :v,
+        tstops,
         de_array_constructor,
-        additional_symbol = additional_symbol,
+        needed_symbol = nothing ? [] : [fluctuator_de_field],
     )
+
     # build control object from bath; a prototype implementation
     if A.interactions == nothing
         control = FluctuatorControl(
