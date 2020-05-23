@@ -2,19 +2,22 @@ function solve_unitary(
     A::Annealing,
     tf::Real;
     dimensionless_time = true,
-    vectorize = false,
+    vectorize::Bool = false,
     tstops = Float64[],
     de_array_constructor = nothing,
     kwargs...,
 )
-    tf, tstops = preprocessing_time(tf, tstops, A.tstops, dimensionless_time)
-    u0 = build_u0(
+    tf, u0, tstops = __init(
         Matrix{ComplexF64}(I, size(A.H)),
+        tf,
+        dimensionless_time,
         :m,
-        de_array_constructor = de_array_constructor,
+        tstops,
+        A.tstops,
+        A.control,
+        de_array_constructor,
         vectorize = vectorize,
     )
-    check_de_data_error(u0, A.control, de_array_constructor)
     reset!(A.control)
     callback = unitary_build_callback(A.control)
     p = ODEParams(A.H, tf; control = A.control)

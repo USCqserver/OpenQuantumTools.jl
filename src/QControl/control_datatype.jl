@@ -5,36 +5,6 @@ require_de_data(::DEDataControl) = true
 require_de_data(::AbstractAnnealingControl) = false
 require_de_data(::Nothing) = false
 
-function check_de_data_error(
-    u0,
-    control,
-    de_data_constructor;
-    additional_symbol = [],
-)
-    if require_de_data(control)
-        if de_data_constructor == nothing
-            error("Need to specify `de_array_constructor` for controller using `DEDataArray`.")
-        else
-            symbol_list = [:x]
-            if !isempty(additional_symbol)
-                symbol_list = vcat(symbol_list, additional_symbol)
-            end
-            controller_symbols = get_symbol(control)
-            if isa(controller_symbols, Symbol)
-                push!(symbol_list, controller_symbols)
-            else
-                symbol_list = vcat(symbol_list, controller_symbols)
-            end
-            for sym in symbol_list
-                if !hasproperty(u0, sym)
-                    error("No symbol :$controller_symbols defined in the DEDataArray.")
-                end
-            end
-        end
-    end
-    nothing
-end
-
 
 (h::DenseHamiltonian)(du::DEDataArray, u::DEDataArray, tf, t) =
     (h::DenseHamiltonian)(du.x, u.x, tf, t)

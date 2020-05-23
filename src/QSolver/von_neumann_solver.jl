@@ -2,19 +2,20 @@ function solve_von_neumann(
     A::Annealing,
     tf::Real;
     dimensionless_time = true,
-    vectorize = false,
+    vectorize::Bool = false,
     tstops = Float64[],
     de_array_constructor = nothing,
     kwargs...,
 )
-    tf, tstops = preprocessing_time(tf, tstops, A.tstops, dimensionless_time)
-    u0 = build_u0(
-        A.u0,
+    tf, u0, tstops = __init(
+        A,
+        tf,
+        dimensionless_time,
         :m,
+        tstops,
+        de_array_constructor,
         vectorize = vectorize,
-        de_array_constructor = de_array_constructor,
     )
-    check_de_data_error(u0, A.control, de_array_constructor)
     reset!(A.control)
     callback = von_neumann_build_callback(A.control)
     ff = von_neumann_construct_ode_function(A.H, vectorize)
@@ -35,10 +36,7 @@ von_neumann_build_callback(
 ) = build_callback(control, pulse_on_density!)
 
 
-function von_neumann_construct_ode_function(
-    H,
-    vectorize::Bool,
-)
+function von_neumann_construct_ode_function(H, vectorize::Bool)
     cache = get_cache(H, vectorize)
     if vectorize == false
         ff = ODEFunction{true}(von_f; jac = von_jac)
