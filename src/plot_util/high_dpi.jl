@@ -4,7 +4,7 @@ const high_dpi_config = [
     Expr(:kw, :dpi, 600),
     Expr(:kw, :linewidth, 4),
     Expr(:kw, :markersize, 8),
-    Expr(:kw, :size, (970, 600)),
+    Expr(:kw, :size, (900, 600)),
     Expr(:kw, :tickfont, tick_high_dpi_font_expr),
     Expr(:kw, :legendfont, high_dpi_font_expr),
     Expr(:kw, :guidefont, high_dpi_font_expr),
