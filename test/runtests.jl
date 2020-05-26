@@ -4,9 +4,6 @@ using SafeTestsets
     @time @safetestset "Bath" begin
         include("bath.jl")
     end
-#    @time @safetestset "Adiabatic frame Hamiltonian pausing" begin
-#        include("QSolvers/adiabatic_hamil_pausing.jl")
-#    end
     @time @safetestset "Control datatypes" begin
          include("QControl/control_datatype.jl")
     end
@@ -24,6 +21,9 @@ using SafeTestsets
     end
     @time @safetestset "Unitary test" begin
         include("QSolvers/unitary_solver_test.jl")
+    end
+    @time @safetestset "AME test" begin
+        include("QSolvers/ame_solver_test.jl")
     end
     @time @safetestset "Redfield test" begin
         include("QSolvers/redfield_solver_test.jl")
