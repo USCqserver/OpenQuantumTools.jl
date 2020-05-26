@@ -120,40 +120,6 @@ scaling_tspan(tf::Real, tspan) = tspan
 scaling_tspan(tf::UnitTime, tspan) = (tf * tspan[1], tf * tspan[2])
 
 
-"""
-$(TYPEDEF)
-Defines a complete set of ODE parameters, which includes Hamiltonian, total annealing time, open system and control objects.
-# Fields
-$(FIELDS)
-"""
-struct ODEParams{T<:Union{AbstractFloat,UnitTime}}
-    """Hamiltonian"""
-    H
-    """Total annealing time"""
-    tf::T
-    """Open system object"""
-    opensys
-    """Annealing control object"""
-    control
-end
-
-
-function ODEParams(
-    H,
-    tf::T;
-    opensys = nothing,
-    control = nothing,
-) where {T<:Number}
-    ODEParams(H, float(tf), opensys, control)
-end
-
-ODEParams(H, tf::UnitTime; opensys = nothing, control = nothing) =
-    ODEParams(H, tf, opensys, control)
-
-ODEParams(tf; opensys = nothing, control = nothing) =
-    ODEParams(nothing, tf, opensys, control)
-
-
 function build_prob_func(initializer)
     prob_func = function (prob, i, repeat)
         ctrl = prob.p.control
