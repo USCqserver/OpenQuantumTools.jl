@@ -29,7 +29,7 @@ import DiffEqBase: DEDataVector,
                    terminate!
 import DiffEqCallbacks: FunctionCallingCallback
 import DataStructures: compare
-import NLSolversBase
+#import NLSolversBase
 
 
 @reexport using LinearAlgebra
