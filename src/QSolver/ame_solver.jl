@@ -149,7 +149,7 @@ function build_ensemble_problem_ame_trajectory(
         A,
         tf,
         dimensionless_time,
-        :m,
+        :v,
         tstops,
         de_array_constructor,
         needed_symbol = additional_symbol,
