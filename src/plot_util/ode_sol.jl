@@ -1,11 +1,11 @@
 @recipe function f(sol::ODESolution, H::AbstractHamiltonian, lvl::Integer, s; span_unit=false)
     if span_unit == true
         tf = sol.t[end]
-        xlabel --> "t (ns)"
-        ylabel --> L"P(t)"
+        xguide --> "t (ns)"
+        yguide --> L"P(t)"
     else
-        xlabel --> "s"
-        ylabel --> L"P(s)"
+        xguide --> "s"
+        yguide --> L"P(s)"
         tf = 1.0
     end
     y = []
@@ -32,11 +32,11 @@ end
 @recipe function f(sol::ODESolution, H::AbstractHamiltonian, lvl::Integer; span_unit=false, tol=0.0)
     if span_unit == true
         tf = sol.t[end]
-        xlabel --> "t (ns)"
-        ylabel --> L"P(t)"
+        xguide --> "t (ns)"
+        yguide --> L"P(t)"
     else
-        xlabel --> "s"
-        ylabel --> L"P(s)"
+        xguide --> "s"
+        yguide --> L"P(s)"
         tf = 1.0
     end
     y = []
@@ -61,18 +61,18 @@ end
     lab = ["E_$x" for x in (0:(lvl-1))']
     lab = [latexstring(x) for x in lab]
     label --> lab
-    ylabel --> L"P(s)"
+    yguide --> L"P(s)"
     (sol.t, y)
 end
 
 @recipe function f(sol::ODESolution, H::AbstractHamiltonian, lvl::Vector{T}, s; span_unit=false) where T<:Integer
     if span_unit == true
         tf = sol.t[end]
-        xlabel --> "t (ns)"
-        ylabel --> L"P(t)"
+        xguide --> "t (ns)"
+        yguide --> L"P(t)"
     else
-        xlabel --> "s"
-        ylabel --> L"P(s)"
+        xguide --> "s"
+        yguide --> L"P(s)"
         tf = 1.0
     end
     y = []
@@ -101,11 +101,11 @@ end
 @recipe function f(sol::ODESolution, H::AbstractHamiltonian, lvl::Vector{T}; span_unit=false) where T<: Integer
     if span_unit == true
         tf = sol.t[end]
-        xlabel --> "t (ns)"
-        ylabel --> L"P(t)"
+        xguide --> "t (ns)"
+        yguide --> L"P(t)"
     else
-        xlabel --> "s"
-        ylabel --> L"P(s)"
+        xguide --> "s"
+        yguide --> L"P(s)"
         tf = 1.0
     end
     y = []
@@ -134,11 +134,11 @@ end
 @recipe function f(sol::ODESolution, lvl::Vector{T}; span_unit=false) where T<:Integer
     if span_unit == true
         tf = sol.t[end]
-        xlabel --> "t (ns)"
-        ylabel --> L"P(t)"
+        xguide --> "t (ns)"
+        yguide --> L"P(t)"
     else
-        xlabel --> "s"
-        ylabel --> L"P(s)"
+        xguide --> "s"
+        yguide --> L"P(s)"
         tf = 1.0
     end
     y = []
@@ -163,11 +163,11 @@ end
 @recipe function f(sol::ODESolution, lvl::Vector{T}, s; span_unit=false) where T<:Integer
     if span_unit == true
         tf = sol.t[end]
-        xlabel --> "t (ns)"
-        ylabel --> L"P(t)"
+        xguide --> "t (ns)"
+        yguide --> L"P(t)"
     else
-        xlabel --> "s"
-        ylabel --> L"P(s)"
+        xguide --> "s"
+        yguide --> L"P(s)"
         tf = 1.0
     end
     y = []
@@ -186,6 +186,6 @@ end
     lab = ["E_$x" for x in (lvl .- 1)']
     lab = [latexstring(x) for x in lab]
     label --> lab
-    ylabel --> L"P(s)"
+    yguide --> L"P(s)"
     (sol.t, y)
 end
