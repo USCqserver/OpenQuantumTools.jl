@@ -8,8 +8,8 @@
     lab = ["E_$x" for x in (0:(lvl-1))']
     lab = [latexstring(x) for x in lab]
     label --> lab
-    ylabel --> "GHz"
-    xlabel --> "s"
+    yguide --> L"\mathrm{GHz}"
+    xguide --> L"s"
     legend --> :best
     (s, y)
 end
