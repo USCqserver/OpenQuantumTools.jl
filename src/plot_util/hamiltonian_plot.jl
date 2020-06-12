@@ -1,7 +1,7 @@
-@recipe function f(H::AbstractHamiltonian, s, lvl; tol=1e-8)
+@recipe function f(H::AbstractHamiltonian, s, lvl, eig_init = EIGEN_DEFAULT)
     y = []
     for x in s
-        w ,_ = eigen_decomp(H, x; level=lvl, tol=tol)
+        w, _ = eigen_decomp(H, x; lvl = lvl, eig_init = EIGEN_DEFAULT)
         push!(y, w)
     end
     y = hcat(y...)'
