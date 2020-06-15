@@ -19,8 +19,8 @@ sol = solve_unitary(annealing, tf, alg = Tsit5())
 sol = solve_unitary(annealing, tf, alg = Tsit5(), dimensionless_time = false)
 @test sol(tf) ≈ exp(1.0im * tf * σz) atol = 1e-4 rtol = 1e-4
 sol =
-    solve_unitary(annealing, tf, alg = TRBDF2(), abstol = 1e-10, reltol = 1e-10)
-@test sol(1.0) ≈ exp(1.0im * tf * σz) atol = 1e-4 rtol = 1e-4
+    solve_unitary(annealing, tf, alg = TRBDF2(), vectorize = true, abstol = 1e-10, reltol = 1e-10)
+@test reshape(sol(1.0), 2, 2) ≈ exp(1.0im * tf * σz) atol = 1e-4 rtol = 1e-4
 
 control = InstPulseControl([0.5], (x) -> σx)
 annealing = Annealing(H, u0, control = control)
