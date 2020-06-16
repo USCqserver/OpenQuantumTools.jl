@@ -97,7 +97,7 @@ export HybridOhmicBath,
 
 export EnsembleFluctuator
 
-export info_freq, τ_SB, τ_B
+export info_freq, τ_SB, τ_B, coarse_grain_timescale
 
 export solve_unitary,
        solve_schrodinger,
