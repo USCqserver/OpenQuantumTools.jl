@@ -54,9 +54,7 @@ function γ(ω, params::OhmicBath)
     end
 end
 
-
 spectrum(ω, bath::OhmicBath) = γ(ω, bath)
-
 
 """
     S(w, params::OhmicBath; atol=1e-7)
@@ -76,7 +74,6 @@ function S(w, params::OhmicBath; atol = 1e-7)
     end
     -v / 2 / pi
 end
-
 
 """
     correlation(τ, bath)
@@ -117,8 +114,7 @@ function interpolate_spectral_density(
     (ω) -> γ(ω, params), s_itp
 end
 
-
-function create_redfield(
+function build_redfield(
     coupling,
     unitary,
     tf::Real,
@@ -130,8 +126,7 @@ function create_redfield(
     Redfield(coupling, unitary, cfun, atol = atol, rtol = rtol)
 end
 
-
-function create_redfield(
+function build_redfield(
     coupling,
     unitary,
     tf::UnitTime,
@@ -143,12 +138,10 @@ function create_redfield(
     Redfield(coupling, unitary, cfun, atol = atol, rtol = rtol)
 end
 
-
 function info_freq(bath::OhmicBath)
     println("ωc (GHz): ", bath.ωc / pi / 2)
     println("T (GHz): ", temperature_2_freq(beta_2_temperature(bath.β)))
 end
-
 
 """
     function davies_spectrum(bath::OhmicBath, ω_range, lambshift)
@@ -168,7 +161,6 @@ function davies_spectrum(bath::OhmicBath, ω_range, lambshift)
         return (ω) -> γ(ω, bath), (ω) -> 0.0
     end
 end
-
 
 function build_davies(coupling, bath::OhmicBath, ω_range, lambshift)
     γ_loc, S_loc = davies_spectrum(bath, ω_range, lambshift)
