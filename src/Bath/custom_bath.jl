@@ -1,20 +1,23 @@
+"""
+$(TYPEDEF)
+
+An custum bath object defined by the two-point correlation function and the corresponding spectrum.
+
+$(FIELDS)
+"""
 mutable struct CustomBath <: AbstractBath
-    cfun
-    γ
+    """correlation function"""
+    cfun::Any
+    """spectrum"""
+    γ::Any
 end
 
-
-function CustomBath(; correlation = nothing, spectrum = nothing)
+CustomBath(; correlation = nothing, spectrum = nothing) =
     CustomBath(correlation, spectrum)
-end
 
+correlation(τ, bath::CustomBath) = bath.cfun(τ)
 
-function correlation(τ, bath::CustomBath)
-    bath.cfun(τ)
-end
-
-
-function create_redfield(
+function build_redfield(
     coupling,
     unitary,
     tf::Real,
@@ -30,7 +33,7 @@ function create_redfield(
 end
 
 
-function create_redfield(
+function build_redfield(
     coupling,
     unitary,
     tf::UnitTime,
