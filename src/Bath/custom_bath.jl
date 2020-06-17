@@ -1,20 +1,22 @@
+"""
+$(TYPEDEF)
+
+An custum bath object defined by the two-point correlation function and the corresponding spectrum.
+
+$(FIELDS)
+"""
 mutable struct CustomBath <: AbstractBath
-    cfun
-    γ
+    """correlation function"""
+    cfun::Any
+    """spectrum"""
+    γ::Any
 end
 
-
-function CustomBath(; correlation = nothing, spectrum = nothing)
+CustomBath(; correlation = nothing, spectrum = nothing) =
     CustomBath(correlation, spectrum)
-end
+correlation(τ, bath::CustomBath) = bath.cfun(τ)
 
-
-function correlation(τ, bath::CustomBath)
-    bath.cfun(τ)
-end
-
-
-function create_redfield(
+function build_redfield(
     coupling,
     unitary,
     tf::Real,
@@ -29,8 +31,7 @@ function create_redfield(
     Redfield(coupling, unitary, cfun, atol = atol, rtol = rtol)
 end
 
-
-function create_redfield(
+function build_redfield(
     coupling,
     unitary,
     tf::UnitTime,
@@ -43,4 +44,21 @@ function create_redfield(
     end
     cfun(t) = bath.cfun(t)
     Redfield(coupling, unitary, cfun, atol = atol, rtol = rtol)
+end
+
+function build_davies(coupling, bath::CustomBath, ω_range, lambshift)
+    if bath.γ == nothing
+        error("Noise spectrum is not defined for the bath.")
+    end
+    if lambshift == true
+        if isempty(ω_range)
+            S_loc = (ω) -> lambshift(ω, bath.γ)
+        else
+            s_list = [S(ω, bath) for ω in ω_range]
+            S_loc = construct_interpolations(ω_range, s_list)
+        end
+    else
+        S_loc = (ω) -> 0.0
+    end
+    DaviesGenerator(coupling, bath.γ, S_loc)
 end

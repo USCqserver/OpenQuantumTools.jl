@@ -19,13 +19,15 @@ Solve the time dependent Redfield equation for `Annealing` defined by `A` with t
 # Arguments
 - `A::Annealing`: the Annealing object.
 - `tf::Real`: the total annealing time.
-- `unitary` : precalculated unitary of close system evolution.
+- `unitary`: precalculated unitary of close system evolution.
 - `vectorize::Bool = false`: whether to vectorize the density matrix.
 - `dimensionless_time::Bool=true`: flag variable which, when set to true, informs the solver to work with dimensionless time.
-- `tstops` : extra times that the timestepping algorithm must step to.
+- `tstops`: extra times that the timestepping algorithm must step to.
 - `positivity_check::Bool = false`: whether to check the positivity of density matrix at each time step.
 - `de_array_constructor = nothing`: the converting function if using `DEDataArray` type.
-- `kwargs` : other keyword arguments supported by DifferentialEquations.jl.
+- `int_atol = 1e-8`: the absolute error tolerance for integration.
+- `int_rtol = 1e-6`: the relative error tolerance for integration.
+- `kwargs`: other keyword arguments supported by DifferentialEquations.jl.
 ...
 """
 function solve_redfield(
@@ -53,7 +55,7 @@ function solve_redfield(
     #coupling = adjust_coupling_with_control(A.coupling, A.control)
     ff = redfield_construct_ode_function(A.H, vectorize)
     if A.interactions == nothing
-        opensys = create_redfield(
+        opensys = build_redfield(
             A.coupling,
             unitary,
             tf,
@@ -62,7 +64,7 @@ function solve_redfield(
             rtol = int_rtol,
         )
     else
-        opensys = create_redfield(
+        opensys = build_redfield(
             A.interactions,
             unitary,
             tf,

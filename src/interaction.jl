@@ -1,17 +1,26 @@
+"""
+$(TYPEDEF)
+
+An object to hold system operator and the corresponding bath object.
+
+$(FIELDS)
+"""
 struct Interaction
+    """system operator"""
     coupling::AbstractCouplings
+    """bath coupling to the system operator"""
     bath::AbstractBath
 end
 
 
-function create_redfield(
+function build_redfield(
     inter::Interaction,
     unitary,
     tf;
     atol = 1e-8,
     rtol = 1e-6,
 )
-    create_redfield(
+    build_redfield(
         inter.coupling,
         unitary,
         tf,
@@ -22,12 +31,19 @@ function create_redfield(
 end
 
 
-function build_davies(inter::Interaction, unitary, tf)
+build_davies(inter::Interaction, ω_hint, lambshift) =
     build_davies(inter.coupling, inter.bath, ω_hint, lambshift)
-end
 
 
+"""
+$(TYPEDEF)
+
+An container for different system-bath interactions.
+
+$(FIELDS)
+"""
 struct InteractionSet{T<:Tuple}
+    """A tuple of Interaction"""
     interactions::T
 end
 
@@ -37,7 +53,7 @@ function InteractionSet(inters::Interaction...)
 end
 
 
-function create_redfield(
+function build_redfield(
     inter::InteractionSet,
     unitary,
     tf;
@@ -45,15 +61,14 @@ function create_redfield(
     rtol = 1e-6,
 )
     RedfieldSet([
-        create_redfield(i, unitary, tf, atol = atol, rtol = rtol)
+        build_redfield(i, unitary, tf, atol = atol, rtol = rtol)
         for i in inter.interactions
     ]...)
 end
 
 
-function build_davies(inter::InteractionSet, ω_range, lambshift)
+build_davies(inter::InteractionSet, ω_range, lambshift) =
     error("InteractionSet is not supported for adiabatic master equation solver.")
-end
 
 
 function build_ame_trajectory_control_from_interactions(

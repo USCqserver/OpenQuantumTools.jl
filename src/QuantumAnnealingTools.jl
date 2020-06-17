@@ -39,11 +39,11 @@ import NLSolversBase
 
 include("math_util.jl")
 
+include("Bath/util.jl")
 include("Bath/custom_bath.jl")
 include("Bath/ohmic.jl")
 include("Bath/hybridohmic.jl")
 include("Bath/onef.jl")
-include("Bath/util.jl")
 
 include("interaction.jl")
 
@@ -97,7 +97,7 @@ export HybridOhmicBath,
 
 export EnsembleFluctuator
 
-export info_freq, τ_SB, τ_B
+export info_freq, τ_SB, τ_B, coarse_grain_timescale
 
 export solve_unitary,
        solve_schrodinger,
