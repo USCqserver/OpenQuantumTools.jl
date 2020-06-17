@@ -129,5 +129,5 @@ function build_davies(coupling, bath::OhmicBath, ω_range, lambshift)
     else
         S_loc = (ω) -> 0.0
     end
-    DaviesGenerator(coupling, (ω) = γ(ω, bath), S_loc)
+    DaviesGenerator(coupling, (ω) -> γ(ω, bath), S_loc)
 end
