@@ -57,23 +57,12 @@ end
 spectrum(ω, bath::OhmicBath) = γ(ω, bath)
 
 """
-    S(w, params::OhmicBath; atol=1e-7)
+    S(w, bath::OhmicBath; atol=1e-7)
 
 Calculate the Lamb shift of Ohmic spectrum. `atol` is the absolute tolerance for Cauchy principal value integral.
 """
-function S(w, params::OhmicBath; atol = 1e-7)
-    f(x) = γ(x, params)
-    g(x) = f(x) / (x - w)
-    cpv, cperr = cpvagk(f, w, w - 1.0, w + 1.0)
-    negv, negerr = quadgk(g, -Inf, w - 1.0)
-    posv, poserr = quadgk(g, w + 1.0, Inf)
-    v = cpv + negv + posv
-    err = cperr + negerr + poserr
-    if (err > atol) || (isnan(err))
-        @warn "Absolute error of integration is larger than the tolerance."
-    end
-    -v / 2 / pi
-end
+S(w, bath::OhmicBath; atol = 1e-7) =
+    lambshift(w, (ω) -> γ(ω, bath), atol = atol)
 
 """
     correlation(τ, bath)
@@ -98,20 +87,6 @@ function polaron_correlation(τ, a, params::OhmicBath)
         res *= (x / sinh(x))^(a * params.η)
     end
     res
-end
-
-"""
-    interpolate_spectral_density(ω_grid::AbstractRange{T}, params::OhmicBath) where T<:Number
-
-Calculate the Ohmic bath spectral density S on grid `ω_grid`, and construct interpolation objects for it. A separate function for γ is also returned without doing interpolation.
-"""
-function interpolate_spectral_density(
-    ω_grid::AbstractRange{T},
-    params::OhmicBath,
-) where {T<:Number}
-    s_list = [S(ω, params) for ω in ω_grid]
-    s_itp = construct_interpolations(ω_grid, s_list)
-    (ω) -> γ(ω, params), s_itp
 end
 
 function build_redfield(
@@ -143,26 +118,16 @@ function info_freq(bath::OhmicBath)
     println("T (GHz): ", temperature_2_freq(beta_2_temperature(bath.β)))
 end
 
-"""
-    function davies_spectrum(bath::OhmicBath, ω_range, lambshift)
-
-Construct the spectrum and lambshift for Davies operators. `ω_range` is the grid for precalculating lambshift. `lambshift` is whether to include lambshift in the calculation.
-"""
-function davies_spectrum(bath::OhmicBath, ω_range, lambshift)
+function build_davies(coupling, bath::OhmicBath, ω_range, lambshift)
     if lambshift == true
         if isempty(ω_range)
-            γ_loc(ω) = γ(ω, bath)
-            S_loc(ω) = S(ω, bath)
+            S_loc = (ω) -> S(ω, bath)
         else
-            γ_loc, S_loc = interpolate_spectral_density(2π * ω_range, bath)
+            s_list = [S(ω, bath) for ω in ω_range]
+            S_loc = construct_interpolations(ω_range, s_list)
         end
-        return γ_loc, S_loc
     else
-        return (ω) -> γ(ω, bath), (ω) -> 0.0
+        S_loc = (ω) -> 0.0
     end
-end
-
-function build_davies(coupling, bath::OhmicBath, ω_range, lambshift)
-    γ_loc, S_loc = davies_spectrum(bath, ω_range, lambshift)
-    DaviesGenerator(coupling, γ_loc, S_loc)
+    DaviesGenerator(coupling, (ω) = γ(ω, bath), S_loc)
 end

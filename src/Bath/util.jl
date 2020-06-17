@@ -1,4 +1,22 @@
 """
+    lambshift(w, γ; atol=1e-7)
+
+Calculate the Lamb shift of spectrum `γ`. `atol` is the absolute tolerance for Cauchy principal value integral.
+"""
+function lambshift(w, γ; atol = 1e-7)
+    g(x) = γ(x) / (x - w)
+    cpv, cperr = cpvagk(γ, w, w - 1.0, w + 1.0)
+    negv, negerr = quadgk(g, -Inf, w - 1.0)
+    posv, poserr = quadgk(g, w + 1.0, Inf)
+    v = cpv + negv + posv
+    err = cperr + negerr + poserr
+    if (err > atol) || (isnan(err))
+        @warn "Absolute error of integration is larger than the tolerance."
+    end
+    -v / 2 / pi
+end
+
+"""
     function τ_SB(cfun; lim=Inf, rtol=sqrt(eps()), atol=0)
 
 Calculate τ_SB of the bath correlation function. It is defined as the integration of the absolute value of bath correlation function from zero to infinity. `lim` is the upper limit of the integration. `atol` and `rtol` are the absolute and relative error of the integration.
@@ -8,10 +26,8 @@ function τ_SB(cfun; lim = Inf, rtol = sqrt(eps()), atol = 0)
     1 / res, err / abs2(res)
 end
 
-
 τ_SB(bath::AbstractBath; lim = Inf, rtol = sqrt(eps()), atol = 0) =
     τ_SB((t) -> correlation(t, bath), lim = lim, rtol = rtol, atol = atol)
-
 
 """
     function τ_B(cfun, lim, τsb; rtol=sqrt(eps()), atol=0)
@@ -23,14 +39,17 @@ function τ_B(cfun, lim, τsb; rtol = sqrt(eps()), atol = 0)
     res * τsb, err * τsb
 end
 
-
 τ_B(bath::AbstractBath, lim, τsb; rtol = sqrt(eps()), atol = 0) =
     τ_B((t) -> correlation(t, bath), lim, τsb; rtol = rtol, atol = atol)
 
-
-function coarse_grain_timescale(bath::AbstractBath, lim; rtol=sqrt(eps()), atol=0)
+function coarse_grain_timescale(
+    bath::AbstractBath,
+    lim;
+    rtol = sqrt(eps()),
+    atol = 0,
+)
     τsb, err_sb = τ_SB(bath, rtol = rtol, atol = atol)
-    τb, err_b = τ_B(bath, lim, τsb, rtol=rtol, atol = atol)
+    τb, err_b = τ_B(bath, lim, τsb, rtol = rtol, atol = atol)
     sqrt(τsb * τb / 5)
 end
 
