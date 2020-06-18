@@ -20,17 +20,11 @@ function solve_stochastic_schrodinger(
     )
 
     # build control object from bath; a prototype implementation
-    if A.interactions == nothing
-        control = FluctuatorControl(
-            tf,
-            length(A.coupling),
-            A.bath,
-            fluctuator_de_field,
-        )
-        opensys = StochasticNoise(A.coupling, fluctuator_de_field)
-    else
-        error("Interactions are not supported for stochastic schrodinger equation yet.")
-    end
+    control, opensys = build_ss_control_from_interactions(
+        A.interactions,
+        tf,
+        fluctuator_de_field,
+    )
     reset!(A.control)
     reset!(control, u0, initializer)
     control = A.control == nothing ? control : ControlSet(control, A.control)
@@ -73,17 +67,11 @@ function build_ensemble_problem_stochastic_schrodinger(
     )
 
     # build control object from bath; a prototype implementation
-    if A.interactions == nothing
-        control = FluctuatorControl(
-            tf,
-            length(A.coupling),
-            A.bath,
-            fluctuator_de_field,
-        )
-        opensys = StochasticNoise(A.coupling, fluctuator_de_field)
-    else
-        error("Interactions are not supported for stochastic schrodinger equation yet.")
-    end
+    control, opensys = build_ss_control_from_interactions(
+        A.interactions,
+        tf,
+        fluctuator_de_field,
+    )
 
     control = A.control == nothing ? control : ControlSet(control, A.control)
     callback = stochastic_schrodinger_build_callback(control)

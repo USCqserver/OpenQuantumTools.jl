@@ -54,24 +54,13 @@ function solve_redfield(
     )
     #coupling = adjust_coupling_with_control(A.coupling, A.control)
     ff = redfield_construct_ode_function(A.H, vectorize)
-    if A.interactions == nothing
-        opensys = build_redfield(
-            A.coupling,
-            unitary,
-            tf,
-            A.bath,
-            atol = int_atol,
-            rtol = int_rtol,
-        )
-    else
-        opensys = build_redfield(
-            A.interactions,
-            unitary,
-            tf,
-            atol = int_atol,
-            rtol = int_rtol,
-        )
-    end
+    opensys = build_redfield(
+        A.interactions,
+        unitary,
+        tf,
+        atol = int_atol,
+        rtol = int_rtol,
+    )
     reset!(A.control)
     callback = redfield_build_callback(A.control)
     p = ODEParams(A.H, tf; opensys = opensys, control = A.control)
