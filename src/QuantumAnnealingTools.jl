@@ -8,7 +8,6 @@ import SpecialFunctions: trigamma
 import Distributions: Exponential, product_distribution
 import Optim: optimize
 import QuadGK: quadgk
-import Arpack: eigs
 import DiffEqBase: DEDataVector,
                    DEDataMatrix,
                    DEDataArray,

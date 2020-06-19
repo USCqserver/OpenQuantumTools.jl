@@ -4,7 +4,6 @@ authors = ["Huo Chen <neversakura@hotmail.com>"]
 version = "0.4.1"
 
 [deps]
-Arpack = "7d9fca2a-8960-54d3-9f78-7d1dccf2cb97"
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 DiffEqBase = "2b5f629d-d688-5b77-993f-72d75c75574e"
 DiffEqCallbacks = "459566f4-90b8-5000-8ac3-15dfb0a30def"
@@ -20,13 +19,13 @@ RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
-StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [extras]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "SafeTestsets", "OrdinaryDiffEq"]
+test = ["Test", "SafeTestsets", "OrdinaryDiffEq", "Random"]
