@@ -8,7 +8,6 @@ import SpecialFunctions: trigamma
 import Distributions: Exponential, product_distribution
 import Optim: optimize
 import QuadGK: quadgk
-import Arpack: eigs
 import DiffEqBase: DEDataVector,
                    DEDataMatrix,
                    DEDataArray,
@@ -45,8 +44,6 @@ include("Bath/ohmic.jl")
 include("Bath/hybridohmic.jl")
 include("Bath/onef.jl")
 
-include("interaction.jl")
-
 include("QControl/ame_trajectory_control.jl")
 include("QControl/callback_lib.jl")
 include("QControl/control_datatype.jl")
@@ -55,6 +52,7 @@ include("QControl/onef_ode_control.jl")
 include("QControl/manifold_projection.jl")
 
 include("QSolver/util.jl")
+include("QSolver/interaction_dispatch.jl")
 include("QSolver/schrodinger_solver.jl")
 include("QSolver/stochastic_schrodinger_solver.jl")
 include("QSolver/unitary_solver.jl")

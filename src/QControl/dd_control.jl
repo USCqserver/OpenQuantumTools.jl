@@ -7,22 +7,18 @@ $(FIELDS)
 """
 mutable struct InstPulseControl <: AbstractAnnealingControl
     """Positions of control pulses"""
-    tstops
+    tstops::Any
     """Function to generate pulses based on its input"""
-    pulse_func
+    pulse_func::Any
     """Index for internal state machine"""
     state::Int
 end
 
-function InstPulseControl(tstops, pulse_func)
-    InstPulseControl(tstops, pulse_func, 1)
-end
-
+InstPulseControl(tstops, pulse_func) = InstPulseControl(tstops, pulse_func, 1)
 get_pulse(C::InstPulseControl) = C.pulse_func(C.state)
 next!(C::InstPulseControl) = C.state += 1
 reset!(C::InstPulseControl) = C.state = 1
 reset!(C::InstPulseControl, u0, initializer) = C.state = 1
-
 get_controller_name(::InstPulseControl) = :pulse_control
 
 
@@ -65,9 +61,9 @@ $(FIELDS)
 """
 struct InstDEPulseControl <: DEDataControl
     """Positions of control pulses"""
-    tstops
+    tstops::Any
     """Function to generate pulses based on its input"""
-    pulse_func
+    pulse_func::Any
     """Symbol used in DEDataArray"""
     sym::Symbol
 end
@@ -86,7 +82,7 @@ function build_callback(control::InstDEPulseControl, update!)
         pulse = get_pulse(controller, state)
         for c in full_cache(integrator)
             update!(c.x, pulse)
-            setproperty!(c, state_sym, state+1)
+            setproperty!(c, state_sym, state + 1)
         end
     end
     PresetTimeCallback(control.tstops, affect!)
@@ -105,7 +101,7 @@ function build_callback(
         pulse = get_pulse(controller, state)
         for c in full_cache(integrator)
             update!(c, pulse)
-            setproperty!(c, state_sym, state+1)
+            setproperty!(c, state_sym, state + 1)
         end
     end
     PresetTimeCallback(control.tstops, affect!)

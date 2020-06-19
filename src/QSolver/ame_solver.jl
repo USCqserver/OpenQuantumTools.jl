@@ -49,12 +49,7 @@ function solve_ame(
         de_array_constructor,
         vectorize = vectorize,
     )
-
-    if A.interactions == nothing
-        davies = build_davies(A.coupling, A.bath, ω_hint, lambshift)
-    else
-        error("Interactions not yet supported for adiabatic master equation.")
-    end
+    davies = build_davies(A.interactions, ω_hint, lambshift)
     if vectorize
         error("Vectorization is not yet supported for adiabatic master equation.")
     end
@@ -76,48 +71,6 @@ end
 ame_build_callback(control) = nothing
 ame_build_callback(control::Union{InstPulseControl,InstDEPulseControl}) =
     build_callback(control, pulse_on_density!)
-
-
-# function (D::QTBase.AMEDenseDiffEqOperator{true,T})(
-#     du,
-#     u,
-#     p,
-#     t,
-# ) where {T<:PausingControl}
-#     s, a_scale, g_scale = p.control(p.tf, t)
-#     hmat = D.H(u, a_scale, g_scale, s)
-#     du.x .= -1.0im * (hmat * u.x - u.x * hmat)
-#     ω_ba = QTBase.ω_matrix(D.H, D.lvl)
-#     D.Davies(du, u, ω_ba, p.tf, s)
-# end
-
-
-# function solve_af_rwa(
-#     A::Annealing,
-#     tf::Real;
-#     dimensionless_time::Bool = true,
-#     ω_hint = [],
-#     lvl::Int = size(A.H, 1),
-#     kwargs...,
-# )
-#     if !(typeof(A.H) <: AdiabaticFrameHamiltonian)
-#         throw(ArgumentError("Adiabatic Frame RWA equation currently only works for adiabatic frame Hamiltonian."))
-#     end
-#     tf, tstops = preprocessing_time(tf, tstops, A.tstops, dimensionless_time)
-#     u0 = build_u0(A.u0, :m, control = A.control)
-#     #
-#     davies = build_davies(A.coupling, A.bath, ω_hint)
-#     f = AFRWADiffEqOperator(A.H, davies; lvl = lvl, control = A.control)
-#     p = LightAnnealingParams(tf; control = A.control)
-#     if typeof(A.control) <: PausingControl
-#         cb = DiscreteCallback(pause_condition, pause_affect!)
-#         kwargs = Dict{Symbol,Any}(kwargs)
-#         kwargs[:callback] = cb
-#     end
-#     prob = ODEProblem{true}(f, u0, (p) -> scaling_tspan(p.tf, A.sspan), p)
-#     solve(prob; alg_hints = [:nonstiff], tstops = tstops, kwargs...)
-# end
-
 
 function build_ensemble_problem_ame_trajectory(
     A::Annealing,
@@ -155,23 +108,16 @@ function build_ensemble_problem_ame_trajectory(
         needed_symbol = additional_symbol,
     )
 
-    if A.interactions == nothing
-        davies = build_davies(A.coupling, A.bath, ω_hint, lambshift)
-        op = AMETrajectoryOperator(A.H, davies, lvl)
-        control = AMETrajectoryControl(op, ame_trajectory_de_field)
-        opensys = nothing
-    else
-        control, opensys = build_ame_trajectory_control_from_interactions(
-            A.interactions,
-            ω_hint,
-            lambshift,
-            lvl,
-            tf,
-            A.H,
-            ame_trajectory_de_field,
-            fluctuator_de_field,
-        )
-    end
+    control, opensys = build_ame_trajectory_control_from_interactions(
+        A.interactions,
+        ω_hint,
+        lambshift,
+        lvl,
+        tf,
+        A.H,
+        ame_trajectory_de_field,
+        fluctuator_de_field,
+    )
     control = A.control == nothing ? control : ControlSet(control, A.control)
     p = ODEParams(tf; control = control, opensys = opensys)
     callback = ame_trajectory_build_callback(control)

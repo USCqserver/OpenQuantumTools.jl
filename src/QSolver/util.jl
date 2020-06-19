@@ -1,51 +1,24 @@
-function __init(
-    u0,
-    tf,
-    dimensionless,
-    s_type,
-    tstops,
-    a_tstops,
-    control,
-    de_builder;
-    vectorize = false,
-    needed_symbol = [],
-)
+"""
+This function initialize `(tf, u0, tstops)` based on all the other input arguments of a solver.
+"""
+function __init(u0, tf, dimensionless, s_type, tstops, a_tstops, control,
+    de_builder; vectorize = false, needed_symbol = [])
+    #TODO: Refactor this to a better format
     # If tf is 0, always use dimensionless time
     # This is to keep the solution format uniform and avoid t/tf
     if tf == 0
         dimensionless = true
     end
-
     u0 = build_u0(u0, s_type, vectorize, de_builder)
     tf, tstops = preprocessing_time(tf, tstops, a_tstops, dimensionless)
     check_de_data_error(u0, control, de_builder, needed_symbol)
     tf, u0, tstops
 end
 
-
-__init(
-    A::Annealing,
-    tf,
-    dimensionless,
-    s_type,
-    tstops,
-    de_builder;
-    vectorize = false,
-    needed_symbol = [],
-) = __init(
-    A.u0,
-    tf,
-    dimensionless,
-    s_type,
-    tstops,
-    A.tstops,
-    A.control,
-    de_builder;
-    vectorize = vectorize,
-    needed_symbol = needed_symbol,
-)
-
-
+__init(A::Annealing, tf, dimensionless, s_type, tstops, de_builder;
+    vectorize = false, needed_symbol = []) = __init(A.u0, tf, dimensionless,
+    s_type, tstops, A.tstops, A.control, de_builder; vectorize = vectorize,
+    needed_symbol = needed_symbol)
 
 """
     function preprocessing_time(tf, tstops_in_args, tstops_pre_defined, dimensionless)
@@ -67,7 +40,6 @@ function preprocessing_time(
     tf, tstops
 end
 
-
 """
     function build_u0(raw_u0, type, vectorize, de_builder)
 
@@ -87,7 +59,6 @@ function build_u0(raw_u0, type, vectorize, de_builder)
     end
     de_builder == nothing ? res : de_builder(res)
 end
-
 
 function check_de_data_error(u0, control, de_builder, additional_symbol)
     if require_de_data(control)
@@ -114,11 +85,8 @@ function check_de_data_error(u0, control, de_builder, additional_symbol)
     nothing
 end
 
-
-reset!(::Nothing) = nothing
 scaling_tspan(tf::Real, tspan) = tspan
 scaling_tspan(tf::UnitTime, tspan) = (tf * tspan[1], tf * tspan[2])
-
 
 function build_prob_func(initializer)
     prob_func = function (prob, i, repeat)

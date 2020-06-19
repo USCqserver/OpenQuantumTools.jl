@@ -5,12 +5,10 @@ require_de_data(::DEDataControl) = true
 require_de_data(::AbstractAnnealingControl) = false
 require_de_data(::Nothing) = false
 
-
 (h::DenseHamiltonian)(du::DEDataArray, u::DEDataArray, tf, t) =
     (h::DenseHamiltonian)(du.x, u.x, tf, t)
-
 QTBase.check_positivity(data::DEDataArray) = check_positivity(data.x)
-
+reset!(::Nothing) = nothing
 struct DEFAULT_INITIALIZER_CLASS end
 const DEFAULT_INITIALIZER = DEFAULT_INITIALIZER_CLASS()
 
