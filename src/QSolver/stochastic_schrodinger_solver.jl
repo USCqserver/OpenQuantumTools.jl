@@ -43,7 +43,6 @@ function solve_stochastic_schrodinger(
     )
 end
 
-
 function build_ensemble_problem_stochastic_schrodinger(
     A::Annealing,
     tf::Real,
@@ -90,7 +89,6 @@ function build_ensemble_problem_stochastic_schrodinger(
     ensemble_prob, callback, tstops
 end
 
-
 function stochastic_schrodinger_build_callback(control::ControlSet)
     callbacks = [
         stochastic_schrodinger_build_callback(v, k)
@@ -99,23 +97,19 @@ function stochastic_schrodinger_build_callback(control::ControlSet)
     CallbackSet(callbacks...)
 end
 
-
 stochastic_schrodinger_build_callback(
     control::Union{FluctuatorControl,FluctuatorDEControl},
 ) = build_callback(control)
-
 
 stochastic_schrodinger_build_callback(
     control::Union{FluctuatorControl,FluctuatorDEControl},
     sym::Symbol,
 ) = build_callback(control, sym)
 
-
 stochastic_schrodinger_build_callback(
     control::Union{InstPulseControl,InstDEPulseControl},
     sym::Symbol,
 ) = build_callback(control, sym, (c, pulse) -> c .= pulse * c)
-
 
 function stochastic_schrodinger_build_ode_function(H, control)
     update_func = build_update_func_fluctuator(control)
@@ -133,14 +127,12 @@ function build_update_func_fluctuator(::FluctuatorControl)
     end
 end
 
-
 function build_update_func_fluctuator(::FluctuatorDEControl)
     update_func = function (A, u, p, t)
         update_cache!(A, p.H, p.tf, t)
         p.opensys(A, u, p.tf, t)
     end
 end
-
 
 function build_update_func_fluctuator(control::ControlSet)
     f_control = control.fluctuator_control
@@ -159,7 +151,6 @@ function build_update_func_fluctuator(control::ControlSet)
     update_func
 end
 
-
 function build_stochastic_prob_func(
     ::Union{FluctuatorControl,FluctuatorDEControl},
     initializer,
@@ -170,7 +161,6 @@ function build_stochastic_prob_func(
         ODEProblem{true}(prob.f, prob.u0, prob.tspan, prob.p)
     end
 end
-
 
 function build_stochastic_prob_func(::ControlSet, initializer)
     prob_func = function (prob, i, repeat)
