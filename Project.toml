@@ -1,7 +1,7 @@
 name = "QuantumAnnealingTools"
 uuid = "e429f160-8886-11e9-20cb-0dbe84e78965"
 authors = ["Huo Chen <neversakura@hotmail.com>"]
-version = "0.4.1"
+version = "0.4.2"
 
 [deps]
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
