@@ -230,11 +230,10 @@ struct StochasticNoise <: AbstractOpenSys
     sym
 end
 
-
+#TODO: OpenSys interface update_cache!, update_vectorized_cache!, update_ρ!
 function (S::StochasticNoise)(A, n, tf::Real, t)
     A .+= -1.0im * tf * sum(n .* S.ops(t))
 end
-
 
 (S::StochasticNoise)(A, n, tf::UnitTime, t) = S(A, n, 1.0, t / tf)
 
@@ -242,5 +241,17 @@ function (S::StochasticNoise)(A, u::DEDataArray, tf::Real, t)
     A .+= -1.0im * tf * sum(getfield(u, S.sym) .* S.ops(t))
 end
 
-
 (S::StochasticNoise)(A, u::DEDataArray, tf::UnitTime, t) = S(A, u, 1.0, t / tf)
+
+
+function update_ρ!(du, u, p, t, S::StochasticNoise)
+    update_ρ!(du, S, n, p.tf, t)
+end
+
+function update_ρ!(du, S, n, tf::Real, t)
+    H = sum(n .* S.ops(t))
+    gemm!('N', 'N', -1.0im * tf, H, u, 1.0 + 0.0im, du)
+    gemm!('N', 'N', 1.0im * tf, u, H, 1.0 + 0.0im, du)
+end
+
+update_ρ!(du, S, n, tf::UnitTime, t) = update_ρ!(du, S, n, 1.0, t / tf)

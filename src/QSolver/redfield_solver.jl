@@ -219,11 +219,8 @@ function build_ensemble_hybrid_redfield(
         needed_symbol = fluctuator_de_field == nothing ? [] :
                             [fluctuator_de_field],
     )
-    ff = __re_build_ode_function(A.H, vectorize)
-    if A.interactions == nothing
-        error("Hybrid Redfield equation only need at least two different bath.")
-    end
-    fluctuator_control, fluctuator_opensys, redfield_opensys =
+
+    control, fluctuator_opensys, redfield_opensys =
         build_hybrid_redfield_control_from_interactions(
             A.interactions,
             unitary,
@@ -232,4 +229,47 @@ function build_ensemble_hybrid_redfield(
             int_rtol,
             fluctuator_de_field,
         )
+    control = A.control == nothing ? control : ControlSet(control, A.control)
+    p = ODEParams(tf; control = control, opensys = opensys)
+    callback = __rehybrid_build_callback(control)
+    if positivity_check
+        positivity_check_callback = FunctionCallingCallback(
+            positivity_check_affect,
+            func_everystep = true,
+            func_start = false,
+        )
+        callback = CallbackSet(callback, positivity_check_callback)
+    end
+
+    ff = __rehybrid_build_ode_function(A.H, control)
+    prob = ODEProblem{true}(ff, u0, (p) -> scaling_tspan(p.tf, A.sspan), p)
+
+    prob_func = build_prob_func(initializer)
+
+    ensemble_prob = EnsembleProblem(
+        prob;
+        prob_func = prob_func,
+        output_func = output_func,
+        reduction = reduction,
+    )
+
+    ensemble_prob, callback, tstops
 end
+
+function __rehybrid_build_callback(control::ControlSet)
+    callbacks = [
+        __rehybrid_build_callback(v, k)
+        for (k, v) in zip(keys(control), control)
+    ]
+    CallbackSet(callbacks...)
+end
+
+__rehybrid_build_callback(
+    control::Union{InstPulseControl,InstDEPulseControl},
+    sym::Symbol,
+) = build_callback(control, sym, pulse_on_density!)
+
+__rehybrid_build_callback(
+    control::Union{FluctuatorControl,FluctuatorDEControl},
+    sym::Symbol,
+) = build_callback(control, sym)

@@ -1,6 +1,5 @@
 using QuantumAnnealingTools, Test, OrdinaryDiffEq
 
-
 H = DenseHamiltonian([(s) -> 1.0], [σi], unit = :ħ)
 u0 = PauliVec[1][1]
 coupling = ConstantCouplings(["Z"], unit = :ħ)
@@ -46,3 +45,14 @@ annealing = Annealing(H, u0, control = control, coupling = coupling, bath = bath
 U = solve_unitary(annealing, tf, alg = Tsit5(), abstol = 1e-8, reltol = 1e-8);
 sol = solve_redfield(annealing, tf, U; alg = Tsit5(), abstol = 1e-8, reltol = 1e-8, tstops = [0.51]);
 @test sol(1.0)[1, 2] ≈ 0.5 atol = 1e-3
+
+# hybrid Redfield equation
+bath_1 = Ohmic(1e-4, 4, 16)
+interaction_1 = Interaction(coupling, bath_1)
+bath_2 = EnsembleFluctuator([1.0, 2.0], [2.0, 1.0])
+interaction_2 = Interaction(coupling, bath_2)
+interactions= InteractionSet(interaction_1, interaction_2)
+annealing = Annealing(H, u0; interactions = interactions)
+
+tf = 10
+QuantumAnnealingTools.build_ensemble_hybrid_redfield(annealing, tf, (x)->1.0, (sol, i)->(sol, false), (prob, i, repeat) -> (prob))
