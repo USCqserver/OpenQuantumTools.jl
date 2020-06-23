@@ -12,6 +12,24 @@ end
 build_redfield(i::Interaction, U, tf; atol = 1e-8, rtol = 1e-6) =
     build_redfield(i.coupling, U, tf, i.bath, atol = atol, rtol = rtol)
 
+function build_CGME(
+    iset::InteractionSet,
+    U,
+    tf;
+    atol = 1e-8,
+    rtol = 1e-6,
+    Ta = nothing,
+)
+    if length(iset) == 1
+        build_CGME(iset[1], U, tf, atol = atol, rtol = rtol, Ta = Ta)
+    else
+        throw(ArgumentError("InteractionSet is not supported for CGME for now."))
+    end
+end
+
+build_CGME(i::Interaction, U, tf; atol = 1e-8, rtol = 1e-6, Ta = nothing) =
+    build_CGME(i.coupling, U, tf, i.bath, atol = atol, rtol = rtol, Ta = Ta)
+
 function build_davies(iset::InteractionSet, ω_range, lambshift::Bool)
     if length(iset) == 1
         build_davies(iset[1], ω_range, lambshift)

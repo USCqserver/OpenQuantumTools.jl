@@ -15,50 +15,15 @@ end
 CustomBath(; correlation = nothing, spectrum = nothing) =
     CustomBath(correlation, spectrum)
 correlation(τ, bath::CustomBath) = bath.cfun(τ)
-
-function build_redfield(
-    coupling,
-    unitary,
-    tf::Real,
-    bath::CustomBath;
-    atol = 1e-8,
-    rtol = 1e-6,
-)
-    if bath.cfun == nothing
-        error("Correlation function is not defined for the bath.")
-    end
-    cfun(s) = bath.cfun(s * tf)
-    Redfield(coupling, unitary, cfun, atol = atol, rtol = rtol)
-end
-
-function build_redfield(
-    coupling,
-    unitary,
-    tf::UnitTime,
-    bath::CustomBath;
-    atol = 1e-8,
-    rtol = 1e-6,
-)
-    if bath.cfun == nothing
-        error("Correlation function is not defined for the bath.")
-    end
-    cfun(t) = bath.cfun(t)
-    Redfield(coupling, unitary, cfun, atol = atol, rtol = rtol)
-end
-
-function build_davies(coupling, bath::CustomBath, ω_range, lambshift)
-    if bath.γ == nothing
-        error("Noise spectrum is not defined for the bath.")
-    end
-    if lambshift == true
-        if isempty(ω_range)
-            S_loc = (ω) -> lambshift(ω, bath.γ)
-        else
-            s_list = [S(ω, bath) for ω in ω_range]
-            S_loc = construct_interpolations(ω_range, s_list)
-        end
-    else
-        S_loc = (ω) -> 0.0
-    end
-    DaviesGenerator(coupling, bath.γ, S_loc)
-end
+spectrum(ω, bath::CustomBath) = bath.γ(ω)
+γ(ω, bath::CustomBath) = bath.γ(ω)
+S(w, bath::CustomBath; atol = 1e-7) =
+    lambshift(w, (ω) -> spectrum(ω, bath), atol = atol)
+build_correlation(bath::CustomBath, tf::Real) =
+    bath.cfun == nothing ? error("Correlation function is not specified.") :
+    (s) -> bath.cfun(s * tf)
+build_correlation(bath::CustomBath, ::UnitTime) =
+    bath.cfun == nothing ? error("Correlation function is not specified.") :
+    bath.cfun
+build_spectrum(bath::CustomBath) =
+    bath.γ == nothing ? error("Noise spectrum is not specified.") : bath.γ
