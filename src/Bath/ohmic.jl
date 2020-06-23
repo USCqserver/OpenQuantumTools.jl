@@ -89,45 +89,7 @@ function polaron_correlation(τ, a, params::OhmicBath)
     res
 end
 
-function build_redfield(
-    coupling,
-    unitary,
-    tf::Real,
-    bath::OhmicBath;
-    atol = 1e-8,
-    rtol = 1e-6,
-)
-    cfun(s) = correlation(s * tf, bath)
-    Redfield(coupling, unitary, cfun, atol = atol, rtol = rtol)
-end
-
-function build_redfield(
-    coupling,
-    unitary,
-    tf::UnitTime,
-    bath::OhmicBath;
-    atol = 1e-8,
-    rtol = 1e-6,
-)
-    cfun(t) = correlation(t, bath)
-    Redfield(coupling, unitary, cfun, atol = atol, rtol = rtol)
-end
-
 function info_freq(bath::OhmicBath)
     println("ωc (GHz): ", bath.ωc / pi / 2)
     println("T (GHz): ", temperature_2_freq(beta_2_temperature(bath.β)))
-end
-
-function build_davies(coupling, bath::OhmicBath, ω_range, lambshift)
-    if lambshift == true
-        if isempty(ω_range)
-            S_loc = (ω) -> S(ω, bath)
-        else
-            s_list = [S(ω, bath) for ω in ω_range]
-            S_loc = construct_interpolations(ω_range, s_list)
-        end
-    else
-        S_loc = (ω) -> 0.0
-    end
-    DaviesGenerator(coupling, (ω) -> γ(ω, bath), S_loc)
 end

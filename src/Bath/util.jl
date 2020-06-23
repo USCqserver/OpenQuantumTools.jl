@@ -1,3 +1,53 @@
+build_correlation(bath::AbstractBath, tf::Real) =
+    (s) -> correlation(s * tf, bath)
+build_correlation(bath::AbstractBath, ::UnitTime) = (τ) -> correlation(τ, bath)
+build_spectrum(bath::AbstractBath) = (ω) -> spectrum(ω, bath)
+
+function build_redfield(
+    coupling::AbstractCouplings,
+    unitary,
+    tf::Union{Real,UnitTime},
+    bath::AbstractBath;
+    atol = 1e-8,
+    rtol = 1e-6,
+)
+    cfun = build_correlation(bath, tf)
+    Redfield(coupling, unitary, cfun, atol = atol, rtol = rtol)
+end
+
+function build_davies(
+    coupling::AbstractCouplings,
+    bath::AbstractBath,
+    ω_range,
+    lambshift::Bool,
+)
+    if lambshift == true
+        if isempty(ω_range)
+            S_loc = (ω) -> S(ω, bath)
+        else
+            s_list = [S(ω, bath) for ω in ω_range]
+            S_loc = construct_interpolations(ω_range, s_list)
+        end
+    else
+        S_loc = (ω) -> 0.0
+    end
+    DaviesGenerator(coupling, build_spectrum(bath), S_loc)
+end
+
+function build_CGME(
+    coupling::AbstractCouplings,
+    unitary,
+    tf::Union{Real,UnitTime},
+    bath::AbstractBath;
+    atol = 1e-8,
+    rtol = 1e-6,
+    Ta = nothing,
+)
+    Ta = Ta == nothing ? coarse_grain_timescale(bath, tf) : Ta
+    cfun = build_correlation(bath, tf)
+    CGOP(coupling, unitary, cfun, Ta, atol = atol, rtol = rtol)
+end
+
 """
     lambshift(w, γ; atol=1e-7)
 

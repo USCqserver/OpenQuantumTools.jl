@@ -52,8 +52,7 @@ function solve_redfield(
         de_array_constructor,
         vectorize = vectorize,
     )
-    #coupling = adjust_coupling_with_control(A.coupling, A.control)
-    ff = redfield_construct_ode_function(A.H, vectorize)
+    ff = __re_build_ode_function(A.H, vectorize)
     opensys = build_redfield(
         A.interactions,
         unitary,
@@ -62,7 +61,7 @@ function solve_redfield(
         rtol = int_rtol,
     )
     reset!(A.control)
-    callback = redfield_build_callback(A.control)
+    callback = __re_build_callback(A.control)
     p = ODEParams(A.H, tf; opensys = opensys, control = A.control)
     if positivity_check
         positivity_check_callback = FunctionCallingCallback(
@@ -82,12 +81,87 @@ function solve_redfield(
     )
 end
 
+"""
+    function solve_CGME(
+        A::Annealing,
+        tf::Real,
+        unitary;
+        vectorize::Bool = false,
+        dimensionless_time::Bool = true,
+        tstops = Float64[],
+        de_array_constructor = nothing,
+        Ta = nothing,
+        int_atol = 1e-8,
+        int_rtol = 1e-6,
+        kwargs...,
+    )
 
-redfield_build_callback(control) = nothing
-redfield_build_callback(control::Union{InstPulseControl,InstDEPulseControl}) =
+Solve the time dependent CGME for `Annealing` defined by `A` with total annealing time `tf`.
+
+...
+# Arguments
+- `A::Annealing`: the Annealing object.
+- `tf::Real`: the total annealing time.
+- `unitary`: precalculated unitary of close system evolution.
+- `vectorize::Bool = false`: whether to vectorize the density matrix.
+- `dimensionless_time::Bool=true`: flag variable which, when set to true, informs the solver to work with dimensionless time.
+- `tstops`: extra times that the timestepping algorithm must step to.
+- `de_array_constructor = nothing`: the converting function if using `DEDataArray` type.
+- `Ta = nothing`: coarse-graining time.
+- `int_atol = 1e-8`: the absolute error tolerance for integration.
+- `int_rtol = 1e-6`: the relative error tolerance for integration.
+- `kwargs`: other keyword arguments supported by DifferentialEquations.jl.
+...
+"""
+function solve_CGME(
+    A::Annealing,
+    tf::Real,
+    unitary;
+    vectorize::Bool = false,
+    dimensionless_time::Bool = true,
+    tstops = Float64[],
+    de_array_constructor = nothing,
+    Ta = nothing,
+    int_atol = 1e-8,
+    int_rtol = 1e-6,
+    kwargs...,
+)
+    tf, u0, tstops = __init(
+        A,
+        tf,
+        dimensionless_time,
+        :m,
+        tstops,
+        de_array_constructor,
+        vectorize = vectorize,
+    )
+    ff = __re_build_ode_function(A.H, vectorize)
+    opensys = build_CGME(
+        A.interactions,
+        unitary,
+        tf,
+        atol = int_atol,
+        rtol = int_rtol,
+        Ta = Ta,
+    )
+    reset!(A.control)
+    callback = __re_build_callback(A.control)
+    p = ODEParams(A.H, tf; opensys = opensys, control = A.control)
+    prob = ODEProblem(ff, u0, (p) -> scaling_tspan(p.tf, A.sspan), p)
+    solve(
+        prob;
+        alg_hints = [:nonstiff],
+        tstops = tstops,
+        callback = callback,
+        kwargs...,
+    )
+end
+
+__re_build_callback(control) = nothing
+__re_build_callback(control::Union{InstPulseControl,InstDEPulseControl}) =
     build_callback(control, pulse_on_density!)
 
-function redfield_construct_ode_function(H, vectorize)
+function __re_build_ode_function(H, vectorize)
     if vectorize == false
         redfield_f
     else
@@ -113,4 +187,49 @@ end
 function redfield_vectorize_update!(A, u, p, t)
     update_vectorized_cache!(A, p.H, p.tf, t)
     update_vectorized_cache!(A, p.opensys, p.tf, t)
+end
+
+
+# ================ the following codes are for hybrid Redfield =================
+function build_ensemble_hybrid_redfield(
+    A::Annealing,
+    tf::Real,
+    unitary,
+    output_func,
+    reduction;
+    vectorize::Bool = false,
+    dimensionless_time::Bool = true,
+    positivity_check::Bool = false,
+    de_array_constructor = nothing,
+    fluctuator_de_field = nothing,
+    int_atol = 1e-8,
+    int_rtol = 1e-6,
+    initializer = DEFAULT_INITIALIZER,
+    tstops = Float64[],
+    kwargs...,
+)
+    tf, u0, tstops = __init(
+        A,
+        tf,
+        dimensionless_time,
+        :m,
+        tstops,
+        de_array_constructor,
+        vectorize = vectorize,
+        needed_symbol = fluctuator_de_field == nothing ? [] :
+                            [fluctuator_de_field],
+    )
+    ff = __re_build_ode_function(A.H, vectorize)
+    if A.interactions == nothing
+        error("Hybrid Redfield equation only need at least two different bath.")
+    end
+    fluctuator_control, fluctuator_opensys, redfield_opensys =
+        build_hybrid_redfield_control_from_interactions(
+            A.interactions,
+            unitary,
+            tf,
+            int_atol,
+            int_rtol,
+            fluctuator_de_field,
+        )
 end
