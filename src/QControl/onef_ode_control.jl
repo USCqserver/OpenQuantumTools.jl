@@ -9,17 +9,16 @@ $(FIELDS)
 """
 mutable struct FluctuatorControl{T} <: AbstractAnnealingControl
     """waitting time distribution for every fluctuators"""
-    dist
+    dist::Any
     """cache for each fluctuator value"""
-    b0
+    b0::Any
     """index of the fluctuator to be flipped next"""
-    next_idx
+    next_idx::Any
     """time interval for next flip event"""
-    next_τ
+    next_τ::Any
     """noise value"""
-    n
+    n::Any
 end
-
 
 function FluctuatorControl(tf, num::Int, E::EnsembleFluctuator)
     dist = construct_distribution(tf, E)
@@ -29,10 +28,8 @@ function FluctuatorControl(tf, num::Int, E::EnsembleFluctuator)
 end
 
 FluctuatorControl(tf, num, E, ::Nothing) = FluctuatorControl(tf, num, E)
-
 (control::FluctuatorControl)() = control.n
 get_controller_name(::FluctuatorControl) = :fluctuator_control
-
 
 function reset!(ctrl::FluctuatorControl, ::DEFAULT_INITIALIZER_CLASS)
     ctrl.b0 =
@@ -40,7 +37,6 @@ function reset!(ctrl::FluctuatorControl, ::DEFAULT_INITIALIZER_CLASS)
     ctrl.n = sum(ctrl.b0, dims = 1)[:]
     next_state!(ctrl)
 end
-
 
 function reset!(ctrl::FluctuatorControl, initializer)
     ctrl.b0 =
@@ -50,7 +46,6 @@ function reset!(ctrl::FluctuatorControl, initializer)
 end
 
 reset!(ctrl::FluctuatorControl, u0, initializer) = reset!(ctrl, initializer)
-
 
 function build_callback(control::FluctuatorControl)
     fluctuator_time_choice = function (integrator)
@@ -69,9 +64,12 @@ function build_callback(control::FluctuatorControl)
         u_modified!(integrator, false)
     end
 
-    IterativeCallback(fluctuator_time_choice, fluctuator_affect!)
+    IterativeCallback(
+        fluctuator_time_choice,
+        fluctuator_affect!,
+        save_positions = (false, true),
+    )
 end
-
 
 function build_callback(control::FluctuatorControl, controller_name::Symbol)
     fluctuator_time_choice = function (integrator)
@@ -91,9 +89,12 @@ function build_callback(control::FluctuatorControl, controller_name::Symbol)
         u_modified!(integrator, false)
     end
 
-    IterativeCallback(fluctuator_time_choice, fluctuator_affect!)
+    IterativeCallback(
+        fluctuator_time_choice,
+        fluctuator_affect!,
+        save_positions = (false, true),
+    )
 end
-
 
 function next_state!(f::FluctuatorControl)
     next_τ, next_idx = findmin(rand(f.dist, size(f.b0, 2)))
@@ -102,7 +103,6 @@ function next_state!(f::FluctuatorControl)
     f.b0[next_idx] *= -1
     nothing
 end
-
 
 """
 $(TYPEDEF)
@@ -115,13 +115,13 @@ $(FIELDS)
 """
 mutable struct FluctuatorDEControl{T} <: AbstractAnnealingControl
     """Waitting time distribution for every fluctuators"""
-    dist
+    dist::Any
     """Cache for each fluctuator value"""
-    b0
+    b0::Any
     """Index of the fluctuator to be flipped next"""
-    next_idx
+    next_idx::Any
     """Time interval for next flip event"""
-    next_τ
+    next_τ::Any
     """Symbol used in DEDataArray"""
     sym::Symbol
 end
@@ -134,10 +134,8 @@ function FluctuatorControl(tf, num::Int, E::EnsembleFluctuator, sym::Symbol)
     FluctuatorDEControl{num}(dist, b0, next_idx, next_τ, sym)
 end
 
-
 (f::FluctuatorDEControl)() = view(sum(f.b0, dims = 1), :)
 get_controller_name(::FluctuatorDEControl) = :fluctuator_control
-
 
 function reset!(ctrl::FluctuatorDEControl, u0, ::DEFAULT_INITIALIZER_CLASS)
     ctrl.b0 =
@@ -146,14 +144,12 @@ function reset!(ctrl::FluctuatorDEControl, u0, ::DEFAULT_INITIALIZER_CLASS)
     next_state!(ctrl)
 end
 
-
 function reset!(ctrl::FluctuatorDEControl, u0, initializer)
     ctrl.b0 =
         abs.(ctrl.b0) .* initializer((length(ctrl.dist), size(ctrl.b0, 2)))
     setfield!(u0, ctrl.sym, Array(ctrl()))
     next_state!(ctrl)
 end
-
 
 function build_callback(control::FluctuatorDEControl)
     fluctuator_time_choice = function (integrator)
@@ -170,7 +166,7 @@ function build_callback(control::FluctuatorDEControl)
         sym = getfield(integrator.p.control, :sym)
         for c in full_cache(integrator)
             setfield!(c, sym, noise_value)
-#            c.n .= noise_value
+            #            c.n .= noise_value
         end
         next_state!(integrator.p.control)
         u_modified!(integrator, false)
@@ -178,7 +174,6 @@ function build_callback(control::FluctuatorDEControl)
 
     IterativeCallback(fluctuator_time_choice, fluctuator_affect!)
 end
-
 
 function build_callback(control::FluctuatorDEControl, name::Symbol)
     fluctuator_time_choice = function (integrator)
@@ -204,7 +199,6 @@ function build_callback(control::FluctuatorDEControl, name::Symbol)
     IterativeCallback(fluctuator_time_choice, fluctuator_affect!)
 end
 
-
 function next_state!(f::FluctuatorDEControl)
     next_τ, next_idx = findmin(rand(f.dist, size(f.b0, 2)))
     f.next_τ = next_τ
@@ -212,7 +206,6 @@ function next_state!(f::FluctuatorDEControl)
     f.b0[next_idx] *= -1
     nothing
 end
-
 
 """
 $(TYPEDEF)
@@ -227,7 +220,7 @@ struct StochasticNoise <: AbstractOpenSys
     """System-bath coupling operator"""
     ops::AbstractCouplings
     """Symbol used for DEDataArray type"""
-    sym
+    sym::Any
 end
 
 #TODO: OpenSys interface update_cache!, update_vectorized_cache!, update_ρ!
@@ -242,7 +235,6 @@ function (S::StochasticNoise)(A, u::DEDataArray, tf::Real, t)
 end
 
 (S::StochasticNoise)(A, u::DEDataArray, tf::UnitTime, t) = S(A, u, 1.0, t / tf)
-
 
 function update_ρ!(du, u, p, t, S::StochasticNoise)
     update_ρ!(du, S, n, p.tf, t)
