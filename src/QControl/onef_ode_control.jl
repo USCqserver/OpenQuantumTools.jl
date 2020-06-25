@@ -216,34 +216,147 @@ Defines stochastic system-bath coupling operator
 
 $(FIELDS)
 """
-struct StochasticNoise <: AbstractOpenSys
+struct StochasticNoise{has_sym} <: AbstractOpenSys
     """System-bath coupling operator"""
     ops::AbstractCouplings
     """Symbol used for DEDataArray type"""
-    sym::Any
+    sym::Union{Nothing,Symbol}
 end
 
-#TODO: OpenSys interface update_cache!, update_vectorized_cache!, update_ρ!
-function (S::StochasticNoise)(A, n, tf::Real, t)
+StochasticNoise(ops::AbstractCouplings, ::Nothing) =
+    StochasticNoise{false}(ops, nothing)
+StochasticNoise(ops::AbstractCouplings, sym::Symbol) =
+    StochasticNoise{true}(ops, sym)
+
+#TODO: OpenSys interface update_cache!, update_vectorized_cache!, QTBase.update_ρ!
+(S::StochasticNoise{false})(A, n, tf::Real, t) =
     A .+= -1.0im * tf * sum(n .* S.ops(t))
-end
-
-(S::StochasticNoise)(A, n, tf::UnitTime, t) = S(A, n, 1.0, t / tf)
-
-function (S::StochasticNoise)(A, u::DEDataArray, tf::Real, t)
+(S::StochasticNoise{false})(A, n, tf::UnitTime, t) = S(A, n, 1.0, t / tf)
+(S::StochasticNoise{true})(A, u::DEDataArray, tf::Real, t) =
     A .+= -1.0im * tf * sum(getfield(u, S.sym) .* S.ops(t))
+(S::StochasticNoise{true})(A, u::DEDataArray, tf::UnitTime, t) =
+    S(A, u, 1.0, t / tf)
+
+# ============ StochasticNoise{true} =================
+QTBase.update_ρ!(
+    du,
+    u::DEDataArray,
+    p::ODEParams,
+    t,
+    S::StochasticNoise{true},
+) = QTBase.update_ρ!(du, u, p.tf, t, S)
+
+function QTBase.update_ρ!(
+    du,
+    u::DEDataArray,
+    tf::Real,
+    t,
+    S::StochasticNoise{true},
+)
+    H = sum(getfield(u, S.sym) .* S.ops(t))
+    BLAS.gemm!('N', 'N', -1.0im * tf, H, u.x, 1.0 + 0.0im, du.x)
+    BLAS.gemm!('N', 'N', 1.0im * tf, u.x, H, 1.0 + 0.0im, du.x)
 end
 
-(S::StochasticNoise)(A, u::DEDataArray, tf::UnitTime, t) = S(A, u, 1.0, t / tf)
+QTBase.update_ρ!(
+    du,
+    u::DEDataArray,
+    tf::UnitTime,
+    t,
+    S::StochasticNoise{true},
+) = QTBase.update_ρ!(du, u, 1.0, t / tf, S)
 
-function update_ρ!(du, u, p, t, S::StochasticNoise)
-    update_ρ!(du, S, n, p.tf, t)
+# ============ StochasticNoise{false} =================
+QTBase.update_ρ!(du, u, p::ODEParams, t, S::StochasticNoise{false}) =
+    QTBase.update_ρ!(du, u, p.control, p.tf, t, S)
+QTBase.update_ρ!(
+    du,
+    u,
+    ctr::FluctuatorControl,
+    tf,
+    t,
+    S::StochasticNoise{false},
+) = QTBase.update_ρ!(du, u, ctr(), tf, t, S.ops)
+
+function QTBase.update_ρ!(du, u, n, tf::Real, t, couplings::AbstractCouplings)
+    H = sum(n .* couplings(t))
+    BLAS.gemm!('N', 'N', -1.0im * tf, H, u, 1.0 + 0.0im, du)
+    BLAS.gemm!('N', 'N', 1.0im * tf, u, H, 1.0 + 0.0im, du)
 end
 
-function update_ρ!(du, S, n, tf::Real, t)
+function QTBase.update_ρ!(
+    du,
+    u::DEDataArray,
+    n,
+    tf::Real,
+    t,
+    couplings::AbstractCouplings,
+)
+    H = sum(n .* couplings(t))
+    BLAS.gemm!('N', 'N', -1.0im * tf, H, u.x, 1.0 + 0.0im, du.x)
+    BLAS.gemm!('N', 'N', 1.0im * tf, u.x, H, 1.0 + 0.0im, du.x)
+end
+
+QTBase.update_ρ!(du, n, tf::UnitTime, t, S::StochasticNoise) =
+    QTBase.update_ρ!(du, n, 1.0, t / tf, S)
+
+# ============== StochasticNoise{true} ================
+QTBase.update_vectorized_cache!(
+    cache,
+    u::DEDataArray,
+    p::ODEParams,
+    t,
+    S::StochasticNoise{true},
+) = QTBase.update_vectorized_cache!(cache, u, p.tf, t, S)
+
+function QTBase.update_vectorized_cache!(
+    cache,
+    u::DEDataArray,
+    tf::Real,
+    t,
+    S::StochasticNoise{true},
+)
+    H = sum(getfield(u, S.sym) .* S.ops(t))
+    iden = Matrix{eltype(H)}(I, size(H))
+    cache .= 1.0im * tf * (transpose(H) ⊗ iden - iden ⊗ H)
+end
+
+QTBase.update_vectorized_cache!(
+    cache,
+    u::DEDataArray,
+    tf::UnitTime,
+    t,
+    S::StochasticNoise{true},
+) = QTBase.update_vectorized_cache!(cache, u, 1.0, t / tf, S)
+
+# ============ StochasticNoise{false} =================
+QTBase.update_vectorized_cache!(
+    cache,
+    u,
+    p::ODEParams,
+    t,
+    S::StochasticNoise{false},
+) = QTBase.update_vectorized_cache!(cache, p.control, p.tf, t, S)
+
+QTBase.update_vectorized_cache!(
+    cache,
+    ctr::FluctuatorControl,
+    tf,
+    t,
+    S::StochasticNoise{false},
+) = QTBase.update_vectorized_cache!(cache, ctr(), tf, t, S)
+
+function QTBase.update_vectorized_cache!(
+    cache,
+    n::AbstractArray,
+    tf::Real,
+    t,
+    S::StochasticNoise{false},
+)
     H = sum(n .* S.ops(t))
-    gemm!('N', 'N', -1.0im * tf, H, u, 1.0 + 0.0im, du)
-    gemm!('N', 'N', 1.0im * tf, u, H, 1.0 + 0.0im, du)
+    iden = Matrix{eltype(H)}(I, size(H))
+    cache .= 1.0im * tf * (transpose(H) ⊗ iden - iden ⊗ H)
 end
 
-update_ρ!(du, S, n, tf::UnitTime, t) = update_ρ!(du, S, n, 1.0, t / tf)
+QTBase.update_vectorized_cache!(cache, n, tf::UnitTime, t, S::StochasticNoise) =
+    QTBase.update_vectorized_cache!(cache, n, S, 1.0, t / tf)

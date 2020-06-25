@@ -230,7 +230,12 @@ function build_ensemble_hybrid_redfield(
             fluctuator_de_field,
         )
     control = A.control == nothing ? control : ControlSet(control, A.control)
-    p = ODEParams(tf; control = control, opensys = opensys)
+    p = ODEParams(
+        A.H,
+        tf;
+        control = control,
+        opensys = OpenSysSet(fluctuator_opensys, redfield_opensys),
+    )
     callback = __rehybrid_build_callback(control)
     if positivity_check
         positivity_check_callback = FunctionCallingCallback(
@@ -241,7 +246,7 @@ function build_ensemble_hybrid_redfield(
         callback = CallbackSet(callback, positivity_check_callback)
     end
 
-    ff = __rehybrid_build_ode_function(A.H, control)
+    ff = __rehybrid_build_ode(A.H, control, vectorize)
     prob = ODEProblem{true}(ff, u0, (p) -> scaling_tspan(p.tf, A.sspan), p)
 
     prob_func = build_prob_func(initializer)
@@ -273,3 +278,26 @@ __rehybrid_build_callback(
     control::Union{FluctuatorControl,FluctuatorDEControl},
     sym::Symbol,
 ) = build_callback(control, sym)
+
+__rehybrid_build_callback(
+    control::Union{FluctuatorControl,FluctuatorDEControl},
+) = build_callback(control)
+
+function __rehybrid_build_ode(H, control, vectorize)
+    if vectorize == false
+        function (du, u, p, t)
+            p.H(du, u, p.tf, t)
+            update_ρ!(du, u, p, t, p.opensys)
+        end
+    else
+        update_func = function (du, u, p, t)
+            update_vectorized_cache!(du, p.H, p.tf, t)
+            update_vectorized_cache!(du, u, p, t, p.opensys)
+        end
+        cache = get_cache(H, vectorize)
+        diff_op = DiffEqArrayOperator(cache, update_func = update_func)
+        jac_cache = similar(cache)
+        jac_op = DiffEqArrayOperator(jac_cache, update_func = update_func)
+        ff = ODEFunction(diff_op; jac_prototype = jac_op)
+    end
+end
