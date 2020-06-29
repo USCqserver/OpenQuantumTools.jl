@@ -172,7 +172,7 @@ end
 # ================ the following codes are for hybrid Redfield =================
 function build_ensemble_hybrid_redfield(
     A::Annealing,
-    tf::Real,
+    tf,
     unitary,
     output_func,
     reduction;
@@ -184,8 +184,8 @@ function build_ensemble_hybrid_redfield(
     int_atol = 1e-8,
     int_rtol = 1e-6,
     Ta = tf,
-    initializer = DEFAULT_INITIALIZER,
     tstops = Float64[],
+    initializer = DEFAULT_INITIALIZER,
     kwargs...,
 )
     tf, u0, tstops = __init(

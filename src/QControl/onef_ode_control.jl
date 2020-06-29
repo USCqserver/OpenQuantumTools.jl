@@ -358,5 +358,5 @@ function QTBase.update_vectorized_cache!(
     cache .= 1.0im * tf * (transpose(H) ⊗ iden - iden ⊗ H)
 end
 
-QTBase.update_vectorized_cache!(cache, n, tf::UnitTime, t, S::StochasticNoise) =
-    QTBase.update_vectorized_cache!(cache, n, S, 1.0, t / tf)
+QTBase.update_vectorized_cache!(cache, n::AbstractArray, tf::UnitTime, t, S::StochasticNoise) =
+    QTBase.update_vectorized_cache!(cache, n, 1.0, t / tf, S)

@@ -75,16 +75,19 @@ bath_1 = Ohmic(1e-4, 4, 16)
 interaction_1 = Interaction(coupling, bath_1)
 bath_2 = EnsembleFluctuator([1.0, 2.0], [2.0, 1.0])
 interaction_2 = Interaction(coupling, bath_2)
-interactions = InteractionSet(interaction_1, interaction_2)
+bath_3 = Ohmic(1e-4, 3, 16)
+interaction_3 = Interaction(ConstantCouplings(["Z"], unit = :ħ), bath_3)
+interactions = InteractionSet(interaction_1, interaction_2, interaction_3)
 annealing = Annealing(H, u0; interactions = interactions)
 
 tf = 10
-prob, callback = QuantumAnnealingTools.build_ensemble_hybrid_redfield(
+prob, callback = build_ensemble_problem(
     annealing,
     tf,
     (x) -> 1.0,
-    (sol, i) -> (sol, false),
-    (u, data, I) -> (append!(u, data), false),
+    :hybrid_redfield,
+    dimensionless_time = false,
+    vectorize = true,
 )
 sol = solve(
     prob,
@@ -101,3 +104,12 @@ prob, callback = QuantumAnnealingTools.build_ensemble_hybrid_redfield(
     (u, data, I) -> (append!(u, data), false),
     vectorize = true,
 )
+
+sol = solve(
+    prob,
+    Tsit5(),
+    EnsembleSerial();
+    trajectories = 1,
+    callback = callback,
+    tstops = range(0, tf, length=100)
+);
