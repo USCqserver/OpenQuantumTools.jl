@@ -1,17 +1,5 @@
 """
-    function solve_redfield(
-        A::Annealing,
-        tf::Real,
-        unitary;
-        vectorize::Bool = false,
-        dimensionless_time::Bool = true,
-        tstops = Float64[],
-        positivity_check::Bool = false,
-        de_array_constructor = nothing,
-        int_atol = 1e-8,
-        int_rtol = 1e-6,
-        kwargs...,
-    )
+$(SIGNATURES)
 
 Solve the time dependent Redfield equation for `Annealing` defined by `A` with total annealing time `tf`.
 
@@ -27,6 +15,7 @@ Solve the time dependent Redfield equation for `Annealing` defined by `A` with t
 - `de_array_constructor = nothing`: the converting function if using `DEDataArray` type.
 - `int_atol = 1e-8`: the absolute error tolerance for integration.
 - `int_rtol = 1e-6`: the relative error tolerance for integration.
+- `Ta = tf`: the time scale for backward integration.
 - `kwargs`: other keyword arguments supported by DifferentialEquations.jl.
 ...
 """
@@ -41,6 +30,7 @@ function solve_redfield(
     de_array_constructor = nothing,
     int_atol = 1e-8,
     int_rtol = 1e-6,
+    Ta = tf,
     kwargs...,
 )
     tf, u0, tstops = __init(
@@ -57,6 +47,7 @@ function solve_redfield(
         A.interactions,
         unitary,
         tf,
+        Ta,
         atol = int_atol,
         rtol = int_rtol,
     )
@@ -82,19 +73,7 @@ function solve_redfield(
 end
 
 """
-    function solve_CGME(
-        A::Annealing,
-        tf::Real,
-        unitary;
-        vectorize::Bool = false,
-        dimensionless_time::Bool = true,
-        tstops = Float64[],
-        de_array_constructor = nothing,
-        Ta = nothing,
-        int_atol = 1e-8,
-        int_rtol = 1e-6,
-        kwargs...,
-    )
+$(SIGNATURES)
 
 Solve the time dependent CGME for `Annealing` defined by `A` with total annealing time `tf`.
 
@@ -204,6 +183,7 @@ function build_ensemble_hybrid_redfield(
     fluctuator_de_field = nothing,
     int_atol = 1e-8,
     int_rtol = 1e-6,
+    Ta = tf,
     initializer = DEFAULT_INITIALIZER,
     tstops = Float64[],
     kwargs...,
@@ -225,6 +205,7 @@ function build_ensemble_hybrid_redfield(
             A.interactions,
             unitary,
             tf,
+            Ta,
             int_atol,
             int_rtol,
             fluctuator_de_field,

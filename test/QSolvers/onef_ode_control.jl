@@ -14,6 +14,7 @@ stochastic_noise(A, u0, 2.0, 0.0)
 A = zeros(ComplexF64, 2,2)
 stochastic_noise(A, u0, UnitTime(2.0), 0.1)
 @test A == -1.0im*σz
+stochastic_noise = QuantumAnnealingTools.StochasticNoise(coupling, nothing)
 A = zeros(ComplexF64, 2,2)
 stochastic_noise(A, [3.0], 2.0, 0.1)
 @test A == -1.0im*6.0*σz

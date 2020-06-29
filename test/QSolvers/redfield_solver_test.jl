@@ -1,4 +1,4 @@
-using QuantumAnnealingTools, Test, OrdinaryDiffEq
+using QuantumAnnealingTools, Test, OrdinaryDiffEq, QuadGK
 
 H = DenseHamiltonian([(s) -> 1.0], [σi], unit = :ħ)
 u0 = PauliVec[1][1]
@@ -18,8 +18,8 @@ sol = solve_redfield(
     reltol = 1e-8,
 );
 cfun(t) = correlation(t, bath)
-f(t) = QuantumAnnealingTools.quadgk(cfun, 0, t)[1]
-γ = real(QuantumAnnealingTools.quadgk(f, 0, tf)[1])
+f(t) = quadgk(cfun, 0, t)[1]
+γ = real(quadgk(f, 0, tf)[1])
 @test sol(1.0)[1, 2] ≈ exp(-4 * γ) * 0.5 atol = 1e-5 rtol = 1e-5
 
 # This is a temporary implementation of
