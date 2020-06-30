@@ -18,7 +18,10 @@ It will install the packages directly from their github repos. This can also be 
 ```
 More information about `Julia`'s package manager can be found at [Pkg.jl](https://julialang.github.io/Pkg.jl/v1/).
 
-Notice: Because currently the github repo is held private, please use `https://tef1.physics.tamu.edu/huochen/qtbase.jl` and `https://tef1.physics.tamu.edu/huochen/quantumannealingtools.jl` to install the package.
+Notice: Because currently the github repo is held private, please use  
+`https://tef1.physics.tamu.edu/huochen/qtbase.jl`  
+`https://tef1.physics.tamu.edu/huochen/quantumannealingtools.jl`  
+to install the package.
 
 ## Useful Packages
 It is recommended to install the following external packages:  

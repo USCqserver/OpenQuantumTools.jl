@@ -10,7 +10,6 @@ DiffEqCallbacks = "459566f4-90b8-5000-8ac3-15dfb0a30def"
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
-NLSolversBase = "d41bc354-129a-5804-8e4c-c37616107c6c"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 QTBase = "5dd19120-8766-11e9-1ef9-27094038a7db"
 RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
@@ -20,10 +19,10 @@ SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 [extras]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
+QuadGK = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-QuadGK = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
 
 [targets]
 test = ["Test", "SafeTestsets", "OrdinaryDiffEq", "Random", "QuadGK"]
