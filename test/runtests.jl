@@ -1,9 +1,9 @@
 using SafeTestsets
 
 @time begin
-    @time @safetestset "Bath" begin
-        include("bath.jl")
-    end
+#    @time @safetestset "Bath" begin
+#        include("bath.jl")
+#    end
     @time @safetestset "Control datatypes" begin
          include("QControl/control_datatype.jl")
     end

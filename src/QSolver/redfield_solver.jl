@@ -1,17 +1,5 @@
 """
-    function solve_redfield(
-        A::Annealing,
-        tf::Real,
-        unitary;
-        vectorize::Bool = false,
-        dimensionless_time::Bool = true,
-        tstops = Float64[],
-        positivity_check::Bool = false,
-        de_array_constructor = nothing,
-        int_atol = 1e-8,
-        int_rtol = 1e-6,
-        kwargs...,
-    )
+$(SIGNATURES)
 
 Solve the time dependent Redfield equation for `Annealing` defined by `A` with total annealing time `tf`.
 
@@ -27,6 +15,7 @@ Solve the time dependent Redfield equation for `Annealing` defined by `A` with t
 - `de_array_constructor = nothing`: the converting function if using `DEDataArray` type.
 - `int_atol = 1e-8`: the absolute error tolerance for integration.
 - `int_rtol = 1e-6`: the relative error tolerance for integration.
+- `Ta = tf`: the time scale for backward integration.
 - `kwargs`: other keyword arguments supported by DifferentialEquations.jl.
 ...
 """
@@ -41,6 +30,7 @@ function solve_redfield(
     de_array_constructor = nothing,
     int_atol = 1e-8,
     int_rtol = 1e-6,
+    Ta = tf,
     kwargs...,
 )
     tf, u0, tstops = __init(
@@ -57,6 +47,7 @@ function solve_redfield(
         A.interactions,
         unitary,
         tf,
+        Ta,
         atol = int_atol,
         rtol = int_rtol,
     )
@@ -82,19 +73,7 @@ function solve_redfield(
 end
 
 """
-    function solve_CGME(
-        A::Annealing,
-        tf::Real,
-        unitary;
-        vectorize::Bool = false,
-        dimensionless_time::Bool = true,
-        tstops = Float64[],
-        de_array_constructor = nothing,
-        Ta = nothing,
-        int_atol = 1e-8,
-        int_rtol = 1e-6,
-        kwargs...,
-    )
+$(SIGNATURES)
 
 Solve the time dependent CGME for `Annealing` defined by `A` with total annealing time `tf`.
 
@@ -193,7 +172,7 @@ end
 # ================ the following codes are for hybrid Redfield =================
 function build_ensemble_hybrid_redfield(
     A::Annealing,
-    tf::Real,
+    tf,
     unitary,
     output_func,
     reduction;
@@ -204,8 +183,9 @@ function build_ensemble_hybrid_redfield(
     fluctuator_de_field = nothing,
     int_atol = 1e-8,
     int_rtol = 1e-6,
-    initializer = DEFAULT_INITIALIZER,
+    Ta = tf,
     tstops = Float64[],
+    initializer = DEFAULT_INITIALIZER,
     kwargs...,
 )
     tf, u0, tstops = __init(
@@ -219,17 +199,86 @@ function build_ensemble_hybrid_redfield(
         needed_symbol = fluctuator_de_field == nothing ? [] :
                             [fluctuator_de_field],
     )
-    ff = __re_build_ode_function(A.H, vectorize)
-    if A.interactions == nothing
-        error("Hybrid Redfield equation only need at least two different bath.")
-    end
-    fluctuator_control, fluctuator_opensys, redfield_opensys =
+
+    control, fluctuator_opensys, redfield_opensys =
         build_hybrid_redfield_control_from_interactions(
             A.interactions,
             unitary,
             tf,
+            Ta,
             int_atol,
             int_rtol,
             fluctuator_de_field,
         )
+    control = A.control == nothing ? control : ControlSet(control, A.control)
+    p = ODEParams(
+        A.H,
+        tf;
+        control = control,
+        opensys = OpenSysSet(fluctuator_opensys, redfield_opensys),
+    )
+    callback = __rehybrid_build_callback(control)
+    if positivity_check
+        positivity_check_callback = FunctionCallingCallback(
+            positivity_check_affect,
+            func_everystep = true,
+            func_start = false,
+        )
+        callback = CallbackSet(callback, positivity_check_callback)
+    end
+
+    ff = __rehybrid_build_ode(A.H, control, vectorize)
+    prob = ODEProblem{true}(ff, u0, (p) -> scaling_tspan(p.tf, A.sspan), p)
+
+    prob_func = build_prob_func(initializer)
+
+    ensemble_prob = EnsembleProblem(
+        prob;
+        prob_func = prob_func,
+        output_func = output_func,
+        reduction = reduction,
+    )
+
+    ensemble_prob, callback, tstops
+end
+
+function __rehybrid_build_callback(control::ControlSet)
+    callbacks = [
+        __rehybrid_build_callback(v, k)
+        for (k, v) in zip(keys(control), control)
+    ]
+    CallbackSet(callbacks...)
+end
+
+__rehybrid_build_callback(
+    control::Union{InstPulseControl,InstDEPulseControl},
+    sym::Symbol,
+) = build_callback(control, sym, pulse_on_density!)
+
+__rehybrid_build_callback(
+    control::Union{FluctuatorControl,FluctuatorDEControl},
+    sym::Symbol,
+) = build_callback(control, sym)
+
+__rehybrid_build_callback(
+    control::Union{FluctuatorControl,FluctuatorDEControl},
+) = build_callback(control)
+
+function __rehybrid_build_ode(H, control, vectorize)
+    if vectorize == false
+        function (du, u, p, t)
+            p.H(du, u, p.tf, t)
+            update_ρ!(du, u, p, t, p.opensys)
+        end
+    else
+        update_func = function (du, u, p, t)
+            update_vectorized_cache!(du, p.H, p.tf, t)
+            update_vectorized_cache!(du, u, p, t, p.opensys)
+        end
+        cache = get_cache(H, vectorize)
+        diff_op = DiffEqArrayOperator(cache, update_func = update_func)
+        jac_cache = similar(cache)
+        jac_op = DiffEqArrayOperator(jac_cache, update_func = update_func)
+        ff = ODEFunction(diff_op; jac_prototype = jac_op)
+    end
 end
