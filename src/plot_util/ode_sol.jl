@@ -1,36 +1,36 @@
 @recipe function f(
     sol::ODESolution,
     H::AbstractHamiltonian,
-    lvl::Integer;
-    s_axis = sol.t,
+    lvl::Integer,
+    s_axis = sol.t;
     eig_init = EIGEN_DEFAULT,
 )
     y = instantaneous_population(sol, H, lvl = lvl, s_axis = s_axis)
     lab = ["E_$x" for x in (0:(lvl-1))']
     lab = [latexstring(x) for x in lab]
     label --> lab
-    (s, y)
+    (s_axis, y)
 end
 
 
 @recipe function f(
     sol::ODESolution,
     H::AbstractHamiltonian,
-    lvl::AbstractArray{T,1};
-    s_axis = sol.t,
+    lvl::AbstractArray{T,1},
+    s_axis = sol.t;
     eig_init = EIGEN_DEFAULT,
 ) where {T<:Integer}
     y = instantaneous_population(sol, H, lvl = maximum(lvl), s_axis = s_axis)
     lab = ["E_$x" for x in (lvl .- 1)']
     lab = [latexstring(x) for x in lab]
     label --> lab
-    (s, y[:, lvl])
+    (s_axis, y[:, lvl])
 end
 
 
 @recipe function f(
     sol::ODESolution,
-    lvl::AbstractArray{T,1};
+    lvl::AbstractArray{T,1},
     s_axis = sol.t,
 ) where {T<:Integer}
     y = []
@@ -50,5 +50,5 @@ end
     lab = ["E_$x" for x in (lvl .- 1)']
     lab = [latexstring(x) for x in lab]
     label --> lab
-    (sol.t, y[:, lvl])
+    (s_axis, y[:, lvl])
 end
