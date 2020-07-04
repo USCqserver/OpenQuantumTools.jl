@@ -318,7 +318,7 @@ function QTBase.update_vectorized_cache!(
 )
     H = sum(getfield(u, S.sym) .* S.ops(t))
     iden = Matrix{eltype(H)}(I, size(H))
-    cache .= 1.0im * tf * (transpose(H) ⊗ iden - iden ⊗ H)
+    cache .+= 1.0im * tf * (transpose(H) ⊗ iden - iden ⊗ H)
 end
 
 QTBase.update_vectorized_cache!(
@@ -355,7 +355,7 @@ function QTBase.update_vectorized_cache!(
 )
     H = sum(n .* S.ops(t))
     iden = Matrix{eltype(H)}(I, size(H))
-    cache .= 1.0im * tf * (transpose(H) ⊗ iden - iden ⊗ H)
+    cache .+= 1.0im * tf * (transpose(H) ⊗ iden - iden ⊗ H)
 end
 
 QTBase.update_vectorized_cache!(cache, n::AbstractArray, tf::UnitTime, t, S::StochasticNoise) =
