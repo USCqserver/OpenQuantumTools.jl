@@ -1,16 +1,5 @@
 """
-    function solve_ame(
-        A::Annealing,
-        tf::Real;
-        dimensionless_time::Bool = true,
-        ω_hint = [],
-        lambshift::Bool = true,
-        lvl::Int = size(A.H, 1),
-        tstops = Float64[],
-        vectorize::Bool = false,
-        de_array_constructor = nothing,
-        kwargs...,
-    )
+$(SIGNATURES)
 
 Solve the adiabatic master equation for `Annealing` defined by `A` with total annealing time `tf`.
 
@@ -18,187 +7,98 @@ Solve the adiabatic master equation for `Annealing` defined by `A` with total an
 # Arguments
 - `A::Annealing`: the Annealing object.
 - `tf::Real`: the total annealing time.
-- `dimensionless_time::Bool=true`: flag variable which, when set to true, informs the solver to work with dimensionless time.
+- `tspan` = (0, tf): time interval to solve.
 - `ω_hint=[]` : grid for precalculating the lambshift; skip the precalculation if empty.
 - 'lambshift::Bool=true' : whether to include Lambshift in the calculation.
 - `lvl::Int=size(A.H, 1)` : number of levels to keep. The default value is the dimension for the Hamiltonian.
-- `tstops` : extra times that the timestepping algorithm must step to.
 - `vectorize::Bool = false`: whether to vectorize the density matrix.
-- `de_array_constructor = nothing`: the converting function if using `DEDataArray` type.
-- `kwargs` : other keyword arguments supported by DifferentialEquations.jl
+- `kwargs` : other keyword arguments supported by DifferentialEquations.jl.
 ...
 """
 function solve_ame(
     A::Annealing,
     tf::Real;
-    dimensionless_time::Bool = true,
+    tspan = (0.0, tf),
     ω_hint = [],
     lambshift::Bool = true,
     lvl::Int = size(A.H, 1),
-    tstops = Float64[],
     vectorize::Bool = false,
-    de_array_constructor = nothing,
     kwargs...,
 )
-    tf, u0, tstops = __init(
-        A,
-        tf,
-        dimensionless_time,
-        :m,
-        tstops,
-        de_array_constructor,
-        vectorize = vectorize,
-    )
+    u0 = build_u0(A.u0, :m, vectorize = vectorize)
     davies = build_davies(A.interactions, ω_hint, lambshift)
     if vectorize
         error("Vectorization is not yet supported for adiabatic master equation.")
     end
-    f = AMEDiffEqOperator(A.H, davies, lvl)
-    reset!(A.control)
-    callback = ame_build_callback(A.control)
-    p = ODEParams(tf; control = A.control)
-    prob = ODEProblem(f, u0, (p) -> scaling_tspan(p.tf, A.sspan), p)
-    solve(
-        prob;
-        alg_hints = [:nonstiff],
-        callback = callback,
-        tstops = tstops,
-        kwargs...,
-    )
+    f = AMEOperator(A.H, davies, lvl)
+    p = ODEParams(f, float(tf), A.annealing_parameter)
+    prob = ODEProblem(f, u0, tspan, p)
+    solve(prob; alg_hints = [:nonstiff], kwargs...)
 end
 
-
-ame_build_callback(control) = nothing
-ame_build_callback(control::Union{InstPulseControl,InstDEPulseControl}) =
-    build_callback(control, pulse_on_density!)
-
-function build_ensemble_problem_ame_trajectory(
+function build_ensemble_ame(
     A::Annealing,
     tf::Real,
     output_func,
     reduction;
-    dimensionless_time::Bool = true,
+    tspan = (0.0, tf),
     ω_hint = [],
     lambshift::Bool = true,
     lvl::Int = size(A.H, 1),
-    de_array_constructor = nothing,
-    ame_trajectory_de_field = nothing,
-    fluctuator_de_field = nothing,
-    initializer = DEFAULT_INITIALIZER,
-    tstops = Float64[],
+    initializer = initializer,
     kwargs...,
 )
-    # Put field names for ame_trajectory `r` and fluctuator `n` into `additional_symbol`
-    # TODO: Do we really need to use keyword argument for those field names
-    additional_symbol = []
-    if ame_trajectory_de_field != nothing
-        push!(additional_symbol, ame_trajectory_de_field)
+    u0 = build_u0(A.u0, :v)
+
+    dlist, flist = build_ametr_lvs(A.interactions, ω_hint, lambshift)
+    L, cb = build_ametr_op_callback(A.H, lvl, dlist, flist, initializer)
+    p = ODEParams(L, tf, A.annealing_parameter)
+    update_func = function (cache, u, p, t)
+        update_cache!(cache, p.L, p, t)
     end
-    if fluctuator_de_field != nothing
-        push!(additional_symbol, fluctuator_de_field)
-    end
-
-    tf, u0, tstops = __init(
-        A,
-        tf,
-        dimensionless_time,
-        :v,
-        tstops,
-        de_array_constructor,
-        needed_symbol = additional_symbol,
-    )
-
-    control, opensys = build_ame_trajectory_control_from_interactions(
-        A.interactions,
-        ω_hint,
-        lambshift,
-        lvl,
-        tf,
-        A.H,
-        ame_trajectory_de_field,
-        fluctuator_de_field,
-    )
-    control = A.control == nothing ? control : ControlSet(control, A.control)
-    p = ODEParams(tf; control = control, opensys = opensys)
-    callback = ame_trajectory_build_callback(control)
-    ff = ame_trajectory_build_ode_function(A.H, control)
-    prob = ODEProblem{true}(ff, u0, (p) -> scaling_tspan(p.tf, A.sspan), p)
-
-    prob_func = build_prob_func(initializer)
-
-    ensemble_prob = EnsembleProblem(
-        prob;
-        prob_func = prob_func,
-        output_func = output_func,
-        reduction = reduction,
-    )
-
-    ensemble_prob, callback, tstops
-end
-
-
-function ame_trajectory_build_callback(control::ControlSet)
-    callbacks = [
-        ame_trajectory_build_callback(v, k)
-        for (k, v) in zip(keys(control), control)
-    ]
-    CallbackSet(callbacks...)
-end
-
-
-ame_trajectory_build_callback(
-    control::Union{AMETrajectoryControl,AMETrajectoryDEControl},
-) = build_callback(control)
-
-
-ame_trajectory_build_callback(
-    control::Union{AMETrajectoryControl,AMETrajectoryDEControl},
-    sym::Symbol,
-) = build_callback(control, sym)
-
-
-ame_trajectory_build_callback(
-    control::Union{InstPulseControl,InstDEPulseControl},
-    sym::Symbol,
-) = build_callback(control, sym, (c, pulse) -> c .= pulse * c)
-
-
-ame_trajectory_build_callback(
-    control::Union{FluctuatorControl,FluctuatorDEControl},
-    sym::Symbol,
-) = build_callback(control, sym)
-
-
-function ame_trajectory_build_ode_function(H, ctr)
-    update_func = build_update_func_ame_trajectory(ctr)
-    cache = get_cache(H)
+    cache = get_cache(A.H)
     diff_op = DiffEqArrayOperator(cache, update_func = update_func)
     jac_cache = similar(cache)
     jac_op = DiffEqArrayOperator(jac_cache, update_func = update_func)
     ff = ODEFunction(diff_op; jac_prototype = jac_op)
+
+    prob = ODEProblem{true}(ff, u0, tspan, p, callback = cb)
+    ensemble_prob = EnsembleProblem(
+        prob;
+        output_func = output_func,
+        reduction = reduction,
+    )
+    ensemble_prob
 end
 
-
-function build_update_func_ame_trajectory(
-    ctr::Union{AMETrajectoryControl,AMETrajectoryDEControl},
-)
-    (A, u, p, t) -> update_cache!(A, p.control.op, p.tf, t)
-end
-
-
-function build_update_func_ame_trajectory(ctr::ControlSet)
-    if has_fluctuator_control(ctr) && need_de_array(ctr, :fluctuator_control)
-        update_func = function (A, u, p, t)
-            update_cache!(A, p.control.ame_trajectory_control.op, p.tf, t)
-            p.opensys(A, u, p.tf, t)
+function build_ametr_lvs(iset, ω_hint, lambshift)
+    davies = []
+    stochastic = []
+    for i in iset
+        if typeof(i.bath) <: EnsembleFluctuator
+            push!(stochastic, build_fluctuator(i.coupling, i.bath))
+        else
+            push!(davies, build_davies(i.coupling, i.bath, ω_hint, lambshift))
         end
-    elseif has_fluctuator_control(ctr)
-        update_func = function (A, u, p, t)
-            update_cache!(A, p.control.ame_trajectory_control.op, p.tf, t)
-            p.opensys(A, p.control.fluctuator_control(), p.tf, t)
-        end
-    else
-        (A, u, p, t) ->
-            update_cache!(A, p.control.ame_trajectory_control.op, p.tf, t)
     end
+    davies, stochastic
+end
+
+function build_ametr_op_callback(H, lvl, dlist, flist, initializer)
+    initializer =
+        initializer == DEFAULT_INITIALIZER ? (x, y) -> rand([-1, 1], x, y) :
+        initializer
+    if isempty(flist)
+        f = AMEOperator(H, dlist, lvl)
+        cb = AMEtrajectoryCallback()
+    elseif isempty(dlist)
+        error("No interactions support AME. Use other ensemble instead.")
+    else
+        f = QTBase.OpenSysOpHybrid(H, dlist, flist, lvl)
+        cb = CallbackSet(
+            AMEtrajectoryCallback(),
+            [FluctuatorCallback(f, initializer) for f in flist]...,
+        )
+    end
+    f, cb
 end

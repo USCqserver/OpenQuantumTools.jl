@@ -2,12 +2,10 @@
     sol::ODESolution,
     H::AbstractHamiltonian,
     lvl::Integer,
-    s_axis = sol.t;
-    eig_init = EIGEN_DEFAULT,
+    s_axis = sol.t,
 )
     y = instantaneous_population(sol, H, lvl = lvl, s_axis = s_axis)
-    lab = ["E_$x" for x in (0:(lvl-1))']
-    lab = [latexstring(x) for x in lab]
+    lab = ["\$E_$x\$" for x in (1:lvl)']
     label --> lab
     (s_axis, y)
 end
@@ -17,12 +15,10 @@ end
     sol::ODESolution,
     H::AbstractHamiltonian,
     lvl::AbstractArray{T,1},
-    s_axis = sol.t;
-    eig_init = EIGEN_DEFAULT,
+    s_axis = sol.t,
 ) where {T<:Integer}
     y = instantaneous_population(sol, H, lvl = maximum(lvl), s_axis = s_axis)
-    lab = ["E_$x" for x in (lvl .- 1)']
-    lab = [latexstring(x) for x in lab]
+    lab = ["\$E_$x\$" for x in (lvl)']
     label --> lab
     (s_axis, y[:, lvl])
 end
@@ -47,8 +43,5 @@ end
     end
 
     y = hcat(y...)'
-    lab = ["E_$x" for x in (lvl .- 1)']
-    lab = [latexstring(x) for x in lab]
-    label --> lab
     (s_axis, y[:, lvl])
 end
