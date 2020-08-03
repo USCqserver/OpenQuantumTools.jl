@@ -20,15 +20,4 @@ sol = solve_ame(
     abstol = 1e-8,
     reltol = 1e-8,
 )
-@test sol(1.0)[1, 2] ≈ exp(-2 * γ * tf) * 0.5 atol = 1e-5 rtol = 1e-5
-
-sol = solve_ame(
-    annealing,
-    tf,
-    alg = Tsit5(),
-    dimensionless_time = false,
-    ω_hint = range(-2, 2, length = 100),
-    abstol = 1e-8,
-    reltol = 1e-8,
-)
 @test sol(tf)[1, 2] ≈ exp(-2 * γ * tf) * 0.5 atol = 1e-5 rtol = 1e-5

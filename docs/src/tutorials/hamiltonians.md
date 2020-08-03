@@ -53,6 +53,8 @@ H_interp = InterpSparseHamiltonian(s_axis, H_list)
 ```
 where `s_axis` and `H_list` are the grid points and corresponding Hamiltonian values. The constructors also take keyword argument `method`, `order` and `unit`. `method` and `order` specify the internal interpolation method. For dense Hamiltonians, both `BSpline` of order 0-3 and `Gridded` of order 0-1 are supported. For sparse Hamiltonians, only `Gridded` of order 0-1 is supported.
 
+## Eigendecomposition
+
 ## Plotting
 This package can also interact with [Plots.jl](https://github.com/JuliaPlots/Plots.jl) to provide convenient ways for visualizing the spectrum of any given Hamiltonians. For example
 ```julia

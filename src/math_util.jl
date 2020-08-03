@@ -22,12 +22,12 @@ function instantaneous_population(
     y = []
     if ndims(sol.u[1]) == 1
         for x in s_axis
-            _, v = eigen_decomp(H, x / tf, lvl = lvl, eig_init = EIGEN_DEFAULT)
+            _, v = eigen_decomp(H, x / tf, lvl = lvl)
             push!(y, abs2.(v' * sol(x)))
         end
     elseif ndims(sol.u[1]) == 2
         for x in s_axis
-            _, v = eigen_decomp(H, x / tf, lvl = lvl, eig_init = EIGEN_DEFAULT)
+            _, v = eigen_decomp(H, x / tf, lvl = lvl)
             push!(y, real.(diag(v' * sol(x) * v)))
         end
     else
