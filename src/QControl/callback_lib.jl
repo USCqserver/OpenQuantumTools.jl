@@ -19,7 +19,7 @@ function PositivityCheckCallback()
         end
         u_modified!(integrator, false)
     end
-    FunctionCallingCallback(affect!, func_everystep = true, func_start = false)
+    FunctionCallingCallback(affect!, func_everystep=true, func_start=false)
 end
 
 """
@@ -46,7 +46,7 @@ function InstPulseCallback(tstops, pulse_update)
         state[] = 1
         u_modified!(integrator, false)
     end
-    PresetTimeCallback(tstops, affect!, initialize = initialize)
+    PresetTimeCallback(tstops, affect!, initialize=initialize)
 end
 
 function FluctuatorCallback(F::Fluctuators, initialize)
@@ -60,7 +60,7 @@ function FluctuatorCallback(F::Fluctuators, initialize)
     end
 
     affect! = function (integrator)
-        F.n = sum(F.b0, dims = 1)[:]
+        F.n = sum(F.b0, dims=1)[:]
         QTBase.next_state!(F)
         u_modified!(integrator, false)
     end
@@ -73,8 +73,8 @@ function FluctuatorCallback(F::Fluctuators, initialize)
     IterativeCallback(
         time_choice,
         affect!,
-        initialize = initialize_fluc,
-        save_positions = (false, true),
+        initialize=initialize_fluc,
+        save_positions=(false, false),
     )
 end
 
@@ -103,7 +103,7 @@ function AMEtrajectoryCallback()
         u_modified!(integrator, false)
     end
 
-    ContinuousCallback(condition, affect!, initialize = initialize)
+    ContinuousCallback(condition, affect!, save_positions=(true, true), initialize=initialize)
 end
 
 """
@@ -116,5 +116,5 @@ function ManifoldRetractionCallback()
         rmul!(integrator.u, 1 / norm(integrator.u))
     end
     condition = (u, t, integrator) -> true
-    DiscreteCallback(condition, affect!, save_positions = (false, save))
+    DiscreteCallback(condition, affect!, save_positions=(false, save))
 end

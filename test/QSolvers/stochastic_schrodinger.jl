@@ -10,23 +10,13 @@ tf = 2.0
 
 prob = build_ensembles(annealing, tf, :stochastic)
 Random.seed!(1234)
-sol1 = solve(prob, Tsit5(), EnsembleSerial(), trajectories=1)
-tstops1 = []
-for i = 2:length(sol1[1].t)
-    if sol1[1].t[i] == sol1[1].t[i - 1]
-        push!(tstops1, sol1[1].t[i])
-    end
-end
+sol1 = solve(prob, Tsit5(), EnsembleSerial(), trajectories=1, save_everystep=false)
 
 Random.seed!(1234)
-sol2 = solve(prob, Tsit5(), EnsembleSerial(), trajectories=1)
-tstops2 = []
-for i = 2:length(sol2[1].t)
-    if sol2[1].t[i] == sol2[1].t[i - 1]
-        push!(tstops2, sol2[1].t[i])
-    end
-end
+sol2 = solve(prob, Tsit5(), EnsembleSerial(), trajectories=1, save_everystep=false)
 
 @test sol1[1][end] ≈ sol2[1][end] atol = 1e-6 rtol = 1e-6
-@test !isempty(tstops1)
-@test tstops1 == tstops2
+
+sol3 = solve(prob, Tsit5(), EnsembleSerial(), trajectories=1, save_everystep=false)
+
+@test !(isapprox(sol1[1][end], sol3[1][end], atol=1e-6, rtol=1e-6))
