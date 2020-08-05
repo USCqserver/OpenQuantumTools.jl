@@ -31,4 +31,4 @@ Plots is a visualization interface and toolset for Julia. `QuantumAnnealingTools
 Even though `QuantumAnnealingTools.jl` can function without `DifferentialEquations.jl`, it needs to be loaded in order for the master equation solvers to work properly. For [low dependency usage](http://docs.juliadiffeq.org/stable/features/low_dep.html#Low-Dependency-Usage-1), replacing `DifferentialEquations` by [OrdinaryDiffEq.jl](https://github.com/JuliaDiffEq/OrdinaryDiffEq.jl) will also work.
 
 ## Additional Examples
-More examples can be found in the [example folder](./example). Those notebooks can be conveniently opened online with [nbviewer](https://nbviewer.jupyter.org/).
+More examples can be found in the [example folder](./example). Those notebooks can be conveniently opened online with [nbviewer](https://nbviewer.jupyter.org/). In the future, all tutorials will be moved to a dedicated Github [repo](https://github.com/USCqserver/OSQATTutorials.jl).
