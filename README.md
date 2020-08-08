@@ -13,8 +13,8 @@ Pkg.add(PackageSpec(url="https://github.com/USCqserver/QuantumAnnealingTools.jl"
 ```
 It will install the packages directly from their github repos. This can also be done in Julia's [Pkg REPL](https://julialang.github.io/Pkg.jl/v1/getting-started/):
 ```julia-REPL
-(1.2) pkg> add https://github.com/USCqserver/QTBase.jl
-(1.2) pkg> add https://github.com/USCqserver/QuantumAnnealingTools.jl
+(1.5) pkg> add https://github.com/USCqserver/QTBase.jl
+(1.5) pkg> add https://github.com/USCqserver/QuantumAnnealingTools.jl
 ```
 More information about `Julia`'s package manager can be found at [Pkg.jl](https://julialang.github.io/Pkg.jl/v1/).
 
@@ -30,5 +30,5 @@ Plots is a visualization interface and toolset for Julia. `QuantumAnnealingTools
 ### [DifferentialEquations.jl](http://docs.juliadiffeq.org/latest/)
 Even though `QuantumAnnealingTools.jl` can function without `DifferentialEquations.jl`, it needs to be loaded in order for the master equation solvers to work properly. For [low dependency usage](http://docs.juliadiffeq.org/stable/features/low_dep.html#Low-Dependency-Usage-1), replacing `DifferentialEquations` by [OrdinaryDiffEq.jl](https://github.com/JuliaDiffEq/OrdinaryDiffEq.jl) will also work.
 
-## Additional Examples
-More examples can be found in the [example folder](./example). Those notebooks can be conveniently opened online with [nbviewer](https://nbviewer.jupyter.org/). In the future, all tutorials will be moved to a dedicated Github [repo](https://github.com/USCqserver/OSQATTutorials.jl).
+## Tutorials
+Tutorials and examples can be found in [OSQATTutorials.jl](https://github.com/USCqserver/OSQATTutorials.jl).

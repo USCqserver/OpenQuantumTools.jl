@@ -65,7 +65,7 @@ Solve the time dependent CGME for `Annealing` defined by `A` with total annealin
 - `tf::Real`: the total annealing time.
 - `unitary`: precalculated unitary of close system evolution.
 - `vectorize::Bool = false`: whether to vectorize the density matrix.
-- `Ta = nothing`: coarse-graining time.
+- `Ta = nothing`: coarse-graining time. If set to nothing, the solver will automatically choose the value.
 - `int_atol = 1e-8`: the absolute error tolerance for integration.
 - `int_rtol = 1e-6`: the relative error tolerance for integration.
 - `kwargs`: other keyword arguments supported by DifferentialEquations.jl.
