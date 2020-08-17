@@ -18,14 +18,14 @@ Solve the adiabatic master equation for `Annealing` defined by `A` with total an
 function solve_ame(
     A::Annealing,
     tf::Real;
-    tspan = (0.0, tf),
-    ω_hint = [],
-    lambshift::Bool = true,
-    lvl::Int = size(A.H, 1),
-    vectorize::Bool = false,
+    tspan=(0.0, tf),
+    ω_hint=[],
+    lambshift::Bool=true,
+    lvl::Int=size(A.H, 1),
+    vectorize::Bool=false,
     kwargs...,
 )
-    u0 = build_u0(A.u0, :m, vectorize = vectorize)
+    u0 = build_u0(A.u0, :m, vectorize=vectorize)
     davies = build_davies(A.interactions, ω_hint, lambshift)
     if vectorize
         error("Vectorization is not yet supported for adiabatic master equation.")
@@ -33,7 +33,7 @@ function solve_ame(
     f = AMEOperator(A.H, davies, lvl)
     p = ODEParams(f, float(tf), A.annealing_parameter)
     prob = ODEProblem(f, u0, tspan, p)
-    solve(prob; alg_hints = [:nonstiff], kwargs...)
+    solve(prob; alg_hints=[:nonstiff], kwargs...)
 end
 
 function build_ensemble_ame(
@@ -41,11 +41,11 @@ function build_ensemble_ame(
     tf::Real,
     output_func,
     reduction;
-    tspan = (0.0, tf),
-    ω_hint = [],
-    lambshift::Bool = true,
-    lvl::Int = size(A.H, 1),
-    initializer = initializer,
+    tspan=(0.0, tf),
+    ω_hint=[],
+    lambshift::Bool=true,
+    lvl::Int=size(A.H, 1),
+    initializer=initializer,
     kwargs...,
 )
     u0 = build_u0(A.u0, :v)
@@ -57,16 +57,17 @@ function build_ensemble_ame(
         update_cache!(cache, p.L, p, t)
     end
     cache = get_cache(A.H)
-    diff_op = DiffEqArrayOperator(cache, update_func = update_func)
+    diff_op = DiffEqArrayOperator(cache, update_func=update_func)
     jac_cache = similar(cache)
-    jac_op = DiffEqArrayOperator(jac_cache, update_func = update_func)
-    ff = ODEFunction(diff_op; jac_prototype = jac_op)
+    jac_op = DiffEqArrayOperator(jac_cache, update_func=update_func)
+    ff = ODEFunction(diff_op; jac_prototype=jac_op)
 
-    prob = ODEProblem{true}(ff, u0, tspan, p, callback = cb)
+    prob = ODEProblem{true}(ff, u0, tspan, p, callback=cb)
     ensemble_prob = EnsembleProblem(
         prob;
-        output_func = output_func,
-        reduction = reduction,
+        output_func=output_func,
+        reduction=reduction,
+        kwargs...
     )
     ensemble_prob
 end

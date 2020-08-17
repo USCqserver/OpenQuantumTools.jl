@@ -3,8 +3,9 @@ function build_ensemble_stochastic(
     tf::Real,
     output_func,
     reduction;
-    tspan = (0.0, tf),
-    initializer = DEFAULT_INITIALIZER,
+    tspan=(0.0, tf),
+    initializer=DEFAULT_INITIALIZER,
+    kwargs...
 )
     u0 = build_u0(A.u0, :v)
     initializer =
@@ -25,14 +26,14 @@ function build_ensemble_stochastic(
     end
 
     cache = get_cache(A.H)
-    diff_op = DiffEqArrayOperator(cache, update_func = update_func)
+    diff_op = DiffEqArrayOperator(cache, update_func=update_func)
     jac_cache = similar(cache)
-    jac_op = DiffEqArrayOperator(jac_cache, update_func = update_func)
-    ff = ODEFunction(diff_op, jac_prototype = jac_op)
-    prob = ODEProblem{true}(ff, u0, tspan, p, callback = cb)
+    jac_op = DiffEqArrayOperator(jac_cache, update_func=update_func)
+    ff = ODEFunction(diff_op, jac_prototype=jac_op)
+    prob = ODEProblem{true}(ff, u0, tspan, p, callback=cb)
 
     ensemble_prob =
-        EnsembleProblem(prob; output_func = output_func, reduction = reduction)
+        EnsembleProblem(prob; output_func=output_func, reduction=reduction, kwargs...)
 end
 
 """
@@ -41,8 +42,8 @@ This function is for testing purpose.
 function solve_stochastic_schrodinger(
     A::Annealing,
     tf::Real;
-    tspan = (0.0, tf),
-    initializer = DEFAULT_INITIALIZER,
+    tspan=(0.0, tf),
+    initializer=DEFAULT_INITIALIZER,
     kwargs...,
 )
     u0 = build_u0(A.u0, :v)
@@ -64,11 +65,11 @@ function solve_stochastic_schrodinger(
     end
 
     cache = get_cache(A.H)
-    diff_op = DiffEqArrayOperator(cache, update_func = update_func)
+    diff_op = DiffEqArrayOperator(cache, update_func=update_func)
     jac_cache = similar(cache)
-    jac_op = DiffEqArrayOperator(jac_cache, update_func = update_func)
-    ff = ODEFunction(diff_op, jac_prototype = jac_op)
+    jac_op = DiffEqArrayOperator(jac_cache, update_func=update_func)
+    ff = ODEFunction(diff_op, jac_prototype=jac_op)
     prob = ODEProblem{true}(ff, u0, tspan, p)
 
-    solve(prob; alg_hints = [:nonstiff], callback = cb, kwargs...)
+    solve(prob; alg_hints=[:nonstiff], callback=cb, kwargs...)
 end
