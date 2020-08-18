@@ -26,13 +26,7 @@ function solve_redfield(
     kwargs...,
 )
     u0 = build_u0(A.u0, :m, vectorize = vectorize)
-    L = build_redfield(
-        A.interactions,
-        unitary,
-        Ta,
-        atol = int_atol,
-        rtol = int_rtol,
-    )
+    L = build_redfield(A.interactions, unitary, Ta, int_atol, int_rtol)
     R = RedfieldOperator(A.H, L)
 
     update_func = function (A, u, p, t)
@@ -170,17 +164,7 @@ function build_red_lvs(iset, U, Ta, atol, rtol)
         if typeof(i.bath) <: EnsembleFluctuator
             push!(stochastic, build_fluctuator(i.coupling, i.bath))
         else
-            push!(
-                reds,
-                build_redfield(
-                    i.coupling,
-                    i.bath,
-                    U,
-                    Ta,
-                    atol = atol,
-                    rtol = rtol,
-                ),
-            )
+            push!(reds, build_redfield(i.coupling, i.bath, U, Ta, atol, rtol))
         end
     end
     reds, stochastic
