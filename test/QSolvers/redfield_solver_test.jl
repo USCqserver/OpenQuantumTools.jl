@@ -40,7 +40,7 @@ sol = solve_redfield(
     alg = Tsit5(),
     abstol = 1e-8,
     reltol = 1e-8,
-    callback=PositivityCheckCallback()
+    callback = PositivityCheckCallback(),
 );
 @test !(tf in sol.t)
 
@@ -64,7 +64,14 @@ sol = solve_redfield(
 @test sol(tf)[1, 2] ≈ exp(-4 * 0.02) * 0.5 atol = 1e-4 rtol = 1e-4
 
 cbu = InstPulseCallback([0.5 * tf], (c, x) -> c .= σx * c * σx)
-U = solve_unitary(annealing, tf, alg = Tsit5(), abstol = 1e-8, reltol = 1e-8, callback=cbu);
+U = solve_unitary(
+    annealing,
+    tf,
+    alg = Tsit5(),
+    abstol = 1e-8,
+    reltol = 1e-8,
+    callback = cbu,
+);
 cb = InstPulseCallback([0.5 * tf], (c, x) -> c .= σx * c * σx)
 sol = solve_redfield(
     annealing,
@@ -72,6 +79,6 @@ sol = solve_redfield(
     InplaceUnitary(U);
     alg = Tsit5(),
     callback = cb,
-    reltol = 1e-7
+    reltol = 1e-7,
 )
 @test sol(1.0)[1, 2] ≈ 0.5 atol = 1e-3
