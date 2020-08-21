@@ -19,13 +19,13 @@ function solve_redfield(
     A::Annealing,
     tf::Real,
     unitary;
-    vectorize::Bool = false,
-    int_atol = 1e-8,
-    int_rtol = 1e-6,
-    Ta = tf,
+    vectorize::Bool=false,
+    int_atol=1e-8,
+    int_rtol=1e-6,
+    Ta=tf,
     kwargs...,
 )
-    u0 = build_u0(A.u0, :m, vectorize = vectorize)
+    u0 = build_u0(A.u0, :m, vectorize=vectorize)
     L = build_redfield(A.interactions, unitary, Ta, int_atol, int_rtol)
     R = RedfieldOperator(A.H, L)
 
@@ -37,15 +37,15 @@ function solve_redfield(
         ff = ODEFunction{true}(R)
     else
         cache = vectorize_cache(get_cache(A.H))
-        diff_op = DiffEqArrayOperator(cache, update_func = update_func)
+        diff_op = DiffEqArrayOperator(cache, update_func=update_func)
         jac_cache = similar(cache)
-        jac_op = DiffEqArrayOperator(jac_cache, update_func = update_func)
-        ff = ODEFunction(diff_op, jac_prototype = jac_op)
+        jac_op = DiffEqArrayOperator(jac_cache, update_func=update_func)
+        ff = ODEFunction(diff_op, jac_prototype=jac_op)
     end
 
     p = ODEParams(R, float(tf), A.annealing_parameter)
     prob = ODEProblem(ff, u0, (0.0, float(tf)), p)
-    solve(prob; alg_hints = [:nonstiff], kwargs...)
+    solve(prob; alg_hints=[:nonstiff], kwargs...)
 end
 
 """
@@ -69,21 +69,15 @@ function solve_CGME(
     A::Annealing,
     tf::Real,
     unitary;
-    vectorize::Bool = false,
-    Ta = nothing,
-    int_atol = 1e-8,
-    int_rtol = 1e-6,
+    vectorize::Bool=false,
+    Ta=nothing,
+    int_atol=1e-8,
+    int_rtol=1e-6,
     kwargs...,
 )
-    u0 = build_u0(A.u0, :m, vectorize = vectorize)
-    L = build_CGG(
-        A.interactions,
-        unitary,
-        tf,
-        Ta = Ta,
-        atol = int_atol,
-        rtol = int_rtol,
-    )
+    u0 = build_u0(A.u0, :m, vectorize=vectorize)
+    L = build_CGG(A.interactions, unitary, tf, Ta,
+            int_atol, int_rtol)
     R = RedfieldOperator(A.H, L)
     update_func = function (A, u, p, t)
         update_vectorized_cache!(A, p.L, p, t)
@@ -93,15 +87,15 @@ function solve_CGME(
         ff = ODEFunction{true}(R)
     else
         cache = vectorize_cache(get_cache(A.H))
-        diff_op = DiffEqArrayOperator(cache, update_func = update_func)
+        diff_op = DiffEqArrayOperator(cache, update_func=update_func)
         jac_cache = similar(cache)
-        jac_op = DiffEqArrayOperator(jac_cache, update_func = update_func)
-        ff = ODEFunction(diff_op, jac_prototype = jac_op)
+        jac_op = DiffEqArrayOperator(jac_cache, update_func=update_func)
+        ff = ODEFunction(diff_op, jac_prototype=jac_op)
     end
 
     p = ODEParams(R, float(tf), A.annealing_parameter)
     prob = ODEProblem(ff, u0, (0.0, float(tf)), p)
-    solve(prob; alg_hints = [:nonstiff], kwargs...)
+    solve(prob; alg_hints=[:nonstiff], kwargs...)
 end
 
 function build_ensemble_redfield(
@@ -110,14 +104,14 @@ function build_ensemble_redfield(
     unitary,
     output_func,
     reduction;
-    vectorize::Bool = false,
-    int_atol = 1e-8,
-    int_rtol = 1e-6,
-    Ta = tf,
-    initializer = DEFAULT_INITIALIZER,
+    vectorize::Bool=false,
+    int_atol=1e-8,
+    int_rtol=1e-6,
+    Ta=tf,
+    initializer=DEFAULT_INITIALIZER,
     kwargs...,
 )
-    u0 = build_u0(A.u0, :m, vectorize = vectorize)
+    u0 = build_u0(A.u0, :m, vectorize=vectorize)
     reds, stocs = build_red_lvs(A.interactions, unitary, Ta, int_atol, int_rtol)
     if isempty(stocs)
         error("No stochastic bath detected. Use the normal Redfeidl solver instead.")
@@ -143,16 +137,16 @@ function build_ensemble_redfield(
         ff = ODEFunction{true}(R)
     else
         cache = vectorize_cache(get_cache(A.H))
-        diff_op = DiffEqArrayOperator(cache, update_func = update_func)
+        diff_op = DiffEqArrayOperator(cache, update_func=update_func)
         jac_cache = similar(cache)
-        jac_op = DiffEqArrayOperator(jac_cache, update_func = update_func)
-        ff = ODEFunction(diff_op, jac_prototype = jac_op)
+        jac_op = DiffEqArrayOperator(jac_cache, update_func=update_func)
+        ff = ODEFunction(diff_op, jac_prototype=jac_op)
     end
 
-    prob = ODEProblem{true}(ff, u0, (0.0, float(tf)), p, callback = cb)
+    prob = ODEProblem{true}(ff, u0, (0.0, float(tf)), p, callback=cb)
 
     ensemble_prob =
-        EnsembleProblem(prob; output_func = output_func, reduction = reduction)
+        EnsembleProblem(prob; output_func=output_func, reduction=reduction)
 
     ensemble_prob
 end
