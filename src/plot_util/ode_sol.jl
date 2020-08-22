@@ -2,12 +2,12 @@
     sol::ODESolution,
     H::AbstractHamiltonian,
     lvl::Integer,
-    s_axis = sol.t,
+    t_axis=sol.t,
 )
-    y = instantaneous_population(sol, H, lvl = lvl, s_axis = s_axis)
+    y = instantaneous_population(sol, H, lvl=lvl, t_axis=t_axis)
     lab = ["\$E_$x\$" for x in (1:lvl)']
     label --> lab
-    (s_axis, y)
+    (t_axis, y)
 end
 
 
@@ -15,20 +15,20 @@ end
     sol::ODESolution,
     H::AbstractHamiltonian,
     lvl::AbstractArray{T,1},
-    s_axis = sol.t,
-) where {T<:Integer}
-    y = instantaneous_population(sol, H, lvl = maximum(lvl), s_axis = s_axis)
+    t_axis=sol.t,
+) where {T <: Integer}
+    y = instantaneous_population(sol, H, lvl=maximum(lvl), t_axis=t_axis)
     lab = ["\$E_$x\$" for x in (lvl)']
     label --> lab
-    (s_axis, y[:, lvl])
+    (t_axis, y[:, lvl])
 end
 
 
 @recipe function f(
     sol::ODESolution,
     lvl::AbstractArray{T,1},
-    s_axis = sol.t,
-) where {T<:Integer}
+    s_axis=sol.t,
+) where {T <: Integer}
     y = []
     if ndims(sol.u[1]) == 1
         for x in s_axis

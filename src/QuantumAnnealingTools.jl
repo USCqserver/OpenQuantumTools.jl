@@ -46,6 +46,7 @@ export solve_unitary,
     solve_redfield,
     solve_ame,
     solve_CGME,
+    solve_ule,
     build_ensembles
 
 export DEFAULT_INITIALIZER
