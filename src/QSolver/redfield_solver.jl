@@ -209,8 +209,9 @@ function build_red_lvs(iset, U, Ta, atol, rtol)
         if typeof(i.bath) <: EnsembleFluctuator
             push!(stochastic, build_fluctuator(i.coupling, i.bath))
         else
-            push!(reds, build_redfield(i.coupling, i.bath, U, Ta, atol, rtol))
+            push!(reds, QTBase.build_redfield_kernel(i))
         end
     end
-    reds, stochastic
+    redfield_gen = RedfieldGenerator(reds, U, Ta, atol, rtol)
+    redfield_gen, stochastic
 end
