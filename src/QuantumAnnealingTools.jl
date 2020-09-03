@@ -4,7 +4,6 @@ using DocStringExtensions
 using Reexport
 using RecipesBase
 
-import Optim: optimize
 import DiffEqBase:
     ODEProblem,
     EnsembleProblem,
