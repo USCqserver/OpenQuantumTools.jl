@@ -6,28 +6,27 @@ os:
   - osx
 
 julia:
-  - 1.3
+  - 1.4
   - nightly
 
 notifications:
   email: false
 
-before_install:
-  git clone git@github.com:USCqserver/QTBase.jl.git QTBase.jl
+before_install: git clone git@github.com:USCqserver/QTBase.jl.git USCqserver/QTBase.jl
 script:
-  - julia --project --color=yes --check-bounds=yes -e 'using Pkg; Pkg.develop(PackageSpec(path="QTBase.jl")); Pkg.instantiate()'
-  - julia --project --color=yes --check-bounds=yes -e 'using Pkg; Pkg.instantiate(); Pkg.build(; verbose = true); Pkg.test(coverage=true)'
+  - julia --color=yes --check-bounds=yes -e 'using Pkg; Pkg.develop(PackageSpec(path="USCqserver/QTBase.jl")); Pkg.instantiate()'
+  - julia --color=yes --check-bounds=yes -e 'using Pkg; Pkg.instantiate(); Pkg.build(; verbose = true); Pkg.test(coverage=true)'
 
 jobs:
   include:
     - stage: "Documentation"
-      julia: 1.0
+      julia: 1.4
       os: linux
       script:
         - julia --project=docs/ -e 'using Pkg;
-                                    Pkg.develop(PackageSpec(path="QTBase.jl"));
-                                    Pkg.develop(PackageSpec(path=pwd()));
-                                    Pkg.instantiate()'
+          Pkg.develop(PackageSpec(path="USCqserver/QTBase.jl"));
+          Pkg.develop(PackageSpec(path="USCqserver/QuantumAnnealingTools.jl"));
+          Pkg.instantiate()'
         - julia --project=docs/ docs/make.jl
 after_success:
   # push coverage results to Codecov
