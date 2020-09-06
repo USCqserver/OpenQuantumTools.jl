@@ -12,7 +12,8 @@ makedocs(sitename="QuantumAnnealingTools",
             "Solver" => "tutorials/solver.md"
         ],
         "Library" => Any[
-            "Base" => "lib/QTBase.md",
+            "Hamiltonian" => "lib/hamiltonian.md",
+            "Coupling" => "lib/coupling.md",
             "Bath" => "lib/bath.md"
         ]
     ],
