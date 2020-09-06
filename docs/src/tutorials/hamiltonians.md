@@ -54,6 +54,26 @@ H_interp = InterpSparseHamiltonian(s_axis, H_list)
 where `s_axis` and `H_list` are the grid points and corresponding Hamiltonian values. The constructors also take keyword argument `method`, `order` and `unit`. `method` and `order` specify the internal interpolation method. For dense Hamiltonians, both `BSpline` of order 0-3 and `Gridded` of order 0-1 are supported. For sparse Hamiltonians, only `Gridded` of order 0-1 is supported.
 
 ## Eigendecomposition
+[`eigen_decomp`](@ref) can be used to perform eigendecomposition on the `AbstractHamiltonian` at a particular time. For example
+```julia
+w, v = eigen_decomp(H, 0.5, lvl=2)
+```
+calculate the lowest two energy eigenvalues and eigenvectors of `H` at ``s=0.5``. `w` is returned in the unit of `GHz` and each column in `v` corresponds to one eigenvector.
+
+In addition, a user-defined eigendecomposition function can be attached to the `AbstractHamiltonian` object if there is better eigendecomposition algorithm than the default `LAPACK` routine. The following code
+```julia
+function build_user_eigen(u_cache)
+    EIGS = function(H, t, lvl)
+        println("I am the user defined eigendecomposition routine.")
+        w, v = eigen(Hermitian(H(t)))
+        w[1:lvl], v[:, 1:lvl]
+    end
+end
+
+H = DenseHamiltonian([(s)->1-s, (s)->s], [σx, σz], EIGS=build_user_eigen)
+eigen_decomp(H, 0.5, lvl=2)
+```
+is a trivial example of replacing the default eigendecomposition routine with a user-defined one. More details can be found in this [tutorial](https://uscqserver.github.io/OSQATTutorials.jl/html/hamiltonian/01-custom-eigen.html).
 
 ## Plotting
 This package can also interact with [Plots.jl](https://github.com/JuliaPlots/Plots.jl) to provide convenient ways for visualizing the spectrum of any given Hamiltonians. For example
