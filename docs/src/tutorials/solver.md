@@ -5,36 +5,15 @@
 The interface to [Redfield](https://en.wikipedia.org/wiki/Redfield_equation) equation is:
 
 ### Basic usage
-The basic usage of Redfield solver is
-```@docs
-solve_redfield(
-    A::Annealing,
-    tf::Real,
-    unitary;
-    vectorize::Bool = false,
-    span_unit::Bool = false,
-    tstops = Float64[],
-    positivity_check::Bool = false,
-    kwargs...,
-)
-```
+The basic usage of Redfield solver is.
+
 
 ## Adiabatic master equation(AME)
 A good reference to adiabatic master equation is [Albash, Tameem, et al.](https://arxiv.org/abs/1206.4197) `QuantumAnnealingTools.jl` provides the following interfaces for AME solver:
 
 ### Basic usage
-The basic usage of AME solver is
-```@docs
-solve_ame(
-    A::Annealing,
-    tf::Real;
-    span_unit::Bool = false,
-    ω_hint = [],
-    lambshift::Bool = true,
-    lvl = size(A.H, 1),
-    kwargs...,
-)
-```
+The high level API for AME solver is [`solve_ame`](@ref).
+
 
 ## Additional solver options
 The extra keyword arguments `kwargs` will be directly passed to ODE [solve](http://docs.juliadiffeq.org/latest/basics/overview.html) interface. So every solver [option](http://docs.juliadiffeq.org/latest/basics/common_solver_opts.html) is supported. However, because of the current implementation, several keyword arguments are strongly recommended:
@@ -45,4 +24,4 @@ The extra keyword arguments `kwargs` will be directly passed to ODE [solve](http
 * `save_everystep`: Whether to save the result at every step. You can save the memory by setting it to `false`.
 
 ## Examples
-An tutorial notebook for solving both Redfield and adiabatic master equation can be found [here](https://github.com/USCqserver/QuantumAnnealingTools.jl/blob/master/example/single_qubit_example.ipynb).
+An tutorial notebook for solving both Redfield and adiabatic master equation can be found [here](https://uscqserver.github.io/OSQATTutorials.jl/html/introduction/02-single_qubit_ame.html).

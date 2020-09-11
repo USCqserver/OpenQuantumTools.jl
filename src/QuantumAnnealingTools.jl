@@ -49,10 +49,6 @@ export solve_unitary,
     build_ensembles
 
 export DEFAULT_INITIALIZER
-export minimum_gap
 export InstPulseCallback, PositivityCheckCallback
-
-
-#export SA_Δ², SA_redfield, SA_marcus, SA_Γ, SA_τ, solve_SA, SA_lz_rotate
 
 end # end module

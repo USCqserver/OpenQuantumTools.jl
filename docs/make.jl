@@ -1,6 +1,11 @@
 using Documenter, QuantumAnnealingTools
 
-makedocs(sitename="QuantumAnnealingTools",
+makedocs(
+    format=Documenter.HTML(
+        prettyurls=false,
+        mathengine=MathJax(),
+    ),
+    sitename="QuantumAnnealingTools",
     pages = Any[
         "Home" => "index.md",
         "Tutorials" => Any[
@@ -13,11 +18,13 @@ makedocs(sitename="QuantumAnnealingTools",
         ],
         "Library" => Any[
             "Hamiltonian" => "lib/hamiltonian.md",
+            "Matrix Utilities" => "lib/matrix_util.md",
             "Coupling" => "lib/coupling.md",
-            "Bath" => "lib/bath.md"
+            "Bath"=>"lib/bath.md",
+            "Annealing"=>"lib/annealing.md",
+            "Solvers"=>"lib/solvers.md"
         ]
-    ],
-    format = Documenter.HTML(prettyurls = !("local" in ARGS))
+    ]
 )
 
 deploydocs(
