@@ -1,3 +1,5 @@
+<img src="docs/src/assets/logo/OSQAT_logo.jpg" width="256"/>
+
 # QuantumAnnealingTools.jl
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://uscqserver.github.io/QuantumAnnealingTools.jl/dev/)
 [![codecov](https://codecov.io/gh/USCqserver/QuantumAnnealingTools.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/USCqserver/QuantumAnnealingTools.jl)
@@ -32,3 +34,6 @@ Even though `QuantumAnnealingTools.jl` can function without `DifferentialEquatio
 
 ## Tutorials
 Tutorials and examples can be found in [OSQATTutorials.jl](https://github.com/USCqserver/OSQATTutorials.jl).
+
+## Acknowledgment
+Thanks Grace Chen for the nice logo design.
