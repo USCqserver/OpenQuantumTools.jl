@@ -1,4 +1,4 @@
-<img src="docs/src/assets/logo/OSQAT_logo.jpg" width="256"/>
+<img src="docs/src/assets/logo.jpg" width="256"/>
 
 # QuantumAnnealingTools.jl
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://uscqserver.github.io/QuantumAnnealingTools.jl/dev/)
