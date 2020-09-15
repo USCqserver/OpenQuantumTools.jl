@@ -11,3 +11,8 @@ collective_coupling(op, num_qubit; sp = false, unit = :h)
 TimeDependentCoupling
 TimeDependentCouplings
 ```
+## Others
+```@docs
+CustomCouplings
+CustomCouplings(funcs; unit = :h)
+```
