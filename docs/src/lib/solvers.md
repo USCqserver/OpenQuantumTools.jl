@@ -8,6 +8,39 @@ solve_von_neumann(A::Annealing, tf::Real; tspan = (0, tf), vectorize::Bool = fal
 ```
 ### Open System
 ```@docs
+solve_redfield(
+    A::Annealing,
+    tf::Real,
+    unitary;
+    vectorize::Bool=false,
+    int_atol=1e-8,
+    int_rtol=1e-6,
+    Ta=tf,
+    kwargs...,
+)
+
+solve_CGME(
+    A::Annealing,
+    tf::Real,
+    unitary;
+    vectorize::Bool=false,
+    Ta=nothing,
+    int_atol=1e-8,
+    int_rtol=1e-6,
+    kwargs...,
+)
+
+solve_ule(
+    A::Annealing,
+    tf::Real,
+    unitary;
+    vectorize::Bool=false,
+    int_atol=1e-8,
+    int_rtol=1e-6,
+    Ta=tf,
+    kwargs...,
+)
+
 solve_ame(
     A::Annealing,
     tf::Real;

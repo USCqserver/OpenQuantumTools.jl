@@ -1,8 +1,12 @@
 using Documenter, QuantumAnnealingTools
+using DocumenterTools: Themes
+
+Themes.compile(joinpath(@__DIR__, "src/assets/design.scss"))
 
 makedocs(
     format=Documenter.HTML(
         prettyurls=false,
+        assets = ["assets/design.css"],
         mathengine=MathJax(),
     ),
     sitename="QuantumAnnealingTools",
