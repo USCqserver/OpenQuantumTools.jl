@@ -37,8 +37,8 @@ plot(bath, :S, ω)
 ```
 to conveniently plot the spectrum and lamb shift.
 
-![plot_ohmic_spectrum](../assets/ohmic-gamma.png)
-![plot_ohmic_lamb](../assets/ohmic-S.png)
+![plot_ohmic_spectrum](../assets/Ohmic-gamma.png)
+![plot_ohmic_lamb](../assets/Ohmic-S.png)
 
 ## Hybrid Ohmic Bath
 A good reference paper for the hybrid ohmic bath model is [Lanting et al.](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.83.180502) The model is generalized in [Smirnov and Amin](https://iopscience.iop.org/article/10.1088/1367-2630/aae79c/meta). The basic idea is, the noise spectrum of this bath model can be split into the low frequency and high frequency parts
