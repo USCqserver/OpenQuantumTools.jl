@@ -120,3 +120,5 @@ docs/Manifest.toml
 doc_local_build.jl
 
 Manifest.toml
+
+docs/src/assets/design.css

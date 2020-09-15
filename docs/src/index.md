@@ -14,8 +14,8 @@ Pkg.add(PackageSpec(url="https://github.com/USCqserver/QuantumAnnealingTools.jl"
 ```
 It will install the packages directly from their github repos. This can also be done in Julia's [Pkg REPL](https://julialang.github.io/Pkg.jl/v1/getting-started/):
 ```julia-REPL
-(1.2) pkg> add https://github.com/USCqserver/QTBase.jl
-(1.2) pkg> add https://github.com/USCqserver/QuantumAnnealingTools.jl
+(1.5) pkg> add https://github.com/USCqserver/QTBase.jl
+(1.5) pkg> add https://github.com/USCqserver/QuantumAnnealingTools.jl
 ```
 More information about `Julia`'s package manager can be found at [Pkg.jl](https://julialang.github.io/Pkg.jl/v1/).
 
@@ -31,7 +31,9 @@ In the first example, we solve a standard single qubit annealing problem with Ha
 ```math
     H(s) = A(s)σ_x + B(s)σ_z
 ```
-where $A(s)=1-s$ and $B(s)=s$ are usually known as annealing schedules. The general workflow is to define the Hamiltonian, construct the annealing process and then solve the system dynamics. The full code for this example is
+where $A(s)=1-s$ and $B(s)=s$ are usually known as annealing schedules. 
+
+The general workflow is to define the Hamiltonian, construct the annealing process and then solve the system dynamics. The full code for this example is
 ```julia
 using QuantumAnnealingTools
 using DifferentialEquations
@@ -51,8 +53,11 @@ The resulting Hamiltonian is an affine combination of the corresponding function
 ```julia
 annealing = Annealing(H, u0)
 ```
-The final step is to solve system dynamics. In this example, directly solve the Schrodinger equation for a total annealing time `tf`.
 
+!!! terminology "Annealing"
+    This package started out as open quantum system simulation tools for quantum annealing(QA) process, which involves slowly changing the Hamiltonian from particular initial _driver_ Hamiltonian to the final _problem_ Hamiltonian. Even though the master equations in QuantumAnnealingTools can deal with arbitrary time dependent Hamiltonians, the name `Annealing` is still used. `Evolution` will be added in the future release. 
+
+The final step is to solve system dynamics. In this example, directly solve the Schrodinger equation for a total annealing time `tf`.
 
 ## Tutorials
 
