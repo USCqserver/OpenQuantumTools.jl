@@ -16,3 +16,9 @@ TimeDependentCouplings
 CustomCouplings
 CustomCouplings(funcs; unit = :h)
 ```
+
+### Interactions
+```@docs
+Interaction
+InteractionSet
+```

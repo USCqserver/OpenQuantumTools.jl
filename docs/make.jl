@@ -26,7 +26,8 @@ makedocs(
             "Coupling" => "lib/coupling.md",
             "Bath"=>"lib/bath.md",
             "Annealing"=>"lib/annealing.md",
-            "Solvers"=>"lib/solvers.md"
+            "Solvers"=>"lib/solvers.md",
+            "Callbacks"=>"lib/callbacks.md"
         ]
     ]
 )
