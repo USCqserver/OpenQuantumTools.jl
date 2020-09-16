@@ -32,11 +32,11 @@ end
     y = []
     if ndims(sol.u[1]) == 1
         for x in s_axis
-            push!(y, abs2.(sol.u(x)[lvl]))
+            push!(y, abs2.(sol(x)[lvl]))
         end
     elseif ndims(sol.u[1]) == 2
         for x in s_axis
-            push!(y, real.(diag(sol.u(x))[lvl]))
+            push!(y, real.(diag(sol(x))[lvl]))
         end
     else
         throw(ArgumentError("Solution needs to be state vector or density matrix."))
