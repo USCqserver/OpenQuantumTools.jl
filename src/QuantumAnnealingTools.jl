@@ -37,7 +37,6 @@ include("QSolver/ensemble_builder.jl")
 include("plot_util/hamiltonian_plot.jl")
 include("plot_util/ode_sol.jl")
 include("plot_util/bath_plot.jl")
-include("plot_util/projected_system.jl")
 
 export solve_unitary,
     solve_schrodinger,
