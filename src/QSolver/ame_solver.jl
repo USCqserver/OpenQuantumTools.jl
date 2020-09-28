@@ -12,6 +12,7 @@ Solve the adiabatic master equation for `Annealing` defined by `A` with total an
 - 'lambshift::Bool=true' : whether to include Lambshift in the calculation.
 - `lvl::Int=size(A.H, 1)` : number of levels to keep. The default value is the dimension for the Hamiltonian.
 - `vectorize::Bool = false`: whether to vectorize the density matrix.
+- `one_sided=false` : whether to solve the one-sided AME
 - `kwargs` : other keyword arguments supported by DifferentialEquations.jl.
 ...
 """
@@ -23,14 +24,19 @@ function solve_ame(
     lambshift::Bool=true,
     lvl::Int=size(A.H, 1),
     vectorize::Bool=false,
+    one_sided = false,
     kwargs...,
 )
     u0 = build_u0(A.u0, :m, vectorize=vectorize)
-    davies = build_davies(A.interactions, ω_hint, lambshift)
+    if one_sided == false
+        L = build_davies(A.interactions, ω_hint, lambshift)
+    else
+        L = build_onesided_ame(A.interactions, ω_hint, lambshift)
+    end
     if vectorize
         error("Vectorization is not yet supported for adiabatic master equation.")
     end
-    f = AMEOperator(A.H, davies, lvl)
+    f = AMEOperator(A.H, L, lvl)
     p = ODEParams(f, float(tf), A.annealing_parameter)
     prob = ODEProblem(f, u0, tspan, p)
     solve(prob; alg_hints=[:nonstiff], kwargs...)
