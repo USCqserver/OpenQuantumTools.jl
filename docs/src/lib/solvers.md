@@ -19,7 +19,7 @@ solve_redfield(
     kwargs...,
 )
 
-solve_CGME(
+solve_cgme(
     A::Annealing,
     tf::Real,
     unitary;
