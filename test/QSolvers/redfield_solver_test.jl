@@ -19,19 +19,6 @@ f(t) = quadgk(cfun, 0, t)[1]
 sol = solve_redfield(annealing, tf, InplaceUnitary(U), vectorize=true,
     alg=TRBDF2(), reltol=1e-6)
 @test sol(10)[2] ≈ exp(-4 * γ) * 0.5 atol = 1e-5 rtol = 1e-5
-# This is a temporary implementation of non-positivity check
-non_positive_annealing =
-    Annealing(H, [-1.0 0; 0 1]; coupling=coupling, bath=bath)
-sol = solve_redfield(
-    non_positive_annealing,
-    tf,
-    U;
-    alg=Tsit5(),
-    abstol=1e-8,
-    reltol=1e-8,
-    callback=PositivityCheckCallback(),
-);
-@test !(tf in sol.t)
 
 # test for CustomBath
 H = DenseHamiltonian([(s) -> 0.0], [σi], unit=:ħ)
@@ -90,3 +77,25 @@ iannealing = Annealing(iH, u0; coupling=icoupling, bath=bath)
 isol = solve_redfield(iannealing, tf, (t) -> σi, alg=Tsit5(), reltol=1e-6)
 
 @test sol[end][1,1] ≈ isol[end][1,1] atol = 1e-6 rtol = 1e-6
+
+# Test of non-positivity check
+β = 4
+T = β_2_temperature(β)
+η = 0.1
+fc= 10/(2π)
+bath = Ohmic(η, fc, T)
+
+Hp = 0.5*σz⊗σi - 0.7*σi⊗σz + 0.3*σz⊗σz
+Hd = standard_driver(2)
+H = DenseHamiltonian([(s)->1-s, (s)->s], [-Hd, Hp], unit=:ħ)
+
+tf = 20
+ρ0 = (σi+σx)⊗(σi+σx)/4
+coupling = ConstantCouplings([σz⊗σi, σi⊗σz], unit=:ħ)
+annealing = Annealing(H, ρ0, bath=bath, coupling=coupling)
+
+U = solve_unitary(annealing, tf, alg = Tsit5(), abstol=1e-7, reltol=1e-7)
+
+redfield_sol = solve_redfield(annealing, tf, U, alg = Tsit5(), abstol=1e-7, reltol=1e-7, callback=PositivityCheckCallback())
+
+@test redfield_sol.t[end] ≈ 3.45278167
