@@ -43,7 +43,7 @@ export solve_unitary,
     solve_von_neumann,
     solve_redfield,
     solve_ame,
-    solve_CGME,
+    solve_cgme,
     solve_ule,
     build_ensembles
 

@@ -65,7 +65,7 @@ Solve the time dependent CGME for `Annealing` defined by `A` with total annealin
 - `kwargs`: other keyword arguments supported by DifferentialEquations.jl.
 ...
 """
-function solve_CGME(
+function solve_cgme(
     A::Annealing,
     tf::Real,
     unitary;
