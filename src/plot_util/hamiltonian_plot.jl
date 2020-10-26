@@ -5,7 +5,7 @@
         push!(y, w)
     end
     y = hcat(y...)'
-    lab = ["\$E_$x\$" for x in (1:lvl)']
+    lab = ["\$E_{$x}\$" for x in (1:lvl)']
     label --> lab
     yguide --> "\$\\mathrm{GHz}\$"
     xguide --> "\$s\$"
