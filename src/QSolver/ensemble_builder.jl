@@ -44,6 +44,15 @@ function build_ensembles(
             initializer = initializer,
             kwargs...,
         )
+    elseif type == :lindblad
+        res = build_ensemble_lindblad(
+            A,
+            tf,
+            output_func,
+            reduction;
+            tspan = tspan,
+            kwargs...,
+        )
     else
         error("Ensemble problem of type $type is not supported.")
     end

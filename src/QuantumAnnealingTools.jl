@@ -29,6 +29,7 @@ include("QControl/callback_lib.jl")
 
 include("QSolver/util.jl")
 include("QSolver/closed_system_solvers.jl")
+include("QSolver/lindblad_solver.jl")
 include("QSolver/stochastic_schrodinger_solver.jl")
 include("QSolver/ame_solver.jl")
 include("QSolver/redfield_solver.jl")
@@ -45,6 +46,7 @@ export solve_unitary,
     solve_ame,
     solve_cgme,
     solve_ule,
+    solve_lindblad,
     build_ensembles
 
 export DEFAULT_INITIALIZER
