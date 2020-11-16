@@ -1,11 +1,11 @@
 @recipe function f(H::AbstractHamiltonian, s, lvl)
     y = []
     for x in s
-        w, _ = eigen_decomp(H, x; lvl = lvl)
+        w, _ = eigen_decomp(H, x; lvl=lvl)
         push!(y, w)
     end
     y = hcat(y...)'
-    lab = ["\$E_{$x}\$" for x in (1:lvl)']
+    lab = ["\$E_{$x}\$" for x in (0:lvl - 1)']
     label --> lab
     yguide --> "\$\\mathrm{GHz}\$"
     xguide --> "\$s\$"
