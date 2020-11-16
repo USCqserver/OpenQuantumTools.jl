@@ -12,7 +12,7 @@ Solve the adiabatic master equation for `Annealing` defined by `A` with total an
 - 'lambshift::Bool=true' : whether to include Lambshift in the calculation.
 - `lvl::Int=size(A.H, 1)` : number of levels to keep. The default value is the dimension for the Hamiltonian.
 - `vectorize::Bool = false`: whether to vectorize the density matrix.
-- `one_sided=false` : whether to solve the one-sided AME
+- `one_sided=false` : whether to solve the one-sided AME.
 - `kwargs` : other keyword arguments supported by DifferentialEquations.jl.
 ...
 """
