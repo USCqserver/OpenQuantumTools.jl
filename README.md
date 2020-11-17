@@ -4,6 +4,9 @@
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://uscqserver.github.io/QuantumAnnealingTools.jl/dev/)
 [![codecov](https://codecov.io/gh/USCqserver/QuantumAnnealingTools.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/USCqserver/QuantumAnnealingTools.jl)
 
+| :exclamation:  In the next release, the package will be renamed OpenQuantumTools.   |
+|-----------------------------------------|
+
 This is a Julia toolbox for simulating the dynamics of different quantum annealing protocols. The package is still under heavy development and changes in the interface(s) are more than likely to happen. Detailed documentation can be found [here](https://uscqserver.github.io/QuantumAnnealingTools.jl/dev/). Any pull requests are welcome.
 
 ## Install
