@@ -81,9 +81,8 @@ function build_hybrid_redfield_control_from_interactions(
             push!(f_control, c)
             push!(f_opensys, StochasticNoise(i.coupling, fluctuator_de_field))
         else
-            s = build_redfield(
-                i.coupling,
-                i.bath,
+            s = QTBase.redfield_from_interactions(
+                i,
                 unitary,
                 tf,
                 Ta,

@@ -36,7 +36,7 @@ function solve_ame(
     if vectorize
         error("Vectorization is not yet supported for adiabatic master equation.")
     end
-    f = AMEOperator(A.H, L, lvl)
+    f = DiffEqLiouvillian(H, [D], [], lvl)
     p = ODEParams(f, float(tf), A.annealing_parameter)
     prob = ODEProblem(f, u0, tspan, p)
     solve(prob; alg_hints=[:nonstiff], kwargs...)

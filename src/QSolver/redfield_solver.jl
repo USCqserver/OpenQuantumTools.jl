@@ -26,8 +26,8 @@ function solve_redfield(
     kwargs...,
 )
     u0 = build_u0(A.u0, :m, vectorize=vectorize)
-    L = build_redfield(A.interactions, unitary, Ta, int_atol, int_rtol)
-    R = RedfieldOperator(A.H, L)
+    L = QTBase.redfield_from_interactions(A.interactions, unitary, Ta, int_atol, int_rtol)
+    R = DiffEqLiouvillian(A.H, [], L, size(A.H, 1))
 
     update_func = function (A, u, p, t)
         update_vectorized_cache!(A, p.L, p, t)
@@ -78,7 +78,7 @@ function solve_cgme(
     u0 = build_u0(A.u0, :m, vectorize=vectorize)
     L = build_CGG(A.interactions, unitary, tf, Ta,
             int_atol, int_rtol)
-    R = RedfieldOperator(A.H, L)
+    R = DiffEqLiouvillian(A.H, [], L, size(A.H, 1))
     update_func = function (A, u, p, t)
         update_vectorized_cache!(A, p.L, p, t)
     end
@@ -127,7 +127,7 @@ function solve_ule(
 )
     u0 = build_u0(A.u0, :m, vectorize=vectorize)
     L = build_ule(A.interactions, unitary, Ta, int_atol, int_rtol)
-    R = RedfieldOperator(A.H, L)
+    R = DiffEqLiouvillian(A.H, [], L, size(A.H, 1))
 
     update_func = function (A, u, p, t)
         update_vectorized_cache!(A, p.L, p, t)
@@ -177,7 +177,7 @@ function build_ensemble_redfield(
     else
         cb = CallbackSet([FluctuatorCallback(f, initializer) for f in stocs]...)
     end
-    R = RedfieldOperator(A.H, [reds; stocs])
+    R = DiffEqLiouvillian(A.H, [reds; stocs], size(A.H, 1))
     p = ODEParams(R, float(tf), A.annealing_parameter)
 
     update_func = function (A, u, p, t)
@@ -212,6 +212,6 @@ function build_red_lvs(iset, U, Ta, atol, rtol)
             push!(reds, QTBase.build_redfield_kernel(i))
         end
     end
-    redfield_gen = RedfieldGenerator(reds, U, Ta, atol, rtol)
+    redfield_gen = RedfieldLiouvillian(reds, U, Ta, atol, rtol)
     redfield_gen, stochastic
 end
