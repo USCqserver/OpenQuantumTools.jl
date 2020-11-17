@@ -1,5 +1,5 @@
 # Open System Solvers
-`QuantumAnnealingTools.jl` provides several open quantum system solvers:
+`OpenQuantumTools.jl` provides several open quantum system solvers:
 
 ## Redfield equation
 The interface to [Redfield](https://en.wikipedia.org/wiki/Redfield_equation) equation is:
@@ -9,7 +9,7 @@ The basic usage of Redfield solver is.
 
 
 ## Adiabatic master equation(AME)
-A good reference to adiabatic master equation is [Albash, Tameem, et al.](https://arxiv.org/abs/1206.4197) `QuantumAnnealingTools.jl` provides the following interfaces for AME solver:
+A good reference to adiabatic master equation is [Albash, Tameem, et al.](https://arxiv.org/abs/1206.4197) `OpenQuantumTools.jl` provides the following interfaces for AME solver:
 
 ### Basic usage
 The high level API for AME solver is [`solve_ame`](@ref).

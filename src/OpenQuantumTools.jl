@@ -1,4 +1,4 @@
-module QuantumAnnealingTools
+module OpenQuantumTools
 
 using DocStringExtensions
 using Reexport

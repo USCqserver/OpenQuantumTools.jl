@@ -1,4 +1,4 @@
-using Documenter, QuantumAnnealingTools
+using Documenter, OpenQuantumTools
 using DocumenterTools: Themes
 
 Themes.compile(joinpath(@__DIR__, "src/assets/design.scss"))
@@ -9,7 +9,7 @@ makedocs(
         assets = ["assets/design.css"],
         mathengine=MathJax(),
     ),
-    sitename="QuantumAnnealingTools",
+    sitename="OpenQuantumTools",
     pages = Any[
         "Home" => "index.md",
         "Tutorials" => Any[
@@ -33,5 +33,5 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/USCqserver/QuantumAnnealingTools.jl.git",
+    repo = "github.com/USCqserver/OpenQuantumTools.jl.git",
 )
