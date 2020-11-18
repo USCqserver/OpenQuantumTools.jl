@@ -49,7 +49,7 @@ function InstPulseCallback(tstops, pulse_update)
     PresetTimeCallback(tstops, affect!, initialize=initialize)
 end
 
-function FluctuatorCallback(F::Fluctuators, initialize)
+function FluctuatorCallback(F::QTBase.FluctuatorLiouvillian, initialize)
     time_choice = function (integrator)
         next_t = integrator.t + F.next_τ
         if next_t > integrator.sol.prob.tspan[2]
