@@ -1,6 +1,6 @@
 @recipe function f(
     sol::ODESolution,
-    H::AbstractHamiltonian,
+    H::QTBase.AbstractHamiltonian,
     lvl::Integer,
     t_axis=sol.t,
 )
@@ -13,7 +13,7 @@ end
 
 @recipe function f(
     sol::ODESolution,
-    H::AbstractHamiltonian,
+    H::QTBase.AbstractHamiltonian,
     lvl::AbstractArray{T,1},
     t_axis=sol.t,
 ) where {T <: Integer}
