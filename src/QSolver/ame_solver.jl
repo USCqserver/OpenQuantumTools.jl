@@ -10,6 +10,7 @@ Solve the adiabatic master equation for `Annealing` defined by `A` with total an
 - `tspan` = (0, tf): time interval to solve.
 - `ω_hint=[]` : grid for precalculating the lambshift; skip the precalculation if empty.
 - 'lambshift::Bool=true' : whether to include Lambshift in the calculation.
+- 'lambshift_S=nothing' : a custom routine to calculate the `S` function in Lambshift term. 
 - `lvl::Int=size(A.H, 1)` : number of levels to keep. The default value is the dimension for the Hamiltonian.
 - `vectorize::Bool = false`: whether to vectorize the density matrix.
 - `one_sided=false` : whether to solve the one-sided AME.
@@ -22,21 +23,22 @@ function solve_ame(
     tspan=(0.0, tf),
     ω_hint=[],
     lambshift::Bool=true,
+    lambshift_S=nothing,
     lvl::Int=size(A.H, 1),
     vectorize::Bool=false,
-    one_sided = false,
+    one_sided=false,
     kwargs...,
 )
     u0 = build_u0(A.u0, :m, vectorize=vectorize)
     if one_sided == false
-        L = build_davies(A.interactions, ω_hint, lambshift)
+        L = QTBase.davies_from_interactions(A.interactions, ω_hint, lambshift, lambshift_S)
     else
         L = build_onesided_ame(A.interactions, ω_hint, lambshift)
     end
     if vectorize
         error("Vectorization is not yet supported for adiabatic master equation.")
     end
-    f = DiffEqLiouvillian(H, [D], [], lvl)
+    f = DiffEqLiouvillian(A.H, L, [], lvl)
     p = ODEParams(f, float(tf), A.annealing_parameter)
     prob = ODEProblem(f, u0, tspan, p)
     solve(prob; alg_hints=[:nonstiff], kwargs...)
@@ -50,14 +52,17 @@ function build_ensemble_ame(
     tspan=(0.0, tf),
     ω_hint=[],
     lambshift::Bool=true,
+    lambshift_S=nothing,
     lvl::Int=size(A.H, 1),
     initializer=initializer,
     kwargs...,
 )
     u0 = build_u0(A.u0, :v)
 
-    dlist, flist = build_ametr_lvs(A.interactions, ω_hint, lambshift)
-    L, cb = build_ametr_op_callback(A.H, lvl, dlist, flist, initializer)
+    flist = QTBase.fluctuator_from_interactions(A.interactions)
+    dlist = QTBase.davies_from_interactions(A.interactions, ω_hint, lambshift, lambshift_S)
+    L = DiffEqLiouvillian(A.H, dlist, flist, lvl)
+    cb = build_jump_callback(dlist, flist, initializer)
     p = ODEParams(L, tf, A.annealing_parameter)
     update_func = function (cache, u, p, t)
         update_cache!(cache, p.L, p, t)
@@ -78,34 +83,19 @@ function build_ensemble_ame(
     ensemble_prob
 end
 
-function build_ametr_lvs(iset, ω_hint, lambshift)
-    davies = []
-    stochastic = []
-    for i in iset
-        if typeof(i.bath) <: EnsembleFluctuator
-            push!(stochastic, build_fluctuator(i.coupling, i.bath))
-        else
-            push!(davies, build_davies(i.coupling, i.bath, ω_hint, lambshift))
-        end
-    end
-    davies, stochastic
-end
-
-function build_ametr_op_callback(H, lvl, dlist, flist, initializer)
+function build_jump_callback(dlist, flist, initializer)
     initializer =
         initializer == DEFAULT_INITIALIZER ? (x, y) -> rand([-1, 1], x, y) :
         initializer
     if isempty(flist)
-        f = AMEOperator(H, dlist, lvl)
-        cb = AMEtrajectoryCallback()
+        cb = LindbladJumpCallback()
     elseif isempty(dlist)
         error("No interactions support AME. Use other ensemble instead.")
     else
-        f = QTBase.OpenSysOpHybrid(H, dlist, flist, lvl)
         cb = CallbackSet(
-            AMEtrajectoryCallback(),
+            LindbladJumpCallback(),
             [FluctuatorCallback(f, initializer) for f in flist]...,
         )
     end
-    f, cb
+    cb
 end

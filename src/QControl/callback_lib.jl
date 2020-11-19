@@ -78,45 +78,14 @@ function FluctuatorCallback(F::QTBase.FluctuatorLiouvillian, initialize)
     )
 end
 
-function AMEtrajectoryCallback()
+function LindbladJumpCallback()
     r = Ref{Float64}(rand(Float64))
     condition = function (u, t, integrator)
         real(u' * u) - r[]
     end
 
     affect! = function (integrator)
-        A = QTBase.ame_jump(
-            integrator.p.L,
-            integrator.u,
-            integrator.p,
-            integrator.t,
-        )
-        r[] = rand()
-        new_state = normalize(A * integrator.u)
-        for c in full_cache(integrator)
-            c .= new_state
-        end
-    end
-
-    initialize = function (c, u, t, integrator)
-        r[] = rand()
-        u_modified!(integrator, false)
-    end
-
-    ContinuousCallback(condition, affect!, save_positions=(true, true), initialize=initialize)
-end
-
-# TODO: merge LindbladtrajectoryCallback with AMEtrajectoryCallback
-function LindbladtrajectoryCallback()
-    r = Ref{Float64}(rand(Float64))
-
-    condition = function (u, t, integrator)
-        real(u' * u) - r[]
-    end
-
-    affect! = function (integrator)
-        
-        A = QTBase.lind_jump(
+        A = QTBase.lindblad_jump(
             integrator.p.L,
             integrator.u,
             integrator.p,

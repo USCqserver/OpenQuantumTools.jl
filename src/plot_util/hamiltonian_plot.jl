@@ -1,4 +1,4 @@
-@recipe function f(H::AbstractHamiltonian, s, lvl)
+@recipe function f(H::QTBase.AbstractHamiltonian, s, lvl)
     y = []
     for x in s
         w, _ = eigen_decomp(H, x; lvl=lvl)

@@ -26,7 +26,7 @@ function build_ensemble_lindblad(
 )
     u0 = build_u0(A.u0, :v)
     L = OpenSysOp(A.H, QTBase.build_lindblad_set(A.interactions), size(A.H, 1))
-    cb = LindbladtrajectoryCallback()
+    cb = LindbladJumpCallback()
     p = ODEParams(L, tf, A.annealing_parameter)
     update_func = function (cache, u, p, t)
         update_cache!(cache, p.L, p, t)
