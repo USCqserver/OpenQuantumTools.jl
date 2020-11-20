@@ -1,4 +1,4 @@
-using QuantumAnnealingTools, Test, Random
+using OpenQuantumTools, Test, Random
 using OrdinaryDiffEq
 
 H = DenseHamiltonian([(s) -> 1.0], -[σz], unit=:ħ)

@@ -1,6 +1,6 @@
 function instantaneous_population(
     sol::ODESolution,
-    H::AbstractHamiltonian;
+    H::QTBase.AbstractHamiltonian;
     lvl = 1,
     t_axis = sol.t,
 )

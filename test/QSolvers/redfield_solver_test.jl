@@ -1,4 +1,4 @@
-using QuantumAnnealingTools, Test, OrdinaryDiffEq, QuadGK
+using OpenQuantumTools, Test, OrdinaryDiffEq, QuadGK
 
 H = DenseHamiltonian([(s) -> 1.0], [σi], unit=:ħ)
 u0 = PauliVec[1][1]

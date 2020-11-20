@@ -26,8 +26,8 @@ function solve_redfield(
     kwargs...,
 )
     u0 = build_u0(A.u0, :m, vectorize=vectorize)
-    L = build_redfield(A.interactions, unitary, Ta, int_atol, int_rtol)
-    R = RedfieldOperator(A.H, L)
+    L = QTBase.redfield_from_interactions(A.interactions, unitary, Ta, int_atol, int_rtol)
+    R = DiffEqLiouvillian(A.H, [], L, size(A.H, 1))
 
     update_func = function (A, u, p, t)
         update_vectorized_cache!(A, p.L, p, t)
@@ -76,9 +76,9 @@ function solve_cgme(
     kwargs...,
 )
     u0 = build_u0(A.u0, :m, vectorize=vectorize)
-    L = build_CGG(A.interactions, unitary, tf, Ta,
+    L = QTBase.cg_from_interactions(A.interactions, unitary, tf, Ta,
             int_atol, int_rtol)
-    R = RedfieldOperator(A.H, L)
+    R = DiffEqLiouvillian(A.H, [], L, size(A.H, 1))
     update_func = function (A, u, p, t)
         update_vectorized_cache!(A, p.L, p, t)
     end
@@ -126,8 +126,8 @@ function solve_ule(
     kwargs...,
 )
     u0 = build_u0(A.u0, :m, vectorize=vectorize)
-    L = build_ule(A.interactions, unitary, Ta, int_atol, int_rtol)
-    R = RedfieldOperator(A.H, L)
+    L = QTBase.ule_from_interactions(A.interactions, unitary, Ta, int_atol, int_rtol)
+    R = DiffEqLiouvillian(A.H, [], L, size(A.H, 1))
 
     update_func = function (A, u, p, t)
         update_vectorized_cache!(A, p.L, p, t)
@@ -163,7 +163,8 @@ function build_ensemble_redfield(
     kwargs...,
 )
     u0 = build_u0(A.u0, :m, vectorize=vectorize)
-    reds, stocs = build_red_lvs(A.interactions, unitary, Ta, int_atol, int_rtol)
+    stocs = QTBase.fluctuator_from_interactions(A.interactions)
+    reds = QTBase.redfield_from_interactions(A.interactions, unitary, Ta, int_atol, int_rtol)
     if isempty(stocs)
         error("No stochastic bath detected. Use the normal Redfeidl solver instead.")
     end
@@ -177,7 +178,7 @@ function build_ensemble_redfield(
     else
         cb = CallbackSet([FluctuatorCallback(f, initializer) for f in stocs]...)
     end
-    R = RedfieldOperator(A.H, [reds; stocs])
+    R = DiffEqLiouvillian(A.H, [], [reds; stocs], size(A.H, 1))
     p = ODEParams(R, float(tf), A.annealing_parameter)
 
     update_func = function (A, u, p, t)
@@ -200,18 +201,4 @@ function build_ensemble_redfield(
         EnsembleProblem(prob; output_func=output_func, reduction=reduction)
 
     ensemble_prob
-end
-
-function build_red_lvs(iset, U, Ta, atol, rtol)
-    reds = []
-    stochastic = []
-    for i in iset
-        if typeof(i.bath) <: EnsembleFluctuator
-            push!(stochastic, build_fluctuator(i.coupling, i.bath))
-        else
-            push!(reds, QTBase.build_redfield_kernel(i))
-        end
-    end
-    redfield_gen = RedfieldGenerator(reds, U, Ta, atol, rtol)
-    redfield_gen, stochastic
 end
