@@ -1,3 +1,17 @@
+"""
+$(SIGNATURES)
+
+Solve the Lindblad form master equation for a total time `tf` subject to `Annealing` defined by `A`.
+
+...
+# Arguments
+- `A::Annealing`: the Annealing object.
+- `tf::Real`: the total annealing time.
+- `tspan` = (0, tf): time interval to solve.
+- `vectorize::Bool = false`: whether to vectorize the density matrix.
+- `kwargs` : other keyword arguments supported by DifferentialEquations.jl.
+...
+"""
 function solve_lindblad(
     A::Annealing,
     tf::Real;
@@ -6,11 +20,11 @@ function solve_lindblad(
     kwargs...,
 )
     u0 = build_u0(A.u0, :m, vectorize=vectorize)
-    L = QTBase.build_lindblad_set(A.interactions)
+    L = QTBase.lindblad_from_interactions(A.interactions)
     if vectorize
         error("Vectorization is not yet supported for Lindblad equation.")
     end
-    f = OpenSysOp(A.H, L, size(A.H, 1))
+    f = DiffEqLiouvillian(A.H, [], L, size(A.H, 1))
     p = ODEParams(f, float(tf), A.annealing_parameter)
     prob = ODEProblem(f, u0, tspan, p)
     solve(prob; alg_hints=[:nonstiff], kwargs...)
@@ -25,7 +39,7 @@ function build_ensemble_lindblad(
     kwargs...,
 )
     u0 = build_u0(A.u0, :v)
-    L = OpenSysOp(A.H, QTBase.build_lindblad_set(A.interactions), size(A.H, 1))
+    L = DiffEqLiouvillian(A.H, [], QTBase.lindblad_from_interactions(A.interactions), size(A.H, 1))
     cb = LindbladJumpCallback()
     p = ODEParams(L, tf, A.annealing_parameter)
     update_func = function (cache, u, p, t)
