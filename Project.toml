@@ -14,9 +14,6 @@ RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
-[compat]
-QuadGK = "<= 0.5.8"
-
 [extras]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
