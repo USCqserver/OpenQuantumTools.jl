@@ -4,6 +4,20 @@
 OhmicBath
 Ohmic
 ```
+## Hybrid Ohmic bath
+```@docs
+HybridOhmicBath
+HybridOhmic
+```
+## Spin-fluctuator
+```@docs
+EnsembleFluctuator
+```
+## Others
+```@docs
+CustomBath
+CorrelatedBath
+```
 ## Common interface
 ```@docs
 correlation(τ, bath::OhmicBath)

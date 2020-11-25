@@ -1,17 +1,18 @@
 """
 $(SIGNATURES)
 
-Build `EnsembleProblem` object for different opensystem dynamics of `Annealing` process `A`.
+Build `EnsembleProblem` object for different open-system models. For `:lindblad` and `:ame`, it build the ensemble for the quantum trajectories method. For `:stochastic`, it builds the ensemble for the stochastic Schrödinger equation. For `:redfield`, it builds the ensemble to infuse stochastic nosie into the Redfield equation.
 
 ...
 # Arguments
-- `A::Annealing`: the Annealing object.
+- `A::Annealing`: the `Annealing`/`Evolution` object.
 - `tf::Real`: the total annealing time.
-- `type::Symbol`: type of master equation to build. Available options are `:ame`, `:stochastic` and `:redfield`.
-- `tspan = (0, tf)`: time interval to solve.
-- `output_func`
-- `reduction`
-- `kwargs`: other keyword arguments supported by DifferentialEquations.jl.
+- `type::Symbol`: type of the ensemble to build. Available options are `:lindblad`, `:ame`, `:stochastic` and `:redfield`.
+- `tspan = (0, tf)`: time interval to solve the dynamics.
+- `initializer = DEFAULT_INITIALIZER`: initializer for the ensemble problem. Currently it is only supported by the `:stochastic` ensemble.
+- `output_func`: The function determines what is saved from the solution to the output array. Defaults to saving the solution itself. The output is (out,rerun) where out is the output and rerun is a boolean which designates whether to rerun. It is part of the `DifferentialEquations`'s parallel interface.
+- `reduction`: This function determines how to reduce the data in each batch. Defaults to appending the data from the batches. The second part of the output determines whether the simulation has converged. If true, the simulation will exit early. By default, this is always false. It is part of the `DifferentialEquations`'s parallel interface.
+- `kwargs`: other keyword arguments supported by the specific solver or by `DifferentialEquations`.
 ...
 """
 function build_ensembles(

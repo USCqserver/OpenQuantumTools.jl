@@ -1,20 +1,20 @@
 """
 $(SIGNATURES)
 
-Solve the adiabatic master equation for `Annealing` defined by `A` with total annealing time `tf`.
+Solve the adiabatic master equation defined by `A` for a total evolution time `tf`.
 
 ...
 # Arguments
-- `A::Annealing`: the Annealing object.
+- `A::Annealing`: the `Annealing`/`Evolution` object.
 - `tf::Real`: the total annealing time.
-- `tspan` = (0, tf): time interval to solve.
-- `ω_hint=[]` : grid for precalculating the lambshift; skip the precalculation if empty.
-- 'lambshift::Bool=true' : whether to include Lambshift in the calculation.
-- 'lambshift_S=nothing' : a custom routine to calculate the `S` function in Lambshift term. 
-- `lvl::Int=size(A.H, 1)` : number of levels to keep. The default value is the dimension for the Hamiltonian.
+- `tspan = (0, tf)`: time interval to solve the dynamics.
+- `ω_hint=[]`: specify a grid to precompute the ``S`` function in the Lamb shift term. Skip the precomputation if empty.
+- `lambshift::Bool=true`: whether to include the Lamb shift in the simulation.
+- `lambshift_S=nothing`: provide a custom routine to calculate the `S` function in the Lamb shift term. 
+- `lvl::Int=size(A.H, 1)`: number of levels to keep. The higher levels are ignored to speed up the computation.
 - `vectorize::Bool = false`: whether to vectorize the density matrix.
-- `one_sided=false` : whether to solve the one-sided AME.
-- `kwargs` : other keyword arguments supported by DifferentialEquations.jl.
+- `one_sided=false`: whether to solve the one-sided AME.
+- `kwargs` : other keyword arguments supported by `DifferentialEquations`.
 ...
 """
 function solve_ame(

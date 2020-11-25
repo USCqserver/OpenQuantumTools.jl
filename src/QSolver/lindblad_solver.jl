@@ -1,15 +1,15 @@
 """
 $(SIGNATURES)
 
-Solve the Lindblad form master equation for a total time `tf` subject to `Annealing` defined by `A`.
+Solve the Lindblad equation defined by `A` for a total evolution time `tf`.
 
 ...
 # Arguments
 - `A::Annealing`: the Annealing object.
 - `tf::Real`: the total annealing time.
-- `tspan` = (0, tf): time interval to solve.
+- `tspan` = (0, tf): time interval to solve the dynamics.
 - `vectorize::Bool = false`: whether to vectorize the density matrix.
-- `kwargs` : other keyword arguments supported by DifferentialEquations.jl.
+- `kwargs` : other keyword arguments supported by `DifferentialEquations`.
 ...
 """
 function solve_lindblad(

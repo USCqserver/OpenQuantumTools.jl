@@ -22,12 +22,13 @@ makedocs(
         ],
         "Library" => Any[
             "Hamiltonian" => "lib/hamiltonian.md",
-            "Matrix Utilities" => "lib/matrix_util.md",
+            "Matrix Utility" => "lib/matrix_util.md",
             "Coupling" => "lib/coupling.md",
             "Bath"=>"lib/bath.md",
+            "Interaction"=>"lib/interactions.md",
             "Annealing"=>"lib/annealing.md",
-            "Solvers"=>"lib/solvers.md",
-            "Callbacks"=>"lib/callbacks.md"
+            "Solver"=>"lib/solvers.md",
+            "Callback"=>"lib/callbacks.md"
         ]
     ]
 )

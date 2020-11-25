@@ -4,7 +4,16 @@
 PauliVec
 ⊗
 ```
-## Construction Utilities
+## Math utilities
+```@docs
+check_positivity(m::AbstractMatrix)
+check_unitary(𝐔::AbstractMatrix; rtol = 1e-6, atol = 1e-8)
+check_density_matrix(ρ; atol::Real=0, rtol::Real=atol>0 ? 0 : √eps())
+fidelity(ρ, σ)
+partial_trace(ρ::Matrix, qubit_2_keep)
+matrix_decompose(mat::AbstractMatrix, basis::Vector{<:AbstractMatrix})
+```
+## Construction utilities
 ```@docs
 q_translate(h::String; sp = false)
 q_translate_state(h::String; normal=false)

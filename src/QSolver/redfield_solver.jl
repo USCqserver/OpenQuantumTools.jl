@@ -1,18 +1,18 @@
 """
 $(SIGNATURES)
 
-Solve the time dependent Redfield equation for `Annealing` defined by `A` with total annealing time `tf`.
+Solve the time-dependent Redfield equation defined by `A` for a total evolution time `tf`.
 
 ...
 # Arguments
-- `A::Annealing`: the Annealing object.
-- `tf::Real`: the total annealing time.
-- `unitary`: precalculated unitary of close system evolution.
+- `A::Annealing`: the `Annealing`/`Evolution` object.
+- `tf::Real`: the total evolution time.
+- `unitary`: precomputed unitary operator of the corresponding closed-system evolution.
 - `vectorize::Bool = false`: whether to vectorize the density matrix.
 - `int_atol = 1e-8`: the absolute error tolerance for integration.
 - `int_rtol = 1e-6`: the relative error tolerance for integration.
-- `Ta = tf`: the time scale for backward integration.
-- `kwargs`: other keyword arguments supported by DifferentialEquations.jl.
+- `Ta = tf`: the timescale of the backward integration.
+- `kwargs`: other keyword arguments supported by `DifferentialEquations`.
 ...
 """
 function solve_redfield(
@@ -51,18 +51,18 @@ end
 """
 $(SIGNATURES)
 
-Solve the time dependent CGME for `Annealing` defined by `A` with total annealing time `tf`.
+Solve the time-dependent coarse-grained master equation (CGME) defined by `A` for a total evolution time `tf`.
 
 ...
 # Arguments
-- `A::Annealing`: the Annealing object.
-- `tf::Real`: the total annealing time.
-- `unitary`: precalculated unitary of close system evolution.
+- `A::Annealing`: the `Annealing`/`Evolution` object.
+- `tf::Real`: the total evolution time.
+- `unitary`: precomputed unitary operator of the corresponding closed-system evolution.
 - `vectorize::Bool = false`: whether to vectorize the density matrix.
 - `Ta = nothing`: coarse-graining time. If set to nothing, the solver will automatically choose the value.
 - `int_atol = 1e-8`: the absolute error tolerance for integration.
 - `int_rtol = 1e-6`: the relative error tolerance for integration.
-- `kwargs`: other keyword arguments supported by DifferentialEquations.jl.
+- `kwargs`: other keyword arguments supported by `DifferentialEquations`.
 ...
 """
 function solve_cgme(
@@ -101,18 +101,18 @@ end
 """
 $(SIGNATURES)
 
-Solve the time dependent ULE for `Annealing` defined by `A` with total annealing time `tf`.
+Solve the time-dependent universal Lindblad equation (ULE) defined by `A` for a total evolution time `tf`.
 
 ...
 # Arguments
-- `A::Annealing`: the Annealing object.
-- `tf::Real`: the total annealing time.
-- `unitary`: precalculated unitary of close system evolution.
+- `A::Annealing`: the `Annealing`/`Evolution` object.
+- `tf::Real`: the total evolution time.
+- `unitary`: precomputed unitary operator of the corresponding closed-system evolution.
 - `vectorize::Bool = false`: whether to vectorize the density matrix.
 - `int_atol = 1e-8`: the absolute error tolerance for integration.
 - `int_rtol = 1e-6`: the relative error tolerance for integration.
-- `Ta = tf`: the time scale for integration region.
-- `kwargs`: other keyword arguments supported by DifferentialEquations.jl.
+- `Ta = tf`: the timescale of the integration region.
+- `kwargs`: other keyword arguments supported by `DifferentialEquations`.
 ...
 """
 function solve_ule(

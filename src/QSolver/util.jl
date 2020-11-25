@@ -1,7 +1,7 @@
 """
 $(SIGNATURES)
 
-Prepare initial state in proper type and dimension for ODE solvers. `type` specifies the dimension of the initial state: `:v` is 1-D state vector and `:m` is 2-D density matrix. `vectorize` indicate whether to vectorize the density matrix.
+Prepare the initial state in proper type and dimension for ODE solvers. `type` specifies the dimension of the initial state: `:v` is 1-D state vector and `:m` is 2-D density matrix. `vectorize` indicate whether to vectorize the density matrix.
 """
 function build_u0(raw_u0, type; vectorize::Bool = false)
     res = complex(raw_u0)

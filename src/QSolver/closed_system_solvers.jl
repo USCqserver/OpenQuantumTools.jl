@@ -1,14 +1,14 @@
 """
 $(SIGNATURES)
 
-Solve Schrodinger dynamics defined by `Annealing` object `A`.
+Solve Schrodinger equation defined by `A` for a total evolution time `tf`.
 
 ...
 # Arguments
-- `A::Annealing`: the Annealing object.
+- `A::Annealing`: the `Annealing`/`Evolution` object.
 - `tf::Real`: the total annealing time.
-- `tspan` = (0, tf): time interval to solve.
-- `kwargs`: other keyword arguments supported by DifferentialEquations.jl.
+- `tspan` = (0, tf): time interval to solve the dynamics.
+- `kwargs`: other keyword arguments supported by `DifferentialEquations`.
 ...
 """
 function solve_schrodinger(A::Annealing, tf::Real; tspan = (0, tf), kwargs...)
@@ -30,15 +30,15 @@ end
 """
 $(SIGNATURES)
 
-Solve the unitary of `Annealing` object `A`.
+Solve the unitary defined by `A` for a total evolution time `tf`.
 
 ...
 # Arguments
-- `A::Annealing`: the Annealing object.
+- `A::Annealing`: the `Annealing`/`Evolution` object.
 - `tf::Real`: the total annealing time.
 - `vectorize::Bool = false`: whether to vectorize the density matrix.
-- `tspan` = (0, tf): time interval to solve.
-- `kwargs`: other keyword arguments supported by DifferentialEquations.jl.
+- `tspan` = (0, tf): time interval to solve the dynamics.
+- `kwargs`: other keyword arguments supported by `DifferentialEquations`.
 ...
 """
 function solve_unitary(
@@ -77,15 +77,15 @@ end
 """
 $(SIGNATURES)
 
-Solve the Von Neumann equation of `Annealing` object `A`.
+Solve the von Neumann equation defined by `A` for a total evolution time `tf`.
 
 ...
 # Arguments
-- `A::Annealing`: the Annealing object.
+- `A::Annealing`: the `Annealing`/`Evolution` object.
 - `tf::Real`: the total annealing time.
 - `vectorize::Bool = false`: whether to vectorize the density matrix.
-- `tspan` = (0, tf): time interval to solve.
-- `kwargs`: other keyword arguments supported by DifferentialEquations.jl.
+- `tspan` = (0, tf): time interval to solve the dynamics.
+- `kwargs`: other keyword arguments supported by `DifferentialEquations`.
 ...
 """
 function solve_von_neumann(

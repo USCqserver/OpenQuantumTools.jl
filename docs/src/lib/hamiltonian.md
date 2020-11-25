@@ -10,7 +10,7 @@ AdiabaticFrameHamiltonian(ωfuns, geofuns)
 ```
 ##
 ```@docs
-evaluate(H::AbstractHamiltonian, s::Real)
-eigen_decomp(H::AbstractHamiltonian, s; lvl::Int=2)
-eigen_decomp(H::AbstractHamiltonian, s::AbstractArray{Float64,1}; lvl::Int=2)
+evaluate(H::QTBase.AbstractHamiltonian, s::Real)
+eigen_decomp(H::QTBase.AbstractHamiltonian, s; lvl::Int=2)
+eigen_decomp(H::QTBase.AbstractHamiltonian, s::AbstractArray{Float64,1}; lvl::Int=2)
 ```

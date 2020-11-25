@@ -3,7 +3,7 @@ function DEFAULT_INITIALIZER end
 """
 $(SIGNATURES)
 
-Create callback to check the positivity of system density matrix.
+Builds the callback to check positivity of the system density matrix during the evolution.
 """
 function PositivityCheckCallback()
     affect! = function (u, t, integrator)
@@ -25,7 +25,7 @@ end
 """
 $(SIGNATURES)
 
-Create callback to apply instantaneous pulses during the evolution.
+Builds the callback to apply instantaneous pulses during the evolution.
 
 ...
 # Arguments
