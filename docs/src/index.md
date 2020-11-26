@@ -5,7 +5,7 @@
 The official name of this package is "Hamiltonian Open Quantum System Toolkit" (HOQST). To conform with the Julia package name [guidelines](https://julialang.github.io/Pkg.jl/v1/creating-packages/) the code name of the package is `OpenQuantumTools`. 
 
 !!! note "`OpenQuantumTools` starts as a toolkit for quantum annealing" 
-    Some terminology used by `OpenQuantumTools` comes from the fields of adiabatic quantum computing and quantum annealing [[1] Adiabatic quantum computation](https://link.aps.org/doi/10.1103/RevModPhys.90.015002).
+    Some terminology used by `OpenQuantumTools` comes from the fields of adiabatic quantum computing and quantum annealing (for more details see [[1] Adiabatic quantum computation](https://link.aps.org/doi/10.1103/RevModPhys.90.015002)).
 
 ## Installation
 
