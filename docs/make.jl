@@ -12,13 +12,13 @@ makedocs(
     sitename="OpenQuantumTools",
     pages = Any[
         "Home" => "index.md",
-        "Tutorials" => Any[
-            "Math Symbol" => "tutorials/math_symbol.md",
-            "Hamiltonian" => "tutorials/hamiltonians.md",
-            "Coupling" => "tutorials/couplings.md",
-            "Bath" => "tutorials/bath.md",
-            "Annealing" => "tutorials/annealing.md",
-            "Solver" => "tutorials/solver.md"
+        "Basics" => Any[
+            "Math Symbol" => "basics/math_symbol.md",
+            "Hamiltonian" => "basics/hamiltonians.md",
+            "Coupling" => "basics/couplings.md",
+            "Bath" => "basics/bath.md",
+            "Annealing" => "basics/annealing.md",
+            "Solver" => "basics/solver.md"
         ],
         "Library" => Any[
             "Hamiltonian" => "lib/hamiltonian.md",
