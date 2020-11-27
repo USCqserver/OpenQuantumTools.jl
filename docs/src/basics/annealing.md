@@ -43,7 +43,7 @@ H(s) = -(1-s)\frac{X}{2} - s\frac{Z}{2} + X \otimes B_1 + Z \otimes B_2 + H_B \ 
 ```
 
 ## Other interaction types
-Sometimes it is not practical to directly start from the system-bath interaction Hamiltonian. For example, in many scenarios, [the Lindblad equation](https://en.wikipedia.org/wiki/Lindbladian) could be the starting point. In those cases, instead of building [`Interaction`](@ref)s from `AbstractCouplings` and `AbstractBath`, the user can specify different subtypes of `AbstractInteraction`. For example,
+Sometimes it is impractical to directly start from the system-bath interaction Hamiltonian. For example, often [the Lindblad equation](https://en.wikipedia.org/wiki/Lindbladian) is the starting point. In such cases, instead of building [`Interaction`](@ref)s from `AbstractCouplings` and `AbstractBath`, the user can specify different subtypes of `AbstractInteraction`. For example,
 ```julia
 lind = Lindblad(0.1, σz)
 ```
