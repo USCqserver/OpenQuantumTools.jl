@@ -2,7 +2,7 @@
 `OpenQuantumTools` defines some commonly used mathematical symbols and operators, including:
 
 ## Pauli matrices
-Constants `σx`, `σy`, `σz` and `σi` represent the Pauli matrices. And the binary operator `⊗` (can be typed by `\otimes<tab>`) represents the tensor product. For example,
+The constants `σx`, `σy`, `σz` and `σi` represent the Pauli matrices. The binary operator `⊗` (can be typed as `\otimes<tab>`) represents the tensor product. For example,
 ```julia-repl
 julia> σx⊗σz
 4×4 Array{Complex{Float64},2}:
@@ -13,7 +13,7 @@ julia> σx⊗σz
 ```
 calculates the tensor product of `σx` and `σz`.
 
-The eigenvectors of each Pauli matrix are also stored in the constant [`PauliVec`](@ref), where `PauliVec[1]`,`PauliVec[2]`,`PauliVec[3]` correspond to eigenvectors of `σx`, `σy`, `σz` respectively. The first element in each `PauliVec[i]` is the one with positive eigenvalue
+The eigenvectors of each Pauli matrix are also stored in the constant [`PauliVec`](@ref), where `PauliVec[1]`,`PauliVec[2]`,`PauliVec[3]` correspond to the  eigenvectors of `σx`, `σy`, `σz` respectively. The first element in each `PauliVec[i]` is the one with a positive eigenvalue
 ```julia-repl
 julia> σz*PauliVec[3][1] == PauliVec[3][1]
 true
@@ -25,7 +25,7 @@ Additionally, sparse versions of the Pauli matrices are defined in ```spσx```, 
 
 * [`check_positivity`](@ref): check if a matrix is positive semi-definite.
 * [`check_unitary`](@ref): check if a matrix is unitary.
-* [`check_density_matrix`](@ref): Check if a matrix is a valid density matrix.
+* [`check_density_matrix`](@ref): check if a matrix is a valid density matrix.
 * [`fidelity`](@ref): calculate the fidelity between two density matrices `ρ` and `σ` using ``Tr[\sqrt{\sqrt{\rho}\sigma\sqrt{\rho}}]^2``
 
 ```julia-repl
@@ -35,7 +35,7 @@ julia> fidelity(ρ, σ)
 0.49999999999999944
 ```
 
-* [`partial_trace`](@ref): calculate the partial trace of a density matrix
+* [`partial_trace`](@ref): calculate the partial trace of a matrix
 
 ```julia-repl
 julia> ρ1 = [0.4 0.2; 0.2 0.6]; ρ2 = [0.5 0; 0 0.5];
@@ -45,7 +45,7 @@ julia> partial_trace(ρ1⊗ρ2, [1])
 0.2  0.6
 ```
 
-* [`matrix_decompose`](@ref): project a matrix onto a list of basis
+* [`matrix_decompose`](@ref): project a matrix onto a list of basis elements
 
 ```julia-repl
 julia> matrix_decompose(1.0*σx+2.0*σy+3.0*σz, [σx,σy,σz])
@@ -101,7 +101,7 @@ true
 ```
 
 ## Construction of multi-qubit states
-The quantum state of a spin system can be construct by[`q_translate_state`](@ref)
+The quantum state of a spin system can be constructed by[`q_translate_state`](@ref)
 ```julia-repl
 julia> q_translate_state("001")
 8-element Array{Complex{Float64},1}:
@@ -114,4 +114,4 @@ julia> q_translate_state("001")
  0.0 + 0.0im
  0.0 + 0.0im
 ```
-In the string representation, `0` and `1` represent the eigenstates of ``σ_z`` operator.
+In the string representation, `0` and `1` represent the eigenstates of the ``σ_z`` operator.
