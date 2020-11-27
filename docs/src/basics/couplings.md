@@ -1,9 +1,9 @@
 # Couplings
-We start with a general form of system-bath interaction Hamiltonian
+We start with a general form of a system-bath interaction Hamiltonian
 ```math
   H_{SB} = \sum_\alpha S_\alpha\otimes B_\alpha
 ```
-and define the set of $\{S_\alpha\}_\alpha$ whose corresponding $\{B_α\}_\alpha$ are independent and identical (IID) as `AbstractCouplings` objects. Mathematically, every element in the same `AbstractCouplings` object shares the same bath correlation function. Three concrete types of `AbstractCouplings` are implemented -- [`ConstantCouplings`](@ref), [`TimeDependentCouplings`](@ref) and [`CustomCouplings`](@ref).
+and define the set of $\{S_\alpha\}_\alpha$ with corresponding $\{B_α\}_\alpha$ as `AbstractCouplings` objects. Mathematically, every element in the same `AbstractCouplings` object shares the same bath correlation function. Three concrete types of `AbstractCouplings` are implemented -- [`ConstantCouplings`](@ref), [`TimeDependentCouplings`](@ref) and [`CustomCouplings`](@ref).
 ## Constant Couplings
 [`ConstantCouplings`](@ref) represents time-independent operators. For example, the following code line
 ```julia
@@ -13,7 +13,7 @@ creates a set of two constant operators: $ZI$ and $IZ$. The corresponding intera
 ```math
   H_{SB} = ZI⊗B_1 + IZ⊗B_2 \ ,
 ```
-where $B_1$ and $B_2$ are IID. 
+where $B_1$ and $B_2$ are independent and have identical correlation functions. 
 ## Time-dependent Couplings
 On the other hand, [`TimeDependentCouplings`](@ref) can be constructed by a two-step procedure. First, a single [`TimeDependentCoupling`](@ref) needs to be constructed using
 ```julia
