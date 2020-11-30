@@ -98,4 +98,4 @@ U = solve_unitary(annealing, tf, alg = Tsit5(), abstol=1e-7, reltol=1e-7)
 
 redfield_sol = solve_redfield(annealing, tf, U, alg = Tsit5(), abstol=1e-7, reltol=1e-7, callback=PositivityCheckCallback())
 
-@test redfield_sol.t[end] ≈ 3.45278167
+@test redfield_sol.t[end] ≈ 3.45278167 atol = 1e-5 rtol = 1e-5
