@@ -4,21 +4,21 @@
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://uscqserver.github.io/OpenQuantumTools.jl/dev/)
 [![codecov](https://codecov.io/gh/USCqserver/OpenQuantumTools.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/USCqserver/OpenQuantumTools.jl)
 
-This is a Julia toolbox for simulating the dynamics of different quantum annealing protocols. The package is still under heavy development, and changes in the interface(s) are more than likely to happen. Detailed documentation can be found [here](https://uscqserver.github.io/OpenQuantumTools.jl/dev/). Any pull requests are welcome.
+The official name of this package is "Hamiltonian Open Quantum System Toolkit" (HOQST). To conform with the Julia package name [guidelines](https://julialang.github.io/Pkg.jl/v1/creating-packages/) the code name of the package is `OpenQuantumTools`. It is a Julia toolkit for simulating the open quantum system dynamics. The package is still under heavy development, and changes in the interface(s) are more than likely to happen. Detailed documentation can be found [here](https://uscqserver.github.io/OpenQuantumTools.jl/dev/). Any pull requests are welcome.
 
-## Install
-Currently this package and its core component package [QTBase.jl](https://github.com/USCqserver/QTBase.jl) are both unregistered. To install, you need to manually run the following command inside the Julia REPL:
+## Installation
+
+This package has a core component package [QTBase.jl](https://github.com/USCqserver/QTBase.jl). Both `OpenQuantumTools` and `QTBase` are currently unregistered. To install, run the following commands inside the Julia REPL:
 ```julia
 using Pkg
 Pkg.add(PackageSpec(url="https://github.com/USCqserver/QTBase.jl", rev="master"))
 Pkg.add(PackageSpec(url="https://github.com/USCqserver/OpenQuantumTools.jl", rev="master"))
 ```
-It will install the packages directly from their Github repos. This can also be done in Julia's [Pkg REPL](https://julialang.github.io/Pkg.jl/v1/getting-started/):
+This will install the packages directly from their GitHub repos. Alternatively, this can also be done in Julia's [Pkg REPL](https://julialang.github.io/Pkg.jl/v1/getting-started/):
 ```julia-REPL
 (1.5) pkg> add https://github.com/USCqserver/QTBase.jl
 (1.5) pkg> add https://github.com/USCqserver/OpenQuantumTools.jl
 ```
-More information about `Julia`'s package manager can be found at [Pkg.jl](https://julialang.github.io/Pkg.jl/v1/).
 
 ## Useful Packages
 It is recommended to install the following external packages:  
