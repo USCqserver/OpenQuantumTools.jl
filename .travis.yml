@@ -13,7 +13,7 @@ julia:
 notifications:
   email: false
 
-before_install: git https://github.com/USCqserver/QTBase.jl.git
+before_install: git clone https://github.com/USCqserver/QTBase.jl.git
 script:
   - julia --color=yes --check-bounds=yes -e 'using Pkg; Pkg.develop(PackageSpec(path="USCqserver/QTBase.jl")); Pkg.instantiate()'
   - julia --color=yes --check-bounds=yes -e 'using Pkg; Pkg.instantiate(); Pkg.build(; verbose = true); Pkg.test(coverage=true)'
