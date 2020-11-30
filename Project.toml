@@ -1,7 +1,7 @@
 name = "OpenQuantumTools"
 uuid = "e429f160-8886-11e9-20cb-0dbe84e78965"
 authors = ["Huo Chen <neversakura@hotmail.com>"]
-version = "0.5.9"
+version = "0.6.0"
 
 
 [deps]
