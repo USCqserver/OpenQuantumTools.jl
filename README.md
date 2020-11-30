@@ -31,4 +31,4 @@ Even though `OpenQuantumTools.jl` can function without `DifferentialEquations.jl
 Tutorials and examples can be found in [HOQSTTutorials.jl](https://github.com/USCqserver/HOQSTTutorials.jl).
 
 ## Acknowledgment
-The author thanks Grace Chen for the nice logo design.
+The author thanks Grace Chen for the HOQST logo design.
