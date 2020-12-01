@@ -26,7 +26,7 @@ function solve_redfield(
     kwargs...,
 )
     u0 = build_u0(A.u0, :m, vectorize=vectorize)
-    L = QTBase.redfield_from_interactions(A.interactions, unitary, Ta, int_atol, int_rtol)
+    L = OpenQuantumBase.redfield_from_interactions(A.interactions, unitary, Ta, int_atol, int_rtol)
     R = DiffEqLiouvillian(A.H, [], L, size(A.H, 1))
 
     update_func = function (A, u, p, t)
@@ -76,7 +76,7 @@ function solve_cgme(
     kwargs...,
 )
     u0 = build_u0(A.u0, :m, vectorize=vectorize)
-    L = QTBase.cg_from_interactions(A.interactions, unitary, tf, Ta,
+    L = OpenQuantumBase.cg_from_interactions(A.interactions, unitary, tf, Ta,
             int_atol, int_rtol)
     R = DiffEqLiouvillian(A.H, [], L, size(A.H, 1))
     update_func = function (A, u, p, t)
@@ -126,7 +126,7 @@ function solve_ule(
     kwargs...,
 )
     u0 = build_u0(A.u0, :m, vectorize=vectorize)
-    L = QTBase.ule_from_interactions(A.interactions, unitary, Ta, int_atol, int_rtol)
+    L = OpenQuantumBase.ule_from_interactions(A.interactions, unitary, Ta, int_atol, int_rtol)
     R = DiffEqLiouvillian(A.H, [], L, size(A.H, 1))
 
     update_func = function (A, u, p, t)
@@ -163,8 +163,8 @@ function build_ensemble_redfield(
     kwargs...,
 )
     u0 = build_u0(A.u0, :m, vectorize=vectorize)
-    stocs = QTBase.fluctuator_from_interactions(A.interactions)
-    reds = QTBase.redfield_from_interactions(A.interactions, unitary, Ta, int_atol, int_rtol)
+    stocs = OpenQuantumBase.fluctuator_from_interactions(A.interactions)
+    reds = OpenQuantumBase.redfield_from_interactions(A.interactions, unitary, Ta, int_atol, int_rtol)
     if isempty(stocs)
         error("No stochastic bath detected. Use the normal Redfeidl solver instead.")
     end

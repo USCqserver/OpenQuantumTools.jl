@@ -17,9 +17,9 @@ function build_u0(raw_u0, type; vectorize::Bool = false)
     end
     # use StaticArrays for initial state will cause some method to fail
     # if (ndims(res) == 1) && (length(res) <= 10)
-    #     res = QTBase.MVector{length(res)}(res)
+    #     res = OpenQuantumBase.MVector{length(res)}(res)
     # elseif (ndims(res) == 2) && (size(res, 1) <= 10)
-    #     res = QTBase.MMatrix{size(res, 1),size(res, 2)}(res)
+    #     res = OpenQuantumBase.MMatrix{size(res, 1),size(res, 2)}(res)
     # end
     res
 end
@@ -27,7 +27,7 @@ end
 function vectorize_cache(cache)
     # use StaticArray if the dimension is less than 3
     if size(cache, 1) <= 3
-        QTBase.@MMatrix zeros(eltype(cache), size(cache, 1)^2, size(cache, 2)^2)
+        OpenQuantumBase.@MMatrix zeros(eltype(cache), size(cache, 1)^2, size(cache, 2)^2)
     else
         one(cache) ⊗ cache
     end

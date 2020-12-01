@@ -20,7 +20,7 @@ function solve_lindblad(
     kwargs...,
 )
     u0 = build_u0(A.u0, :m, vectorize=vectorize)
-    L = QTBase.lindblad_from_interactions(A.interactions)
+    L = OpenQuantumBase.lindblad_from_interactions(A.interactions)
     if vectorize
         error("Vectorization is not yet supported for Lindblad equation.")
     end
@@ -39,7 +39,7 @@ function build_ensemble_lindblad(
     kwargs...,
 )
     u0 = build_u0(A.u0, :v)
-    L = DiffEqLiouvillian(A.H, [], QTBase.lindblad_from_interactions(A.interactions), size(A.H, 1))
+    L = DiffEqLiouvillian(A.H, [], OpenQuantumBase.lindblad_from_interactions(A.interactions), size(A.H, 1))
     cb = LindbladJumpCallback()
     p = ODEParams(L, tf, A.annealing_parameter)
     update_func = function (cache, u, p, t)

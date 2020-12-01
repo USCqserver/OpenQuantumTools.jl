@@ -12,7 +12,7 @@ function build_ensemble_stochastic(
         initializer == DEFAULT_INITIALIZER ? (x, y) -> rand([-1, 1], x, y) :
         initializer
 
-    flist = QTBase.fluctuator_from_interactions(A.interactions)
+    flist = OpenQuantumBase.fluctuator_from_interactions(A.interactions)
     if length(flist) == 1
         cb = FluctuatorCallback(flist[1], initializer)
     else
