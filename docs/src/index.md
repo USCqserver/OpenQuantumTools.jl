@@ -9,15 +9,15 @@ The official name of this package is "Hamiltonian Open Quantum System Toolkit" (
 
 ## Installation
 
-This package has a core component package [QTBase.jl](https://github.com/USCqserver/QTBase.jl). Both `OpenQuantumTools` and `QTBase` are currently unregistered. To install, run the following commands inside the Julia REPL:
+This package has a core component package [OpenQuantumBase.jl](https://github.com/USCqserver/OpenQuantumBase.jl). Both `OpenQuantumTools` and `OpenQuantumBase` are currently unregistered. To install, run the following commands inside the Julia REPL:
 ```julia
 using Pkg
-Pkg.add(PackageSpec(url="https://github.com/USCqserver/QTBase.jl", rev="master"))
+Pkg.add(PackageSpec(url="https://github.com/USCqserver/OpenQuantumBase.jl", rev="master"))
 Pkg.add(PackageSpec(url="https://github.com/USCqserver/OpenQuantumTools.jl", rev="master"))
 ```
 This will install the packages directly from their GitHub repos. Alternatively, this can also be done in Julia's [Pkg REPL](https://julialang.github.io/Pkg.jl/v1/getting-started/):
 ```julia-REPL
-(1.5) pkg> add https://github.com/USCqserver/QTBase.jl
+(1.5) pkg> add https://github.com/USCqserver/OpenQuantumBase.jl
 (1.5) pkg> add https://github.com/USCqserver/OpenQuantumTools.jl
 ```
 More information about `Julia`'s package manager can be found at [Pkg.jl](https://julialang.github.io/Pkg.jl/v1/).

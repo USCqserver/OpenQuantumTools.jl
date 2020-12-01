@@ -1,3 +1,7 @@
+branches:
+  only:
+    - master
+
 language: julia
 
 os:
@@ -13,9 +17,9 @@ julia:
 notifications:
   email: false
 
-before_install: git clone https://github.com/USCqserver/QTBase.jl.git USCqserver/QTBase.jl
+before_install: git clone https://github.com/USCqserver/OpenQuantumBase.jl.git USCqserver/OpenQuantumBase.jl
 script:
-  - julia --color=yes --check-bounds=yes -e 'using Pkg; Pkg.develop(PackageSpec(path="USCqserver/QTBase.jl")); Pkg.instantiate()'
+  - julia --color=yes --check-bounds=yes -e 'using Pkg; Pkg.develop(PackageSpec(path="USCqserver/OpenQuantumBase.jl")); Pkg.instantiate()'
   - julia --color=yes --check-bounds=yes -e 'using Pkg; Pkg.instantiate(); Pkg.build(; verbose = true); Pkg.test(coverage=true)'
 
 jobs:
@@ -25,7 +29,7 @@ jobs:
       os: linux
       script:
         - julia --project=docs/ -e 'using Pkg;
-          Pkg.develop(PackageSpec(path="USCqserver/QTBase.jl"));
+          Pkg.develop(PackageSpec(path="USCqserver/OpenQuantumBase.jl"));
           Pkg.develop(PackageSpec(path=pwd()));
           Pkg.instantiate()'
         - julia --project=docs/ docs/make.jl

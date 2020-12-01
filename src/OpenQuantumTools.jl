@@ -22,7 +22,7 @@ import DiffEqCallbacks:
 
 @reexport using LinearAlgebra
 @reexport using SparseArrays
-@reexport using QTBase
+@reexport using OpenQuantumBase
 
 include("math_util.jl")
 include("QControl/callback_lib.jl")
