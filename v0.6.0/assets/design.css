@@ -1,0 +1,13 @@
+.admonition.is-category-terminology {
+  background-color: #FFFEDD;
+  border-color: #FFEC8B; }
+  .admonition.is-category-terminology > .admonition-header {
+    background-color: #FFEC8B;
+    color: black; }
+    .admonition.is-category-terminology > .admonition-header:before {
+      content: "Terminology: ";
+      font-family: inherit;
+      font-weight: bold; }
+
+html.theme--documenter-dark .admonition.is-category-terminology {
+  border-color: #FFEC8B; }
