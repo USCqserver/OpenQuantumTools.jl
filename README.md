@@ -30,5 +30,14 @@ Even though `OpenQuantumTools.jl` can function without `DifferentialEquations.jl
 ## Tutorials
 Tutorials and examples can be found in [HOQSTTutorials.jl](https://github.com/USCqserver/HOQSTTutorials.jl).
 
+## Citing
+
+The corresponding paper for `OpenQuantumTools` is
+
+[[1] H. Chen and D. A. Lidar, HOQST: Hamiltonian Open Quantum System Toolkit, ArXiv:2011.14046 [Quant-Ph] (2020)](https://arxiv.org/abs/2011.14046)
+
+This software is developed as part of academic research. If you use `OpenQuantumTools` as part of your research, teaching, or other activities, we would be grateful if you could cite our work.
+
+
 ## Acknowledgment
 The author thanks Grace Chen for the HOQST logo design.
