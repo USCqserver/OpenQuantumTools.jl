@@ -9,7 +9,7 @@ The official name of this package is "Hamiltonian Open Quantum System Toolkit" (
 
 ## Installation
 
-Because `OpenQuantumTools` is currently unregistered, to install, run the following commands inside the Julia REPL:
+To install, run the following commands inside the Julia REPL:
 ```julia
 using Pkg
 Pkg.add("OpenQuantumTools")
