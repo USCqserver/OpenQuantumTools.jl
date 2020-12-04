@@ -35,4 +35,5 @@ makedocs(
 
 deploydocs(
     repo = "github.com/USCqserver/OpenQuantumTools.jl.git",
+    versions = ["stable" => "v^"]
 )
