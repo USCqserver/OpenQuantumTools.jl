@@ -1,6 +1,7 @@
 <img src="docs/src/assets/logo.jpg" width="256"/>
 
 # OpenQuantumTools.jl
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://uscqserver.github.io/OpenQuantumTools.jl/stable/)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://uscqserver.github.io/OpenQuantumTools.jl/dev/)
 [![codecov](https://codecov.io/gh/USCqserver/OpenQuantumTools.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/USCqserver/OpenQuantumTools.jl)
 
@@ -8,14 +9,14 @@ The official name of this package is "Hamiltonian Open Quantum System Toolkit" (
 
 ## Installation
 
-Because `OpenQuantumTools` is currently unregistered, to install, run the following commands inside the Julia REPL:
+To install, run the following commands inside the Julia REPL:
 ```julia
 using Pkg
-Pkg.add(PackageSpec(url="https://github.com/USCqserver/OpenQuantumTools.jl"))
+Pkg.add("OpenQuantumTools")
 ```
 This will install the packages directly from their GitHub repos. Alternatively, this can also be done in Julia's [Pkg REPL](https://julialang.github.io/Pkg.jl/v1/getting-started/):
 ```julia-REPL
-(1.5) pkg> add https://github.com/USCqserver/OpenQuantumTools.jl
+(1.5) pkg> add OpenQuantumTools
 ```
 
 ## Useful Packages
