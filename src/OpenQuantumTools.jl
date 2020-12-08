@@ -19,6 +19,8 @@ import DiffEqBase:
     terminate!
 import DiffEqCallbacks:
     FunctionCallingCallback, PresetTimeCallback, IterativeCallback
+import CUDA:
+    cu
 
 @reexport using LinearAlgebra
 @reexport using SparseArrays
