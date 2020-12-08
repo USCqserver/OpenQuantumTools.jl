@@ -43,6 +43,7 @@ include("plot_util/bath_plot.jl")
 
 export solve_unitary,
     solve_schrodinger,
+    solve_schrodinger_gpu,
     solve_von_neumann,
     solve_redfield,
     solve_ame,

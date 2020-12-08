@@ -27,6 +27,22 @@ function solve_schrodinger(A::Annealing, tf::Real; tspan = (0, tf), kwargs...)
     solve(prob; alg_hints = [:nonstiff], kwargs...)
 end
 
+function solve_schrodinger_gpu(A::Annealing, tf::Real; tspan = (0, tf), kwargs...)
+    u0 = cu(build_u0(A.u0, :v))
+    p = ODEParams(A.H, float(tf), A.annealing_parameter)
+    update_func = function (C, u, p, t)
+        update_cache!(C, p.L, p, p(t))
+    end
+    cache = cu(get_cache(A.H))
+    diff_op = DiffEqArrayOperator(cache, update_func = update_func)
+    jac_cache = cu(similar(cache))
+    jac_op = DiffEqArrayOperator(jac_cache, update_func = update_func)
+    ff = ODEFunction(diff_op, jac_prototype = jac_op)
+
+    prob = ODEProblem{true}(ff, u0, Float32.(tspan), p)
+    solve(prob; alg_hints = [:nonstiff], kwargs...)
+end
+
 """
 $(SIGNATURES)
 
