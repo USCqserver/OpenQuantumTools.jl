@@ -27,7 +27,8 @@ function solve_schrodinger(A::Annealing, tf::Real; tspan = (0, tf), kwargs...)
     solve(prob; alg_hints = [:nonstiff], kwargs...)
 end
 
-function solve_schrodinger_gpu(A::Annealing, tf::Real; tspan = (0, tf), kwargs...)
+# the GPU accelerated version
+function solve_schrodinger(A::CuAnnealing, tf::Real; tspan = (0, tf), kwargs...)
     u0 = cu(build_u0(A.u0, :v))
     p = ODEParams(A.H, float(tf), A.annealing_parameter)
     update_func = function (C, u, p, t)
