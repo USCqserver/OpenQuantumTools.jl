@@ -14,11 +14,11 @@ To install, run the following commands inside the Julia REPL:
 using Pkg
 Pkg.add("OpenQuantumTools")
 ```
-This will install the packages directly from their GitHub repos. Alternatively, this can also be done in Julia's [Pkg REPL](https://julialang.github.io/Pkg.jl/v1/getting-started/):
+Alternatively, this can also be done in Julia's [Pkg REPL](https://julialang.github.io/Pkg.jl/v1/getting-started/):
 ```julia-REPL
 (1.5) pkg> add OpenQuantumTools
 ```
-More information about `Julia`'s package manager can be found at [Pkg.jl](https://julialang.github.io/Pkg.jl/v1/).
+More information about `Julia`'s package manager can be found at [Pkg.jl](https://julialang.github.io/Pkg.jl/v1/). `OpenQuantumTools` requires Julia 1.4 or higher. Installing it on an older version of Julia will result in an unsatisfiable requirements error.
 
 To load the package, use the command:
 ```julia
