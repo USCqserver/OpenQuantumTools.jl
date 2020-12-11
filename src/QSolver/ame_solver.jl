@@ -33,7 +33,7 @@ function solve_ame(
     if one_sided == false
         L = OpenQuantumBase.davies_from_interactions(A.interactions, ω_hint, lambshift, lambshift_S)
     else
-        L = build_onesided_ame(A.interactions, ω_hint, lambshift)
+        L = OpenQuantumBase.onesided_ame_from_interactions(A.interactions, ω_hint, lambshift, lambshift_S)
     end
     if vectorize
         error("Vectorization is not yet supported for adiabatic master equation.")
