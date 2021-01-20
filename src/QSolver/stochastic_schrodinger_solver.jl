@@ -5,6 +5,7 @@ function build_ensemble_stochastic(
     reduction;
     tspan=(0.0, tf),
     initializer=DEFAULT_INITIALIZER,
+    save_positions=(false, false),
     kwargs...
 )
     u0 = build_u0(A.u0, :v)
@@ -14,11 +15,11 @@ function build_ensemble_stochastic(
 
     flist = OpenQuantumBase.fluctuator_from_interactions(A.interactions)
     if length(flist) == 1
-        cb = FluctuatorCallback(flist[1], initializer)
+        cb = FluctuatorCallback(flist[1], initializer, save_positions)
     else
-        cb = CallbackSet([FluctuatorCallback(f, initializer) for f in flist]...)
+        cb = CallbackSet([FluctuatorCallback(f, initializer, save_positions) for f in flist]...)
     end
-    ff = DiffEqLiouvillian(A.H, [], flist, size(A.H,1))
+    ff = DiffEqLiouvillian(A.H, [], flist, size(A.H, 1))
     p = ODEParams(ff, float(tf), A.annealing_parameter)
 
     update_func = function (cache, u, p, t)

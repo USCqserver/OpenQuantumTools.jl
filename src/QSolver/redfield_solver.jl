@@ -160,6 +160,7 @@ function build_ensemble_redfield(
     int_rtol=1e-6,
     Ta=tf,
     initializer=DEFAULT_INITIALIZER,
+    save_positions=(false, false),
     kwargs...,
 )
     u0 = build_u0(A.u0, :m, vectorize=vectorize)
@@ -174,9 +175,9 @@ function build_ensemble_redfield(
         initializer
 
     if length(stocs) == 1
-        cb = FluctuatorCallback(stocs[1], initializer)
+        cb = FluctuatorCallback(stocs[1], initializer, save_positions)
     else
-        cb = CallbackSet([FluctuatorCallback(f, initializer) for f in stocs]...)
+        cb = CallbackSet([FluctuatorCallback(f, initializer, save_positions) for f in stocs]...)
     end
     R = DiffEqLiouvillian(A.H, [], [reds; stocs], size(A.H, 1))
     p = ODEParams(R, float(tf), A.annealing_parameter)

@@ -36,11 +36,12 @@ function build_ensemble_lindblad(
     output_func,
     reduction;
     tspan=(0.0, tf),
+    save_positions=(false, false),
     kwargs...,
 )
     u0 = build_u0(A.u0, :v)
     L = DiffEqLiouvillian(A.H, [], OpenQuantumBase.lindblad_from_interactions(A.interactions), size(A.H, 1))
-    cb = LindbladJumpCallback()
+    cb = LindbladJumpCallback(save_positions)
     p = ODEParams(L, tf, A.annealing_parameter)
     update_func = function (cache, u, p, t)
         update_cache!(cache, p.L, p, t)

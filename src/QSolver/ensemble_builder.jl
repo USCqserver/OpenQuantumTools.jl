@@ -23,6 +23,7 @@ function build_ensembles(
     output_func = (sol, i) -> (sol, false),
     reduction = (u, data, I) -> (append!(u, data), false),
     initializer = DEFAULT_INITIALIZER,
+    save_positions = (false, false),
     kwargs...,
 )
     if type == :stochastic
@@ -33,6 +34,7 @@ function build_ensembles(
             reduction;
             tspan = tspan,
             initializer = initializer,
+            save_positions = save_positions,
             kwargs...,
         )
     elseif type == :ame
@@ -43,6 +45,7 @@ function build_ensembles(
             reduction;
             tspan = tspan,
             initializer = initializer,
+            save_positions = save_positions,
             kwargs...,
         )
     elseif type == :lindblad
@@ -52,6 +55,7 @@ function build_ensembles(
             output_func,
             reduction;
             tspan = tspan,
+            save_positions = save_positions,
             kwargs...,
         )
     else
@@ -72,6 +76,7 @@ function build_ensembles(
     int_rtol = 1e-6,
     Ta = tf,
     initializer = DEFAULT_INITIALIZER,
+    save_positions = (false, false),
     kwargs...,
 )
     if type == :redfield
@@ -85,7 +90,8 @@ function build_ensembles(
             int_atol = int_atol,
             int_rtol = int_rtol,
             Ta = Ta,
-            initializer = DEFAULT_INITIALIZER,
+            initializer = initializer,
+            save_positions = save_positions,
             kwargs...,
         )
     else

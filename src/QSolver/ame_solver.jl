@@ -55,6 +55,7 @@ function build_ensemble_ame(
     lambshift_S=nothing,
     lvl::Int=size(A.H, 1),
     initializer=initializer,
+    save_positions=(false, false),
     kwargs...,
 )
     u0 = build_u0(A.u0, :v)
@@ -62,7 +63,7 @@ function build_ensemble_ame(
     flist = OpenQuantumBase.fluctuator_from_interactions(A.interactions)
     dlist = OpenQuantumBase.davies_from_interactions(A.interactions, ω_hint, lambshift, lambshift_S)
     L = DiffEqLiouvillian(A.H, dlist, flist, lvl)
-    cb = build_jump_callback(dlist, flist, initializer)
+    cb = build_jump_callback(dlist, flist, initializer, save_positions)
     p = ODEParams(L, tf, A.annealing_parameter)
     update_func = function (cache, u, p, t)
         update_cache!(cache, p.L, p, t)
@@ -83,18 +84,18 @@ function build_ensemble_ame(
     ensemble_prob
 end
 
-function build_jump_callback(dlist, flist, initializer)
+function build_jump_callback(dlist, flist, initializer, save_positions)
     initializer =
         initializer == DEFAULT_INITIALIZER ? (x, y) -> rand([-1, 1], x, y) :
         initializer
     if isempty(flist)
-        cb = LindbladJumpCallback()
+        cb = LindbladJumpCallback(save_positions)
     elseif isempty(dlist)
         error("No interactions support AME. Use other ensemble instead.")
     else
         cb = CallbackSet(
-            LindbladJumpCallback(),
-            [FluctuatorCallback(f, initializer) for f in flist]...,
+            LindbladJumpCallback(save_positions),
+            [FluctuatorCallback(f, initializer, save_positions) for f in flist]...,
         )
     end
     cb
