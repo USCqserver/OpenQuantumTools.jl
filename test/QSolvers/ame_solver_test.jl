@@ -59,5 +59,5 @@ prob = build_ensembles(annealing, tf, :ame)
 Random.seed!(1234)
 sol2 = solve(prob, Tsit5(), EnsembleSerial(), trajectories=1, save_everystep=false)[1]
 
-@test length(sol1) == 2
-@test !(length(sol2) == 2)
+@test !(length(sol1) == 2)
+@test length(sol2) == 2
