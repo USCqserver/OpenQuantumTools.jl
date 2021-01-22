@@ -1,4 +1,4 @@
-using OpenQuantumTools, Test, OrdinaryDiffEq, QuadGK
+using OpenQuantumTools, Test, OrdinaryDiffEq, QuadGK, Random
 
 H = DenseHamiltonian([(s) -> 1.0], [σi], unit=:ħ)
 u0 = PauliVec[1][1]
@@ -19,6 +19,21 @@ f(t) = quadgk(cfun, 0, t)[1]
 sol = solve_redfield(annealing, tf, InplaceUnitary(U), vectorize=true,
     alg=TRBDF2(), reltol=1e-6)
 @test sol(10)[2] ≈ exp(-4 * γ) * 0.5 atol = 1e-5 rtol = 1e-5
+
+# test for infused stochastic and Redfield equation
+fbath = EnsembleFluctuator([0.1], [1.0])
+interactions = InteractionSet(Interaction(coupling, bath), Interaction(coupling, fbath))
+annealing = Annealing(H, u0; interactions=interactions)
+tf = 10
+U = solve_unitary(annealing, tf, alg=Tsit5(), abstol=1e-8, reltol=1e-8)
+prob1 = build_ensembles(annealing, tf, U, :redfield)
+prob2 = build_ensembles(annealing, tf, U, :redfield, save_positions=(true, true))
+Random.seed!(1234)
+sol1 = solve(prob1, Tsit5(), EnsembleSerial(), trajectories=1, save_everystep=false)[1]
+Random.seed!(1234)
+sol2 = solve(prob2, Tsit5(), EnsembleSerial(), trajectories=1, save_everystep=false)[1]
+@test length(sol1) == 2
+@test !(length(sol2) == 2)
 
 # test for CustomBath
 H = DenseHamiltonian([(s) -> 0.0], [σi], unit=:ħ)
@@ -82,20 +97,20 @@ isol = solve_redfield(iannealing, tf, (t) -> σi, alg=Tsit5(), reltol=1e-6)
 β = 4
 T = β_2_temperature(β)
 η = 0.1
-fc= 10/(2π)
+fc = 10 / (2π)
 bath = Ohmic(η, fc, T)
 
-Hp = 0.5*σz⊗σi - 0.7*σi⊗σz + 0.3*σz⊗σz
+Hp = 0.5 * σz ⊗ σi - 0.7 * σi ⊗ σz + 0.3 * σz ⊗ σz
 Hd = standard_driver(2)
-H = DenseHamiltonian([(s)->1-s, (s)->s], [-Hd, Hp], unit=:ħ)
+H = DenseHamiltonian([(s) -> 1 - s, (s) -> s], [-Hd, Hp], unit=:ħ)
 
 tf = 20
-ρ0 = (σi+σx)⊗(σi+σx)/4
-coupling = ConstantCouplings([σz⊗σi, σi⊗σz], unit=:ħ)
+ρ0 = (σi + σx) ⊗ (σi + σx) / 4
+coupling = ConstantCouplings([σz ⊗ σi, σi ⊗ σz], unit=:ħ)
 annealing = Annealing(H, ρ0, bath=bath, coupling=coupling)
 
-U = solve_unitary(annealing, tf, alg = Tsit5(), abstol=1e-7, reltol=1e-7)
+U = solve_unitary(annealing, tf, alg=Tsit5(), abstol=1e-7, reltol=1e-7)
 
-redfield_sol = solve_redfield(annealing, tf, U, alg = Tsit5(), abstol=1e-7, reltol=1e-7, callback=PositivityCheckCallback())
+redfield_sol = solve_redfield(annealing, tf, U, alg=Tsit5(), abstol=1e-7, reltol=1e-7, callback=PositivityCheckCallback())
 
 @test redfield_sol.t[end] ≈ 3.45278167 atol = 1e-5 rtol = 1e-5
