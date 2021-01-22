@@ -49,7 +49,7 @@ function InstPulseCallback(tstops, pulse_update)
     PresetTimeCallback(tstops, affect!, initialize=initialize)
 end
 
-function FluctuatorCallback(F::OpenQuantumBase.FluctuatorLiouvillian, initialize)
+function FluctuatorCallback(F::OpenQuantumBase.FluctuatorLiouvillian, initialize, save_positions)
     time_choice = function (integrator)
         next_t = integrator.t + F.next_τ
         if next_t > integrator.sol.prob.tspan[2]
@@ -74,11 +74,11 @@ function FluctuatorCallback(F::OpenQuantumBase.FluctuatorLiouvillian, initialize
         time_choice,
         affect!,
         initialize=initialize_fluc,
-        save_positions=(false, false),
+        save_positions=save_positions,
     )
 end
 
-function LindbladJumpCallback()
+function LindbladJumpCallback(save_positions)
     r = Ref{Float64}(rand(Float64))
     condition = function (u, t, integrator)
         real(u' * u) - r[]
@@ -103,7 +103,7 @@ function LindbladJumpCallback()
         u_modified!(integrator, false)
     end
 
-    ContinuousCallback(condition, affect!, save_positions=(true, true), initialize=initialize)
+    ContinuousCallback(condition, affect!, save_positions=save_positions, initialize=initialize)
 end
 
 """

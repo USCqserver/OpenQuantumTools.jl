@@ -12,8 +12,9 @@ prob = build_ensembles(annealing, tf, :stochastic)
 Random.seed!(1234)
 sol1 = solve(prob, Tsit5(), EnsembleSerial(), trajectories=1, save_everystep=false)
 
+prob2 = build_ensembles(annealing, tf, :stochastic, save_positions=(true, true))
 Random.seed!(1234)
-sol2 = solve(prob, Tsit5(), EnsembleSerial(), trajectories=1, save_everystep=false)
+sol2 = solve(prob2, Tsit5(), EnsembleSerial(), trajectories=1, save_everystep=false)
 
 @test sol1[1][end] ≈ sol2[1][end] atol = 1e-6 rtol = 1e-6
 
