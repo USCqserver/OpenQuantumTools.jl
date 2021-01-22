@@ -20,7 +20,7 @@ sol = solve_redfield(annealing, tf, InplaceUnitary(U), vectorize=true,
     alg=TRBDF2(), reltol=1e-6)
 @test sol(10)[2] ≈ exp(-4 * γ) * 0.5 atol = 1e-5 rtol = 1e-5
 
-# test for infused stochastic and Redfield equation
+# test for hybrid spin-fluctuator and Redfield equation
 fbath = EnsembleFluctuator([0.1], [1.0])
 interactions = InteractionSet(Interaction(coupling, bath), Interaction(coupling, fbath))
 annealing = Annealing(H, u0; interactions=interactions)
