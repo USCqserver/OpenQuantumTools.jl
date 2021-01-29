@@ -111,6 +111,6 @@ annealing = Annealing(H, ρ0, bath=bath, coupling=coupling)
 
 U = solve_unitary(annealing, tf, alg=Tsit5(), abstol=1e-7, reltol=1e-7)
 
-redfield_sol = solve_redfield(annealing, tf, U, alg=Tsit5(), abstol=1e-4, reltol=1e-4, int_atol=1e-3, int_rtol=1e-3, callback=PositivityCheckCallback())
+redfield_sol = solve_redfield(annealing, tf, U, alg=Tsit5(), reltol=1e-4, int_rtol=1e-4, dt = 0.1, callback=PositivityCheckCallback())
 
 @test redfield_sol.t[end] ≈ 3.4 rtol = 1e-1
