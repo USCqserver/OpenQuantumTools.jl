@@ -17,7 +17,8 @@ matrix_decompose(mat::AbstractMatrix, basis::Vector{<:AbstractMatrix})
 ```@docs
 q_translate(h::String; sp = false)
 q_translate_state(h::String; normal=false)
-single_clause(ops, q_ind, weight, num_qubit; sp=false)
+single_clause(ops::Vector{String}, q_ind, weight, num_qubit; sp=false)
+single_clause(ops::Vector{T}, q_ind, weight, num_qubit; sp=false) where T<:AbstractMatrix
 standard_driver(num_qubit; sp = false)
 local_field_term(h, idx, num_qubit; sp=false)
 two_local_term(j, idx, num_qubit; sp=false)
