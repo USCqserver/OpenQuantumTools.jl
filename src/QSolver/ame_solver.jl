@@ -10,7 +10,7 @@ Solve the adiabatic master equation defined by `A` for a total evolution time `t
 - `tspan = (0, tf)`: time interval to solve the dynamics.
 - `ω_hint=[]`: specify a grid to precompute the ``S`` function in the Lamb shift term. Skip the precomputation if empty.
 - `lambshift::Bool=true`: whether to include the Lamb shift in the simulation.
-- `lambshift_S=nothing`: provide a custom routine to calculate the `S` function in the Lamb shift term. 
+- `lambshift_S=nothing`: provide a custom routine to calculate the `S` function in the Lamb shift term. This overrides the argument `lambshift`.
 - `lvl::Int=size(A.H, 1)`: number of levels to keep. The higher levels are ignored to speed up the computation.
 - `vectorize::Bool = false`: whether to vectorize the density matrix.
 - `one_sided=false`: whether to solve the one-sided AME.
