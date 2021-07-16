@@ -5,7 +5,7 @@
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://uscqserver.github.io/OpenQuantumTools.jl/dev/)
 [![codecov](https://codecov.io/gh/USCqserver/OpenQuantumTools.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/USCqserver/OpenQuantumTools.jl)
 
-The official name of this package is "Hamiltonian Open Quantum System Toolkit" (HOQST). To conform with the Julia package name [guidelines](https://julialang.github.io/Pkg.jl/v1/creating-packages/) the code name of the package is `OpenQuantumTools`. It is a Julia toolkit for simulating the open quantum system dynamics. The package is still under heavy development, and changes in the interface(s) are more than likely to happen. Detailed documentation can be found [here](https://uscqserver.github.io/OpenQuantumTools.jl/dev/). Any pull requests are welcome.
+The official name of this package is "Hamiltonian Open Quantum System Toolkit" (HOQST). To conform with the Julia package name [guidelines](https://julialang.github.io/Pkg.jl/v1/creating-packages/) the code name of the package is `OpenQuantumTools`. It is a Julia toolkit for simulating the open quantum system dynamics. The package is still under heavy development, but the current APIs are stable. Therefore, future changes in the interface(s) will mostly be adding new APIs for new features. Detailed documentation can be found [here](https://uscqserver.github.io/OpenQuantumTools.jl/dev/). Any pull requests are welcome.
 
 ## Installation
 
@@ -40,4 +40,4 @@ This software is developed as part of academic research. If you use `OpenQuantum
 
 
 ## Acknowledgment
-The author thanks Grace Chen for the HOQST logo design.
+The authors thank Grace Chen for the HOQST logo design. The authors thank Grace Chen for the HOQST logo design. The authors also thank Ka-Wa Yip for providing his data and MATLAB program on 1/f noise simulation. You can find it in this [repo](https://github.com/USCqserver/1fnoise).
