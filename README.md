@@ -40,4 +40,4 @@ This software is developed as part of academic research. If you use `OpenQuantum
 
 
 ## Acknowledgment
-The authors thank Grace Chen for the HOQST logo design. The authors thank Grace Chen for the HOQST logo design. The authors also thank Ka-Wa Yip for providing his data and MATLAB program on 1/f noise simulation. You can find it in this [repo](https://github.com/USCqserver/1fnoise).
+The authors thank Grace Chen for the HOQST logo design. The authors also thank Ka-Wa Yip for providing his data and MATLAB program on 1/f noise simulation for cross-checking. You can find them in this [repo](https://github.com/USCqserver/1fnoise).
