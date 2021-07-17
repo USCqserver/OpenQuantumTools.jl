@@ -82,7 +82,7 @@ julia> collective_operator("z", 3) == σz⊗σi⊗σi + σi⊗σz⊗σi + σi⊗
 true
 ```
 
-* [`single_clause`] builds a single-clause term:
+* [`single_clause`](@ref) builds a single-clause term:
 ```julia-repl
 julia> single_clause(["z","z"], [2,3], -2, 4) == -2σi⊗σz⊗σz⊗σi
 true
