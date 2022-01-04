@@ -10,7 +10,8 @@ check_positivity(m::AbstractMatrix)
 check_unitary(𝐔::AbstractMatrix; rtol = 1e-6, atol = 1e-8)
 check_density_matrix(ρ; atol::Real=0, rtol::Real=atol>0 ? 0 : √eps())
 fidelity(ρ, σ)
-partial_trace(ρ::Matrix, qubit_2_keep)
+partial_trace(ρ::Matrix, qubit_2_keep::AbstractVector{Int})
+partial_trace(ρ::Matrix, sys_dim::AbstractVector{Int}, dim_2_keep::AbstractVector{Int})
 matrix_decompose(mat::AbstractMatrix, basis::Vector{<:AbstractMatrix})
 ```
 ## Construction utilities
