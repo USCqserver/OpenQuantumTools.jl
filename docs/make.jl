@@ -18,7 +18,8 @@ makedocs(
             "Coupling" => "basics/couplings.md",
             "Bath" => "basics/bath.md",
             "Annealing" => "basics/annealing.md",
-            "Solver" => "basics/solver.md"
+            "Solver" => "basics/solver.md",
+            "Parallel" => "basics/hpc.md"
         ],
         "Library" => Any[
             "Hamiltonian" => "lib/hamiltonian.md",
