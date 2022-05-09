@@ -34,7 +34,7 @@ Tutorials and examples can be found in [HOQSTTutorials.jl](https://github.com/US
 
 The corresponding paper for `OpenQuantumTools` is
 
-[[1] H. Chen and D. A. Lidar, HOQST: Hamiltonian Open Quantum System Toolkit, ArXiv:2011.14046 [Quant-Ph] (2020)](https://arxiv.org/abs/2011.14046)
+[Chen, H., Lidar, D.A. Hamiltonian open quantum system toolkit. Commun Phys 5, 112 (2022)](https://doi.org/10.1038/s42005-022-00887-2)
 
 This software is developed as part of academic research. If you use `OpenQuantumTools` as part of your research, teaching, or other activities, we would be grateful if you could cite our work.
 
