@@ -16,7 +16,7 @@ Pkg.add("OpenQuantumTools")
 ```
 Alternatively, this can also be done in Julia's [Pkg REPL](https://julialang.github.io/Pkg.jl/v1/getting-started/):
 ```julia-REPL
-(1.5) pkg> add OpenQuantumTools
+(@v1.7) pkg> add OpenQuantumTools
 ```
 `OpenQuantumTools` requires Julia 1.4 or higher. Installing it on an older version of Julia will result in an unsatisfiable requirements error.
 
@@ -30,11 +30,14 @@ Even though `OpenQuantumTools.jl` can function without `DifferentialEquations.jl
 ## Tutorials
 Tutorials and examples can be found in [HOQSTTutorials.jl](https://github.com/USCqserver/HOQSTTutorials.jl).
 
+## Developers
+`HOQST` has a component package [OpenQuantumBase.jl](https://github.com/USCqserver/OpenQuantumBase.jl). It holds the common types and utility functions in order to reduce the size of dependencies.
+
 ## Citing
 
 The corresponding paper for `OpenQuantumTools` is
 
-[[1] H. Chen and D. A. Lidar, HOQST: Hamiltonian Open Quantum System Toolkit, ArXiv:2011.14046 [Quant-Ph] (2020)](https://arxiv.org/abs/2011.14046)
+[Chen, H., Lidar, D.A. Hamiltonian open quantum system toolkit. Commun Phys 5, 112 (2022)](https://doi.org/10.1038/s42005-022-00887-2)
 
 This software is developed as part of academic research. If you use `OpenQuantumTools` as part of your research, teaching, or other activities, we would be grateful if you could cite our work.
 
