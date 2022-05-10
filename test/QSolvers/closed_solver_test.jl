@@ -74,14 +74,14 @@ sol = solve_schrodinger(annealing, tf, alg = Tsit5(), retol=1e-4)
 @test sol(1.0) ≈ U * u0 atol = 1e-4 rtol = 1e-4
 sol = solve_schrodinger(annealing, tf, alg = Exprb32(), retol=1e-4)
 @test sol(1.0) ≈ U * u0 atol = 1e-4 rtol = 1e-4
-sol = solve_schrodinger(
+@test_broken solve_schrodinger(
     annealing,
     tf,
     alg = TRBDF2(),
     abstol = 1e-8,
     reltol = 1e-8,
 )
-@test_broken sol(1.0) ≈ U * u0 atol = 1e-4 rtol = 1e-4 # TRBDF2() cannot correctly start
+#@test_broken sol(1.0) ≈ U * u0 atol = 1e-4 rtol = 1e-4 # TRBDF2() cannot correctly start
 sol = solve_unitary(annealing, tf, alg = Tsit5(), retol=1e-4)
 @test sol(tf) ≈ U atol = 1e-4 rtol = 1e-4
 sol = solve_von_neumann(annealing, tf, alg = Tsit5(), retol=1e-4)
