@@ -24,7 +24,8 @@ function solve_schrodinger(A::Annealing, tf::Real; tspan = (0, tf), kwargs...)
     ff = ODEFunction(diff_op, jac_prototype = jac_op)
 
     prob = ODEProblem{true}(ff, u0, float.(tspan), p)
-    solve(prob, alg_hints = [:nonstiff]; filter_args_solve(kwargs)...)
+    alg_keyword_warning(;kwargs...)
+    solve(prob; kwargs...)
 end
 
 """
@@ -71,7 +72,8 @@ function solve_unitary(
     ff = ODEFunction(diff_op, jac_prototype = jac_op)
 
     prob = ODEProblem{true}(ff, u0, float.(tspan), p)
-    solve(prob, alg_hints = [:nonstiff]; filter_args_solve(kwargs)...)
+    alg_keyword_warning(;kwargs...)
+    solve(prob; kwargs...)
 end
 
 """
@@ -126,5 +128,5 @@ function solve_von_neumann(
 
     p = ODEParams(A.H, float(tf), A.annealing_parameter)
     prob = ODEProblem{true}(ff, u0, float.(tspan), p)
-    solve(prob, alg_hints = [:nonstiff]; filter_args_solve(kwargs)...)
+    solve(prob; kwargs...)
 end

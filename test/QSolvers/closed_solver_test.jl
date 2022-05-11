@@ -7,6 +7,7 @@ annealing = Annealing(H, u0)
 tf = π
 U = exp(1.0im * tf * σz)
 sol = solve_schrodinger(annealing, tf, alg = Tsit5(), reltol = 1e-4)
+@test_throws DiffEqBase.NoDefaultAlgorithmError solve_schrodinger(annealing, tf, reltol = 1e-4)
 @test sol(tf) ≈ U * u0 atol = 1e-4 rtol = 1e-4
 sol = solve_schrodinger(annealing, tf, alg = Exprb32(), reltol = 1e-4)
 @test sol(tf) ≈ U * u0 atol = 1e-4 rtol = 1e-4
@@ -55,11 +56,11 @@ sol = solve_schrodinger(
     reltol = 1e-4,
 )
 @test sol.u[end] ≈ u0 atol = 1e-4 rtol = 1e-4
-sol = solve_unitary(annealing, tf, alg = Tsit5(), callback = cb, retol = 1e-4)
+sol = solve_unitary(annealing, tf, alg = Tsit5(), callback = cb, reltol = 1e-4)
 @test sol(tf) ≈ σx atol = 1e-4 rtol = 1e-4
 cb = InstPulseCallback([0.5 * tf], (c, i) -> c .= σx * c * σx)
 sol =
-    solve_von_neumann(annealing, tf, alg = Tsit5(), callback = cb, retol = 1e-4)
+    solve_von_neumann(annealing, tf, alg = Tsit5(), callback = cb, reltol = 1e-4)
 @test sol(tf) ≈ u0 * u0' rtol = 1e-4 atol = 1e-4
 
 # test for SparseHamiltonian
@@ -70,9 +71,9 @@ annealing = Annealing(H, u0)
 
 tf = 1.0
 U = exp(1.0im * tf * Array(Hp))
-sol = solve_schrodinger(annealing, tf, alg = Tsit5(), retol=1e-4)
+sol = solve_schrodinger(annealing, tf, alg = Tsit5(), reltol=1e-4)
 @test sol(1.0) ≈ U * u0 atol = 1e-4 rtol = 1e-4
-sol = solve_schrodinger(annealing, tf, alg = Exprb32(), retol=1e-4)
+sol = solve_schrodinger(annealing, tf, alg = Exprb32(), reltol=1e-4)
 @test sol(1.0) ≈ U * u0 atol = 1e-4 rtol = 1e-4
 @test_broken solve_schrodinger(
     annealing,
@@ -82,9 +83,9 @@ sol = solve_schrodinger(annealing, tf, alg = Exprb32(), retol=1e-4)
     reltol = 1e-8,
 )
 #@test_broken sol(1.0) ≈ U * u0 atol = 1e-4 rtol = 1e-4 # TRBDF2() cannot correctly start
-sol = solve_unitary(annealing, tf, alg = Tsit5(), retol=1e-4)
+sol = solve_unitary(annealing, tf, alg = Tsit5(), reltol=1e-4)
 @test sol(tf) ≈ U atol = 1e-4 rtol = 1e-4
-sol = solve_von_neumann(annealing, tf, alg = Tsit5(), retol=1e-4)
+sol = solve_von_neumann(annealing, tf, alg = Tsit5(), reltol=1e-4)
 @test sol(tf) ≈ U * u0 * u0' * U' atol = 1e-4 rtol = 1e-4
 sol = solve_von_neumann(annealing, tf, alg = MagnusGauss4(), vectorize=true, dt=1/50)
 @test sol[end] ≈ (U * u0 * u0' * U')[:] atol = 1e-4 rtol = 1e-4
