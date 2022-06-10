@@ -16,7 +16,7 @@ SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 [compat]
 DiffEqBase = "6.0.0"
 DiffEqCallbacks = "2.0.0"
-DocStringExtensions = "0.7, 0.8"
+DocStringExtensions = "0.7, 0.8, 0.9"
 OpenQuantumBase = "0.6.4"
 RecipesBase = "1.0.0"
 Reexport = "0.2.0, 1.0"
