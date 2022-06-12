@@ -31,7 +31,7 @@ function solve_ame(
     one_sided::Bool=false,
     digits::Int=8,
     sigdigits::Int=8,
-    kwargs...,
+    kwargs...
 )
     u0 = build_u0(A.u0, :m, vectorize=vectorize)
     if one_sided == false
@@ -60,13 +60,15 @@ function build_ensemble_ame(
     lvl::Int=size(A.H, 1),
     initializer=initializer,
     save_positions=(false, false),
-    kwargs...,
+    digits::Int=8,
+    sigdigits::Int=8,
+    kwargs...
 )
     u0 = build_u0(A.u0, :v)
 
     flist = OpenQuantumBase.fluctuator_from_interactions(A.interactions)
     dlist = OpenQuantumBase.davies_from_interactions(A.interactions, ω_hint, lambshift, lambshift_S)
-    L = DiffEqLiouvillian(A.H, dlist, flist, lvl)
+    L = DiffEqLiouvillian(A.H, dlist, flist, lvl, digits=digits, sigdigits=sigdigits)
     cb = build_jump_callback(dlist, flist, initializer, save_positions)
     p = ODEParams(L, tf, A.annealing_parameter)
     update_func = function (cache, u, p, t)
