@@ -71,17 +71,17 @@ w, v = eigen_decomp(H, 0.5, lvl=2)
 ```
 calculates the lowest two energy eigenvalues and eigenvectors of `H` at ``s=0.5``. `w` is returned in the unit of `GHz`, and each column in `v` corresponds to one eigenvector.
 
-In addition, a user-defined eigendecomposition function can be attached to the `AbstractHamiltonian` object if there is a better eigendecomposition algorithm than the default `LAPACK` routine. The following code
+In addition, a user-defined eigendecomposition function can be attached to any subtype of `AbstractHamiltonian` if there is a better eigendecomposition algorithm than the default `LAPACK` routine by defining a `haml_eigs` function for it. The following code
 ```julia
-function build_user_eigen(u_cache)
-    EIGS = function(H, t, lvl)
+import OpenQuantumTools: haml_eigs
+
+function haml_eigs(H::DenseHamiltonian, t, lvl)
         println("I am the user defined eigendecomposition routine.")
         w, v = eigen(Hermitian(H(t)))
         w[1:lvl], v[:, 1:lvl]
-    end
 end
 
-H = DenseHamiltonian([(s)->1-s, (s)->s], [σx, σz], EIGS=build_user_eigen)
+H = DenseHamiltonian([(s)->1-s, (s)->s], [σx, σz])
 eigen_decomp(H, 0.5, lvl=2)
 ```
 is a trivial example of replacing the default eigendecomposition routine with a user-defined one. More details can be found in the [tutorial](https://uscqserver.github.io/HOQSTTutorials.jl/html/hamiltonian/01-custom_eigen.html).
@@ -89,9 +89,35 @@ is a trivial example of replacing the default eigendecomposition routine with a 
 ## Plotting
 `OpenQuantumTools` also interacts with [Plots.jl](https://github.com/JuliaPlots/Plots.jl) and provides convenient ways to visualize the spectrum of any given Hamiltonian. For example
 ```julia
+#]add Plots # You need to install Plots.jl before your first time using it!
 using Plots
+#plotly() # You can optionally choose a plotting backend
 plot(H, 0:0.01:1, 2)
 ```
 will produce the following figure. The second argument `0:0.01:1` is the `x_axis` values, and the third argument `2` is the number of levels to plot. The third argument can also be a list of levels to plot.
 
 ![plot_hamiltonian_example](../assets/plot_hamiltonian_example.png)
+
+Behind the scenes, the `plot` function uses the `eigen_decomp` to calculate the Hamiltonian spectrum up to `lvl` for each `s` points and collect the results for plotting.
+```julia
+s_list = 0:0.01:1
+y = []
+for s in s_list
+    w, _ = eigen_decomp(H, s; lvl=2)
+    push!(y, w)
+end
+y = hcat(y...)'
+plot(s_list, y)
+```
+
+## Formal Properties of AbstractHamiltonian
+These are the formal properties that an `AbstractHamiltonian` should obey for it to work in the solvers:
+
+1. Function call `H(s)` to return a numerical value of ``H(s) / \hbar``.
+2. `size(H)` and `size(H, dim)` functions to return the size of the Hamiltonian. Fallback to `size(H)=H.size` and `size(H, dim)=H.size[dim]`.
+3. 'get_cache(H)' to return a pre-located cache space to store `-1.0im*H(s)`. The cache space will be used by the ODE solver. Fallback to `H.u_cache`.
+4. Optional: In-place function call `H(du, u ,p, s)` to reset the cache `du` to `-1.0im*(H(s)*u - u*H(s))`.
+5. Optional: In-place functions `update_cache!(cache, H, p, s)` and `update_vectorized_cache!(cache, H, p, s)` to update an internal cache w.r.t. `-1.0im*H(s)` and `-1.0im*(I⊗H(s) - transpose(H(s))⊗I)`.
+6. Optional: `haml_eigs(H, t, lvl)` to return the lowest `lvl` eigenvalues and eigenvectors. The return values should have the same format as the `eigen` function in the standard library.
+
+The optional properties have their default fallbacks using `H(s)` call. However, implementing an optimized routine would greatly speedup the calculation.

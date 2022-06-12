@@ -9,11 +9,13 @@ Solve the adiabatic master equation defined by `A` for a total evolution time `t
 - `tf::Real`: the total annealing time.
 - `tspan = (0, tf)`: time interval to solve the dynamics.
 - `ω_hint=[]`: specify a grid to precompute the ``S`` function in the Lamb shift term. Skip the precomputation if empty.
+- `digits::Int=8: the number of digits to keep when checking if a gap is zero.`
+- `sigdigits::Int=8: the number of significant digits when rounding non-zero gaps for comparison.`
 - `lambshift::Bool=true`: whether to include the Lamb shift in the simulation.
 - `lambshift_S=nothing`: provide a custom routine to calculate the `S` function in the Lamb shift term. This overrides the argument `lambshift`.
 - `lvl::Int=size(A.H, 1)`: number of levels to keep. The higher levels are ignored to speed up the computation.
 - `vectorize::Bool = false`: whether to vectorize the density matrix.
-- `one_sided=false`: whether to solve the one-sided AME.
+- `one_sided::Bool=false`: whether to solve the one-sided AME.
 - `kwargs` : other keyword arguments supported by `DifferentialEquations`.
 ...
 """
@@ -26,8 +28,10 @@ function solve_ame(
     lambshift_S=nothing,
     lvl::Int=size(A.H, 1),
     vectorize::Bool=false,
-    one_sided=false,
-    kwargs...,
+    one_sided::Bool=false,
+    digits::Int=8,
+    sigdigits::Int=8,
+    kwargs...
 )
     u0 = build_u0(A.u0, :m, vectorize=vectorize)
     if one_sided == false
@@ -38,7 +42,7 @@ function solve_ame(
     if vectorize
         error("Vectorization is not yet supported for adiabatic master equation.")
     end
-    f = DiffEqLiouvillian(A.H, L, [], lvl)
+    f = DiffEqLiouvillian(A.H, L, [], lvl, digits=digits, sigdigits=sigdigits)
     p = ODEParams(f, float(tf), A.annealing_parameter)
     prob = ODEProblem(f, u0, tspan, p)
     solve(prob; alg_hints=[:nonstiff], kwargs...)
@@ -56,13 +60,15 @@ function build_ensemble_ame(
     lvl::Int=size(A.H, 1),
     initializer=initializer,
     save_positions=(false, false),
-    kwargs...,
+    digits::Int=8,
+    sigdigits::Int=8,
+    kwargs...
 )
     u0 = build_u0(A.u0, :v)
 
     flist = OpenQuantumBase.fluctuator_from_interactions(A.interactions)
     dlist = OpenQuantumBase.davies_from_interactions(A.interactions, ω_hint, lambshift, lambshift_S)
-    L = DiffEqLiouvillian(A.H, dlist, flist, lvl)
+    L = DiffEqLiouvillian(A.H, dlist, flist, lvl, digits=digits, sigdigits=sigdigits)
     cb = build_jump_callback(dlist, flist, initializer, save_positions)
     p = ODEParams(L, tf, A.annealing_parameter)
     update_func = function (cache, u, p, t)
