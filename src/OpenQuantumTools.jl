@@ -4,7 +4,7 @@ using DocStringExtensions
 using Reexport
 using RecipesBase
 
-import DiffEqBase:
+import SciMLBase:
     ODEProblem,
     EnsembleProblem,
     ODEFunction,
