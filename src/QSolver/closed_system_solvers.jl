@@ -97,6 +97,12 @@ function solve_von_neumann(
     vectorize::Bool = false,
     kwargs...,
 )
+    if ndims(A.u0) == 1
+        @warn "The initial state is a pure state. It is more efficient to use the Schrodinger equation solver."
+    elseif check_pure_state(A.u0)
+        @warn "The initial state is close to a pure state. It may be more efficient to use the Schrodinger equation solver."
+    end
+
     u0 = build_u0(A.u0, :m, vectorize = vectorize)
     von_f = function (du, u, p, t)
         p.L(du, u, p, p(t))
