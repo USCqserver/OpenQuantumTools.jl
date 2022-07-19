@@ -1,7 +1,7 @@
 name = "OpenQuantumTools"
 uuid = "e429f160-8886-11e9-20cb-0dbe84e78965"
 authors = ["Huo Chen <neversakura@hotmail.com>"]
-version = "0.7.1"
+version = "0.7.2"
 
 [deps]
 DiffEqCallbacks = "459566f4-90b8-5000-8ac3-15dfb0a30def"
