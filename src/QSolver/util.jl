@@ -24,14 +24,7 @@ function build_u0(raw_u0, type; vectorize::Bool = false)
     res
 end
 
-function vectorize_cache(cache)
-    # use StaticArray if the dimension is less than 3
-    if size(cache, 1) <= 3
-        OpenQuantumBase.@MMatrix zeros(eltype(cache), size(cache, 1)^2, size(cache, 2)^2)
-    else
-        one(cache) ⊗ cache
-    end
-end
+vectorize_cache(cache) = one(cache) ⊗ cache
 
 const alg_keyword_msg = 
 """
