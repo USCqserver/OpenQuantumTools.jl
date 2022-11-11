@@ -124,20 +124,21 @@ function solve_ame(
 )
     # rotate the system into the eigen state of the Hamiltonian
     w, v = eigen_decomp(A.H, lvl=lvl)
-    H = Hamiltonian(sparse(Diagonal(w)))
+    H = w |> Diagonal |> sparse |> Hamiltonian
     inters = rotate(A.interactions, v)
-
+    # build gaps for AME
     gap_idx = OpenQuantumBase.build_gap_indices(w, digits, sigdigits, cutoff, lvl)
+    # prepare for the initial state
     u0 = build_u0(A.u0, :m, vectorize=vectorize)
     if one_sided == false
-        L = OpenQuantumBase.davies_from_interactions(gap_idx, A.interactions, ω_hint, lambshift, lambshift_kwargs)
+        L = OpenQuantumBase.davies_from_interactions(gap_idx, inters, ω_hint, lambshift, lambshift_kwargs)
     else
         throw(ArgumentError("One-sided AME not supported for constant Hamiltonian type."))
     end
     if vectorize
         throw(ArgumentError("Vectorization is not yet supported for adiabatic master equation."))
     end
-    f = DiffEqLiouvillian(A.H, L, [], lvl, digits=digits, sigdigits=sigdigits)
+    f = DiffEqLiouvillian(A.H, [], L, lvl, digits=digits, sigdigits=sigdigits)
     p = ODEParams(f, float(tf), A.annealing_parameter)
     prob = ODEProblem(f, u0, tspan, p)
     solve(prob; alg_hints=[:nonstiff], kwargs...)
