@@ -113,7 +113,7 @@ function solve_ame(
     tspan=(0.0, tf),
     ω_hint=[],
     lambshift::Bool=true,
-    lambshift_kwargs=nothing,
+    lambshift_kwargs=Dict(),
     lvl::Int=size(A.H, 1),
     vectorize::Bool=false,
     one_sided::Bool=false,
@@ -130,6 +130,8 @@ function solve_ame(
     gap_idx = OpenQuantumBase.build_gap_indices(w, digits, sigdigits, cutoff, lvl)
     # prepare for the initial state
     u0 = build_u0(A.u0, :m, vectorize=vectorize)
+    u0 = v' * u0 * v
+
     if one_sided == false
         L = OpenQuantumBase.davies_from_interactions(gap_idx, inters, ω_hint, lambshift, lambshift_kwargs)
     else
@@ -138,7 +140,7 @@ function solve_ame(
     if vectorize
         throw(ArgumentError("Vectorization is not yet supported for adiabatic master equation."))
     end
-    f = DiffEqLiouvillian(A.H, [], L, lvl, digits=digits, sigdigits=sigdigits)
+    f = OpenQuantumBase.build_diffeq_liouvillian(H, [], L, lvl, digits=digits, sigdigits=sigdigits)
     p = ODEParams(f, float(tf), A.annealing_parameter)
     prob = ODEProblem(f, u0, tspan, p)
     solve(prob; alg_hints=[:nonstiff], kwargs...)
