@@ -49,14 +49,14 @@ function solve_ame(
 end
 
 function build_ensemble_ame(
-    A::Annealing,
+    A::Annealing{false},
     tf::Real,
     output_func,
     reduction;
     tspan=(0.0, tf),
     ω_hint=[],
     lambshift::Bool=true,
-    lambshift_kwargs=nothing,
+    lambshift_kwargs=Dict(),
     lvl::Int=size(A.H, 1),
     initializer=initializer,
     save_positions=(false, false),
@@ -144,4 +144,55 @@ function solve_ame(
     p = ODEParams(f, float(tf), A.annealing_parameter)
     prob = ODEProblem(f, u0, tspan, p)
     solve(prob; alg_hints=[:nonstiff], kwargs...)
+end
+
+function build_ensemble_ame(
+    A::Annealing{true},
+    tf::Real,
+    output_func,
+    reduction;
+    tspan=(0.0, tf),
+    ω_hint=[],
+    lambshift::Bool=true,
+    lambshift_kwargs=Dict(),
+    lvl::Int=size(A.H, 1),
+    initializer=initializer,
+    save_positions=(false, false),
+    digits::Int=8,
+    sigdigits::Int=8,
+    cutoff::Real=Inf,
+    kwargs...
+)
+    # rotate the system into the eigen state of the Hamiltonian
+    w, v = eigen_decomp(A.H, lvl=lvl)
+    H = w |> Diagonal |> sparse |> Hamiltonian
+    inters = rotate(A.interactions, v)
+    # build gaps for AME
+    gap_idx = OpenQuantumBase.build_gap_indices(w, digits, sigdigits, cutoff, lvl)
+    # prepare for the initial state
+    u0 = build_u0(A.u0, :v)
+    u0 = v' * u0
+
+    flist = OpenQuantumBase.fluctuator_from_interactions(A.interactions)
+    dlist = OpenQuantumBase.davies_from_interactions(gap_idx, inters, ω_hint, lambshift, lambshift_kwargs)
+    L = OpenQuantumBase.build_diffeq_liouvillian(H, [], [dlist; flist], lvl, digits=digits, sigdigits=sigdigits)
+    cb = build_jump_callback(dlist, flist, initializer, save_positions)
+    p = ODEParams(L, tf, A.annealing_parameter)
+    update_func = function (cache, u, p, t)
+        update_cache!(cache, p.L, p, t)
+    end
+    cache = get_cache(A.H)
+    diff_op = DiffEqArrayOperator(cache, update_func=update_func)
+    jac_cache = similar(cache)
+    jac_op = DiffEqArrayOperator(jac_cache, update_func=update_func)
+    ff = ODEFunction(diff_op; jac_prototype=jac_op)
+
+    prob = ODEProblem{true}(ff, u0, tspan, p, callback=cb)
+    ensemble_prob = EnsembleProblem(
+        prob;
+        output_func=output_func,
+        reduction=reduction,
+        kwargs...
+    )
+    ensemble_prob
 end
