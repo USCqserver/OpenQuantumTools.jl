@@ -9,8 +9,8 @@ Solve the adiabatic master equation defined by `A` for a total evolution time `t
 - `tf::Real`: the total annealing time.
 - `tspan = (0, tf)`: time interval to solve the dynamics.
 - `ω_hint=[]`: specify a grid to precompute the ``S`` function in the Lamb shift term. Skip the precomputation if empty.
-- `digits::Int=8: the number of digits to keep when checking if a gap is zero.`
-- `sigdigits::Int=8: the number of significant digits when rounding non-zero gaps for comparison.`
+- `digits::Int=8`: the number of digits to keep when checking if a gap is zero.
+- `sigdigits::Int=8`: the number of significant digits when rounding non-zero gaps for comparison.
 - `lambshift::Bool=true`: whether to include the Lamb shift in the simulation.
 - `lambshift_kwargs=Dict()`: keyword arguments to be supplied to the custom routine to calculate the `S` function in the Lamb shift term.
 - `lvl::Int=size(A.H, 1)`: number of levels to keep. The higher levels are ignored to speed up the computation.
@@ -123,6 +123,7 @@ function solve_ame(
     kwargs...
 )
     # rotate the system into the eigen state of the Hamiltonian
+    @warn "Constant Hamiltonian detected. The results will be rotated to the eigen basis of the Hamiltonian."
     w, v = eigen_decomp(A.H, lvl=lvl)
     H = w |> Diagonal |> sparse |> Hamiltonian
     inters = rotate(A.interactions, v)
@@ -164,6 +165,7 @@ function build_ensemble_ame(
     kwargs...
 )
     # rotate the system into the eigen state of the Hamiltonian
+    @warn "Constant Hamiltonian detected. The results will be rotated to the eigen basis of the Hamiltonian."
     w, v = eigen_decomp(A.H, lvl=lvl)
     H = w |> Diagonal |> sparse |> Hamiltonian
     inters = rotate(A.interactions, v)
