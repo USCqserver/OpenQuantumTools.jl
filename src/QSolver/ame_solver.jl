@@ -128,7 +128,7 @@ function solve_ame(
     H = w |> Diagonal |> sparse |> Hamiltonian
     inters = rotate(A.interactions, v)
     # build gaps for AME
-    gap_idx = OpenQuantumBase.build_gap_indices(w, digits, sigdigits, cutoff, lvl)
+    gap_idx = OpenQuantumBase.build_gap_indices(2*π*w, digits, sigdigits, cutoff, lvl)
     # prepare for the initial state
     u0 = build_u0(A.u0, :m, vectorize=vectorize)
     u0 = v' * u0 * v
@@ -170,7 +170,7 @@ function build_ensemble_ame(
     H = w |> Diagonal |> sparse |> Hamiltonian
     inters = rotate(A.interactions, v)
     # build gaps for AME
-    gap_idx = OpenQuantumBase.build_gap_indices(w, digits, sigdigits, cutoff, lvl)
+    gap_idx = OpenQuantumBase.build_gap_indices(2*π*w, digits, sigdigits, cutoff, lvl)
     # prepare for the initial state
     u0 = build_u0(A.u0, :v)
     u0 = v' * u0
