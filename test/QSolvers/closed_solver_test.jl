@@ -21,7 +21,7 @@ sol = solve_schrodinger(
     abstol = 1e-9,
     reltol = 1e-9,
 )
-@test_broken sol(tf) ≈ U * u0 atol = 1e-4 rtol = 1e-4
+@test sol(tf) ≈ U * u0 atol = 1e-4 rtol = 1e-4
 
 sol = solve_unitary(annealing, tf, alg = Tsit5(), reltol = 1e-4)
 @test sol(tf) ≈ U atol = 1e-4 rtol = 1e-4
@@ -33,7 +33,7 @@ sol = solve_unitary(
     abstol = 1e-9,
     vectorize = true,
 )
-@test_broken sol(tf) ≈ U[:] atol = 1e-4 rtol = 1e-4
+@test sol(tf) ≈ U[:] atol = 1e-4 rtol = 1e-4
 
 @test_logs (:warn, "The initial state is a pure state. It is more efficient to use the Schrodinger equation solver.") solve_von_neumann(annealing, tf, alg = Tsit5(), reltol = 1e-4)
 sol = solve_von_neumann(annealing, tf, alg = Tsit5(), reltol = 1e-4)
