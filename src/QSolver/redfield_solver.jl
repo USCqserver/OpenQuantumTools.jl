@@ -29,7 +29,7 @@ function solve_redfield(
     L = OpenQuantumBase.redfield_from_interactions(A.interactions, unitary, Ta, int_atol, int_rtol)
     R = DiffEqLiouvillian(A.H, [], L, size(A.H, 1))
 
-    update_func = function (A, u, p, t)
+    update_func! = function (A, u, p, t)
         update_vectorized_cache!(A, p.L, p, t)
     end
 
@@ -37,10 +37,9 @@ function solve_redfield(
         ff = ODEFunction{true}(R)
     else
         cache = vectorize_cache(get_cache(A.H))
-        diff_op = DiffEqArrayOperator(cache, update_func=update_func)
+        diff_op = DiffEqArrayOperator(cache, update_func=update_func!)
         jac_cache = similar(cache)
-        jac_op = DiffEqArrayOperator(jac_cache, update_func=update_func)
-        ff = ODEFunction(diff_op, jac_prototype=jac_op)
+        ff = ODEFunction(diff_op, jac = update_func!, jac_prototype=jac_cache)
     end
 
     p = ODEParams(R, float(tf), A.annealing_parameter)

@@ -14,14 +14,13 @@ Solve Schrodinger equation defined by `A` for a total evolution time `tf`.
 function solve_schrodinger(A::Annealing, tf::Real; tspan = (0, tf), kwargs...)
     u0 = build_u0(A.u0, :v)
     p = ODEParams(A.H, float(tf), A.annealing_parameter)
-    update_func = function (C, u, p, t)
+    update_func! = function (C, u, p, t)
         update_cache!(C, p.L, p, p(t))
     end
     cache = get_cache(A.H)
-    diff_op = DiffEqArrayOperator(cache, update_func = update_func)
+    diff_op = DiffEqArrayOperator(cache, update_func = update_func!)
     jac_cache = similar(cache)
-    jac_op = DiffEqArrayOperator(jac_cache, update_func = update_func)
-    ff = ODEFunction(diff_op, jac_prototype = jac_op)
+    ff = ODEFunction(diff_op, jac= update_func!, jac_prototype = jac_cache)
 
     prob = ODEProblem{true}(ff, u0, float.(tspan), p)
     alg_keyword_warning(;kwargs...)
@@ -68,8 +67,7 @@ function solve_unitary(
     end
     j_cache = similar(cache)
     diff_op = DiffEqArrayOperator(cache, update_func = diff_op_update)
-    jac_op = DiffEqArrayOperator(j_cache, update_func = uni_jac)
-    ff = ODEFunction(diff_op, jac_prototype = jac_op)
+    ff = ODEFunction(diff_op, jac = uni_jac, jac_prototype = j_cache)
 
     prob = ODEProblem{true}(ff, u0, float.(tspan), p)
     alg_keyword_warning(;kwargs...)
@@ -118,18 +116,15 @@ function solve_von_neumann(
         ff = ODEFunction{true}(von_f, jac = von_jac)
     else
         cache = vectorize_cache(get_cache(A.H))
+        update_func! = function (A, u, p, t)
+            update_vectorized_cache!(A, p.L, p, p(t))
+        end
         diff_op = DiffEqArrayOperator(
             cache,
-            update_func = (A, u, p, t) ->
-                update_vectorized_cache!(A, p.L, p, p(t)),
+            update_func = update_func! 
         )
         jac_cache = similar(cache)
-        jac_op = DiffEqArrayOperator(
-            jac_cache,
-            update_func = (A, u, p, t) ->
-                update_vectorized_cache!(A, p.L, p, p(t)),
-        )
-        ff = ODEFunction(diff_op, jac_prototype = jac_op)
+        ff = ODEFunction(diff_op, jac = update_func!, jac_prototype = jac_cache)
     end
 
     p = ODEParams(A.H, float(tf), A.annealing_parameter)

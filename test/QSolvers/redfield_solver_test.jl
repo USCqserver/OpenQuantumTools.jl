@@ -18,7 +18,7 @@ f(t) = quadgk(cfun, 0, t)[1]
 
 sol = solve_redfield(annealing, tf, InplaceUnitary(U), vectorize=true,
     alg=TRBDF2(), reltol=1e-6)
-@test_broken sol(10)[2] ≈ exp(-4 * γ) * 0.5 atol = 1e-5 rtol = 1e-5
+@test sol(10)[2] ≈ exp(-4 * γ) * 0.5 atol = 1e-5 rtol = 1e-5
 
 f(s) = σi
 H = hamiltonian_from_function(f)
